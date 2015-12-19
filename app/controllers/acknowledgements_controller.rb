@@ -1,0 +1,2 @@
+class AcknowledgementsController < ApplicationController
+end

@@ -1,0 +1,37 @@
+<b>Demographic profile on the 480 lung adenocarcinoma patients we analyzed.</b>
+<br><br>
+View Chart:
+<select name="chart" onChange="get_data(this.value)">
+	<option value="1">Age</option>
+	<option value="2">Gender</option>
+	<option value="3">Race</option>
+	<option value="4">Ethnicity</option>
+	<option value="5">History Neoadjuvant Treatment</option>
+	<option value="6">Vital Status</option>
+	<option value="7">Last Contact Years To</option>
+	<option value="8">Death Days To</option>
+	<option value="9">History Thyroid Disease</option>
+	<option value="10">Family History Thyroid Cancer</option>
+	<option value="11">History Radiation Exposure</option>
+	<option value="12">Anatomic Subdivision</option>
+	<option value="13">Tumor Focality</option>
+	<option value="14">Tumor Size Length</option>
+	<option value="15">Tumor Size Width</option>
+	<option value="16">Tumor Size Depth</option>
+	<option value="17">Age At Diagnosis</option>
+	<option value="18">Extrathyroidal Extension</option>
+	<option value="19">Ajcc Tumor Pathologic pt</option>
+	<option value="20">Ajcc Nodes Pathologic pn</option>
+	<option value="21">Ajcc Metastasis Pathologic pm</option>
+	<option value="22">Ajcc Pathologic Tumor Stage</option>
+	<option value="23">Braf Mutation Result</option>
+	<option value="24">Ras Mutation Result</option>
+	<option value="25">Ret Ptc Rearrangement Result</option>
+	<option value="26">Radiation Treatment Adjuvant</option>
+	<option value="27">Pharmaceutical tx Adjuvant</option>
+	<option value="28">Clinical Status Within 3 Months of Surgery</option>
+</select>
+<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+<script>
+	get_data(1);
+</script>

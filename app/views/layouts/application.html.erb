@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Omics AnalySIs System for PRecision Oncology (OASISPRO)</title>
+  <%= stylesheet_link_tag    "application", media: "all" %>
+  <%= javascript_include_tag "application" %>
+  <%= csrf_meta_tags %>
+</head>
+<body>
+<div style="position:absolute;top:0px;left:0px;width:100%;background-color:rgba(0,0,255,.05)">
+	<div style="width:1000px;margin: 5px auto;border:3px solid #000;border-radius:5px;padding:10px;background-color:#FFF">
+		<%= image_tag("logo.jpg", width: "80px", height: "80px", style: "position:absolute;z-index:0;") %>
+		<div style="z-index:1;font-size:22pt;font-weight:bold;line-height:24pt;position:relative;left:85px;width:915px">Omics AnalySIs System for PRecision Oncology (OASISPRO): <br><font size="5">A Web-based Omics Analysis Tool for Clinical Phenotype Prediction</font></div>
+		<div style="float:right;">
+			Kun-Hsing Yu, Michael Fitzpatrick, Luke Pappas, Jessica Kung, Michael Snyder
+		</div>
+		<br style="clear:both;">
+		<div class="navbar">
+			<div class="navbar-inner">
+				<ul class="nav">
+					<li<%= ' class=active' if controller.controller_name == 'home' %> ><a href="/home">Home</a></li>
+					<li<%= ' class=active' if controller.controller_name == 'clinical' %> ><a href="/clinical">Data Visualization</a></li>
+					<li<%= ' class=active' if controller.action_name == 'stage' %> ><a href="/analysis/stage">Tumor Stage Analysis</a></li>
+					<li<%= ' class=active' if controller.action_name == 'survival' %> ><a href="/analysis/survival">Survival Analysis</a></li>
+					<li<%= ' class=active' if controller.controller_name == 'results' %> ><a href="/results">Results</a></li>
+					<li<%= ' class=active' if controller.controller_name == 'acknowledgements' %> ><a href="/acknowledgements">Acknowledgements</a></li>
+				</ul>
+			</div>
+		</div>
+
+		<%= yield %>
+	</div>
+</div>
+
+</body>
+</html>

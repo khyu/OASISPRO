@@ -1,0 +1,15 @@
+<h2>Analysis Page</h2>
+
+<h4>Choose the Feature Selection Method</h4>
+
+<form action="/analysis/output" method="POST">
+	<input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>"></input>
+	<input type="radio" name="feature_selection_method" value="male">Information Gain</input>
+	<input type="radio" name="feature_selection_method" value="male">Gain Ratio</input>
+	<input type="radio" name="feature_selection_method" value="male">Symmetrical Uncertainty</input>
+	<input type="radio" name="feature_selection_method" value="male">Chi-Squared Statistics</input>
+
+
+	<!-- ajax to get the appropriate features -->
+	<input type="submit" value="Generate Analysis">
+</form>

@@ -1,0 +1,124 @@
+<script>
+	$(document).on('change', 'input[name="data_source"]:radio', function(){
+		render_list()
+	});
+
+	$(document).on('change', 'input[name="feature_selection_method"]:radio', function(){
+		render_list();
+	});
+
+	function render_list() {
+		var source = $("input[name='data_source']:checked").val();
+		var method = $("input[name='feature_selection_method']:checked").val();
+		
+		if (source == "proteomics") {
+			$("#go_link").hide();
+		}
+		else {
+			$("#go_link").show();
+		}
+		
+		$.get('/analysis/get_features', {source: source, method: method}, function (data) {
+			var features = '';
+			content = '<table style="width:100%;">';
+			for (var d in data) {
+				s = data[d].trim().split("\t");
+				content += '<tr><td><a href="http://www.genecards.org/cgi-bin/carddisp.pl?gene='+s[0]+'" target="_blank">'+s[0]+"</a></td><td>"+s[1]+'</td></tr>';
+				features += s[0]+"\n";
+			}
+			content += '</table>';
+			$("#features").html(content);
+			$("#target_set").val(features);
+		});
+	}
+	
+	function go_analysis() {
+		document.getElementById("go_form").submit();	
+	}
+</script>
+<h2>Tumor Stage Analysis</h2>
+<%= @s %>
+<%= @v %>
+<div style="float:left;width:360px;">
+	<form method="post">
+		<h4>Choose the Data Source</h4>
+		<div class="well">
+			<input type="radio" name="data_source" value="rnaseq" CHECKED><b>Gene Expression (RNA-seq)</b></input>
+			<input type="radio" name="data_source" value="proteomics"><b>Proteomics</b></input>
+		</div>
+		
+		<h4>Choose the Feature Selection Method</h4>
+		<div class="well">
+			<table class="noborder">
+				<tr>
+					<td><input type="radio" name="feature_selection_method" value="ig" CHECKED>Information Gain</input></td>
+					<td><input type="radio" name="feature_selection_method" value="gain">Gain Ratio</input></td>
+				</tr>
+				<tr>
+					<td><input type="radio" name="feature_selection_method" value="su">Symmetrical Uncertainty</input></td>
+					<td><input type="radio" name="feature_selection_method" value="chi">Chi-Squared Statistics</input></td>
+				</tr>
+			</table>
+			<div id="features" style="overflow:auto;height:200px;width:300px;margin-top:5px;border:2px solid #000;"></div>
+			<br><div id="go_link"><input type="button" class="btn" onClick="go_analysis()" value="Run GO analysis on feature set"></div>
+		</div>
+		<div class="well">
+			Use top <input type="text" name="k" value="10" style="width:30px;"> features for building the machine learning models.
+			Click the links to visit the relevant GeneCard page.
+		</div>
+		<input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>"></input>
+		<input type="submit" value="Generate Analysis" name="generate" class="btn btn-primary">
+	</form>
+</div>
+<div style="float:left;width:620px;margin-left:20px;">
+	<% if params[:generate] %>
+		<h2>Results</h2>
+		<div class="well">
+		<a href="/dropbox/analysis/StageOverall/output.png?r=<%= rand(100000) %>" target="_blank">
+			<img src="/dropbox/analysis/StageOverall/output.png?r=<%= rand(100000) %>">
+		</a>
+		</div>
+		<b>Area Under Curve for machine learning models:</b>
+		<div class="well">
+			<table>
+				<tr>
+					<th>Model</th>
+					<th>AUC</th>
+				</tr>
+			<% @area_under_curve.each do |auc| %>
+				<tr>
+					<td><%= auc[1] %></td>
+					<td><%= auc[0].to_f.round(4) %></td>
+				</tr>
+			<% end %>
+			</table>
+		</div>
+		<b>Decision Tree</b>
+		<div class="well">
+			<a href="/dropbox/analysis/StageOverall/decisionTree.png?r=<%= rand(100000) %>" target="_blank">
+				<img src="/dropbox/analysis/StageOverall/decisionTree.png?r=<%= rand(100000) %>">
+			</a>
+		</div>
+	<% end %>
+</div>
+<br style="clear:both;">
+<div style="display:none;">
+	<form id="go_form" method="post" target="_blank" action="http://cbl-gorilla.cs.technion.ac.il/servlet/GOrilla">
+		<input type="hidden" name="application" value="gorilla">
+		<input type="hidden" name="species" value="HOMO_SAPIENS">
+		<input type="hidden" name="run_mode" value="mhg">
+		<input type="hidden" name="target_file_name" value="">
+		<input type="hidden" name="background_set" value="">
+		<input type="hidden" name="background_file_name" value="">
+		<input type="hidden" name="db" value="all">
+		<input type="hidden" name="run_gogo_button" value="Search Enriched GO terms">
+		<input type="hidden" name="pvalue_thresh" value="0.001">
+		<input type="hidden" name="analysis_name" value="">
+		<input type="hidden" name="user_email" value="">
+		<input type="hidden" name="fast_mode" value="on">
+		<textarea id="target_set" name="target_set"></textarea>
+	</form>
+</div>
+<script>
+	render_list();
+</script>

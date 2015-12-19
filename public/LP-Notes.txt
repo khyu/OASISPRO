@@ -1,0 +1,9 @@
+extranodal_involvement : Column is entirely N/A, hence skip for now
+
+clinical_status_within_3_mths_surgery : [Not Available], Persistent locoregional disease, [Unknown], No imaging evidence of disease, Persistent distant metastases
+
+pharmaceutical_tx_adjuvant : [Not Available], YES, NO, [Unknown]
+
+radiation_treatment_adjuvant : [Not Available], YES, NO, [Unknown]
+
+ret_ptc_rearrangement_result : [Not Available], not idnetified, RET/PTC 1 rearrangement  identified, FISH test negative, FISH test results negative, Negative, RET/PTC1, RET/PTC3 and PAX8/PPARg not identified, negative, 

@@ -1,0 +1,47 @@
+<h2>Survival Analysis</h2>
+
+<div style="float:left;width:400px;">
+	<form method="post">
+		<h4>Choose the Data Source</h4>
+		<div class="well">
+			<input type="radio" name="data_source" value="rnaseq" onClick="render_slider(20531)" CHECKED>Gene Expression (RNA-seq)</input>
+			<input type="radio" name="data_source" value="proteomics" onClick="render_slider(259)">Proteomics</input>
+		</div>
+		
+		<h4>Choose the Number of Features to Use<h4>
+		<div class="well">
+			<input id="amount" value="10" name="k" style="width:50px;">
+			<br><br>
+			<div id="slider" style="background-color:rgba(0,0,255,.1);"></div>
+		
+			<input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>"></input>
+		</div>
+		<input type="submit" value="Generate Analysis" name="generate" class="btn btn-primary">
+	</form>
+</div>
+<div style="float:left;width:570px;margin-left:30px;">
+	<% if params[:generate] %>
+		<h2>Results</h2>
+		<div class="well">
+			<a href="/dropbox/analysis/Survival/survivalOutput.png?r=<%= rand(100000) %>" target="_blank">
+				<img src="/dropbox/analysis/Survival/survivalOutput.png?r=<%= rand(100000) %>">
+			</a>
+		</div>
+	<% end %>
+</div>
+<br style="clear:both;">
+<script>
+function render_slider(max) {
+	$(function() {
+		$( "#slider" ).slider({
+			min: 1,
+			max: max,
+			value: 10, 
+			slide: function( event, ui ) {
+				$( "#amount" ).val( ui.value );
+			}
+		});
+	});
+}
+render_slider(20531);
+</script>

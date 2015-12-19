@@ -1,0 +1,60 @@
+<h2>Results</h2>
+<style>
+hr {
+	height: 5px;
+	background-color: rgba(0,0,255,.5);
+}
+</style>
+<h3>Transcriptomics Features Weakly Predicted Tumor Stage</h3>
+<%= image_tag "results1.png" %>
+<hr>
+<h3>Proteomics Features Weakly Predicted Tumor Stage</h3>
+<%= image_tag "results2.png" %>
+<hr>
+<h3>Top GO Terms Associated with Stage</h3>
+<%= image_tag "results3.png" %>
+<hr>
+<h3>Immune Pathways are Associated with Tumor Stage</h3>
+<%= image_tag "results4.png" %>
+<hr>
+<h3>Transcriptomics Features Predicted Survival Outcome</h3>
+<%= image_tag "results5.png" %>
+<hr>
+<h3>Proteomics Features Predicted Survival Outcome</h3>
+<%= image_tag "results6.png" %>
+<hr>
+<h3>Top GO Terms Associated with Survival</h3>
+<%= image_tag "results7.png" %>
+<hr>
+<h3>Metabolic Pathways are Associated with Survival Outcome</h3>
+<%= image_tag "results8.png" %>
+<hr>
+<h3>Discussion</h3>
+<div style="font-size:16pt;">
+<b>Transcriptomics and proteomics features successfully predicted survival outcome</b>
+<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Top pathways: catabolic processes
+<br><br><b>Omics features are not great predictors for tumor stage</b>
+<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Top pathways: immune
+<br><br><b>The data analysis pipeline and interface are extensible to other cancer/clinical outcomes</b>
+</div>
+<hr>
+<h3>Paradigms and Paradigm Shifts</h3>
+<div style="text-align:center;position:relative;">
+	<%= image_tag "orb_arrow1.png", :id => "arrow1", :style => "position:absolute;left:200px;top:35px;display:none;" %>
+	<%= image_tag "result_orbs.png" %>
+	<%= image_tag "orb_arrow2.png", :id => "arrow2", :style => "position:absolute;left:675px;top:181px;display:none;" %>
+</div>
+<br><br><br><br>
+
+<script>
+setInterval(function() {
+	$("#arrow1").fadeIn("slow");
+	setTimeout(function() {
+		$("#arrow2").fadeIn("slow");
+	}, 1000);
+	setTimeout(function() {
+		$("#arrow1").fadeOut("slow");
+		$("#arrow2").fadeOut("slow");
+	}, 3000);
+}, 4000);
+</script>
