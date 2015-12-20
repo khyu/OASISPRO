@@ -1,42 +1,35 @@
 class AnalysisController < ApplicationController
+	require 'site_constants.rb'
+
 	def stage
 		if params[:generate]
-			method = params[:feature_selection_method]
+			validators = {
+				tumor_type: SiteConstants::TUMOR_TYPES.keys.map { |x| x.to_s },
+				data_source: ['rnaseq', 'proteomics'],
+				feature_selection_method: ['ig', 'gain', 'su', 'chi']
+			}
 			k = Integer(params[:k]).to_s
-			
-			if params[:data_source] == 'rnaseq'
-				file = 'runRnaseq.R'
-			else
-				file = 'runProteomics.R'
+
+			@valid_command = true
+			@command = "Rscript binaryClassification.R"
+
+			# Validate and build the command
+			validators.each do |param, possible_values|
+				arg = params[param]
+				if possible_values.include?(arg)
+					@command += " " + arg
+				else
+					@valid_command = false
+					break
+				end
 			end
-			
-			if ['ig', 'gain', 'su', 'chi'].include?(method)
-				system 'Rscript public/dropbox/analysis/StageOverall/'+file+' '+method+' '+k
+
+			if @valid_command
+				system(@command)
 			end
-			
-			@area_under_curve = Array.new
-			f = File.open("public/dropbox/analysis/StageOverall/outputAUC.csv", "r")
-			
-			aoc_labels = [
-				'Recursive Partitioning Trees',
-				'Conditional Inference Trees (CITs)', 
-				'Random Forest with CITs', 
-				'Bagging',
-				'SVMs with Gaussian Kernel',
-				'SVMs with Linear Kernel',
-				'SVMs with Polynomial Kernel',
-				'SVMs with Sigmoid Kernel',
-				'Decision Trees',
-				'Random Forest',
-				'Naive Bayes',
-				'Naive Bayes with Laplace Smoothing'
-			]
-			x = 0
-			f.each_line do |line|
-				@area_under_curve << [line, aoc_labels[x]]
-				x += 1
-			end
-			f.close
+
+			# TBD
+			@area_under_curve = []
 		end
 	end
 
