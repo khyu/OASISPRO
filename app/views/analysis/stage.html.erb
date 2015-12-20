@@ -37,10 +37,16 @@
 	}
 </script>
 <h2>Tumor Stage Analysis</h2>
-<%= @s %>
-<%= @v %>
+<% if @valid_command %>
+	<b>(For testing) Command: <%= @command %></b>
+<% end %>
 <div style="float:left;width:360px;">
 	<form method="post">
+		<h4>Choose the Tumor Type</h4>
+		<div class="well">
+			<%= select_tag "tumor_type", options_for_select(SiteConstants::TUMOR_TYPES.invert) %>
+		</div>
+
 		<h4>Choose the Data Source</h4>
 		<div class="well">
 			<input type="radio" name="data_source" value="rnaseq" CHECKED><b>Gene Expression (RNA-seq)</b></input>
