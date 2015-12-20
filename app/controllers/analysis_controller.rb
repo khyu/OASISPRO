@@ -6,9 +6,9 @@ class AnalysisController < ApplicationController
 			validators = {
 				tumor_type: SiteConstants::TUMOR_TYPES.keys.map { |x| x.to_s },
 				data_source: ['rnaseq', 'proteomics'],
-				feature_selection_method: ['ig', 'gain', 'su', 'chi']
+				feature_selection_method: ['ig', 'gain', 'su', 'chi'],
+				k: 'INTEGER'
 			}
-			k = Integer(params[:k]).to_s
 
 			@valid_command = true
 			@command = "Rscript binaryClassification.R"
@@ -16,8 +16,12 @@ class AnalysisController < ApplicationController
 			# Validate and build the command
 			validators.each do |param, possible_values|
 				arg = params[param]
-				if possible_values.include?(arg)
-					@command += " " + arg
+				arg = Integer(arg) if possible_values == 'INTEGER'
+				arg = Float(arg) if possible_values == 'FLOAT'
+
+				if ((possible_values.class == Array && possible_values.include?(arg)) ||
+					(possible_values.class != Array && arg.is_a?(Numeric)))
+					@command += " #{arg}"
 				else
 					@valid_command = false
 					break
