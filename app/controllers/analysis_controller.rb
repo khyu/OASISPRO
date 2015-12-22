@@ -13,9 +13,9 @@ class AnalysisController < ApplicationController
 				feature_selection_method: SiteConstants::FEATURE_SELECTION_METHOD.keys.map { |x| x.to_s },
 				num_top_features: 'INTEGER'
 			}
-			params[:random_seed] = -1 if !params[:random_seed] || params[:random_seed].length == 0
+			params[:random_seed] = -1 if params[:random_seed].blank?
 
-			if params[:training_percentage] && params[:training_percentage].length > 0
+			if params[:training_percentage].present?
 				params[:training_percentage] = Float(params[:training_percentage])/100
 			else
 				params[:training_percentage] = -1
@@ -29,6 +29,7 @@ class AnalysisController < ApplicationController
 				arg = params[param]
 				arg = Integer(arg) if possible_values == 'INTEGER'
 				arg = Float(arg) if possible_values == 'FLOAT'
+				arg = -1 if arg == -1.0
 
 				if ((possible_values.class == Array && possible_values.include?(arg)) ||
 					(possible_values.class != Array && arg.is_a?(Numeric)))
@@ -50,15 +51,41 @@ class AnalysisController < ApplicationController
 
 	def survival
 		if params[:generate]
-			k = Integer(params[:k]).to_s
-			
-			if params[:data_source] == 'rnaseq'
-				file = 'runRNAseqSurvival.R'
-			else
-				file = 'runProteomicsSurvival.R'
+			validators = {
+				tumor_type: SiteConstants::TUMOR_TYPES.keys.map { |x| x.to_s },
+				data_source: SiteConstants::DATA_TYPES.keys.map { |x| x.to_s },
+				alpha_lower_bound: 'FLOAT',
+				alpha_upper_bound: 'FLOAT',
+				lambda_lower_bound: 'FLOAT',
+				lambda_upper_bound: 'FLOAT'
+			}
+
+			# Default for alpha/lambda bound params
+			validators.keys[2..5].each do |param|
+				params[param] = -1 if params[param].blank?
+			end
+
+			@valid_command = true
+			@command = "Rscript elasticNetCox.R"
+
+			validators.each do |param, possible_values|
+				arg = params[param]
+				arg = Integer(arg) if possible_values == 'INTEGER'
+				arg = Float(arg) if possible_values == 'FLOAT'
+				arg = -1 if arg == -1.0
+
+				if ((possible_values.class == Array && possible_values.include?(arg)) ||
+					(possible_values.class != Array && arg.is_a?(Numeric)))
+					@command += " #{arg}"
+				else
+					@valid_command = false
+					break
+				end
 			end
 			
-			system 'Rscript public/dropbox/analysis/Survival/'+file+' '+k
+			if @valid_command
+				system(@command)
+			end
 		end
 	end
 
