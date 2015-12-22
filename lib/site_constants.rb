@@ -34,5 +34,18 @@ module SiteConstants
 		ucec: 'Uterine Corpus Endometrial Carcinoma',
 		uvm:  'Uveal Melanoma' 
 	}
+
+	DATA_TYPES = {
+		maseq: 		'Gene Expression (RNA-seq)',
+		proteomics: 'Proteomics',
+		meth27: 	'DNA Methylation (Illumina Infinium Human DNA Methylation 27)',
+		meth450: 	'DNA Methylation (Illumina Infinium Human DNA Methylation 450)',
+		mirnaga: 	'microRNA (Illumina GA platform)',
+		mirnahiseq: 'microRNA (Illumina HiSeq platform)',
+		stage: 		'Tumor stage (TNM)',
+		stage_t: 	'T stage',
+		stage_n: 	'N stage',
+		stage_m: 	'M stage' 
+	}
 end
 
