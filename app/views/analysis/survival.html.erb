@@ -1,11 +1,47 @@
+<script>
+	function show_choose_alpha_lambda_row() {
+		console.log($('#user_enters_radio_option').is(':checked'));
+		if ($('#user_enters_radio_option').is(':checked')) {
+			console.log($('#user_enters_alpha_row'));
+			$('#user_enters_alpha_row').show();
+			$('#user_enters_lambda_row').show();
+		} else {
+			$('#user_enters_alpha_row').hide();
+			$('#user_enters_lambda_row').hide();
+		}
+	}
+</script>
+
 <h2>Survival Analysis</h2>
 
 <div style="float:left;width:400px;">
 	<form method="post">
+		<h4>Choose the Tumor Type</h4>
+		<div class="well">
+			<%= select_tag "tumor_type", options_for_select(SiteConstants::TUMOR_TYPES.invert) %>
+		</div>
+
 		<h4>Choose the Data Source</h4>
 		<div class="well">
-			<input type="radio" name="data_source" value="rnaseq" onClick="render_slider(20531)" CHECKED>Gene Expression (RNA-seq)</input>
-			<input type="radio" name="data_source" value="proteomics" onClick="render_slider(259)">Proteomics</input>
+			<%= select_tag "data_source", options_for_select(SiteConstants::DATA_TYPES.invert) %>
+		</div>
+
+		<h4>Alpha / Lambda</h4>
+		<div class="well">
+			<table class="noborder">
+				<tr onClick="show_choose_alpha_lambda_row();">
+					<td style="width:50%;"><input type="radio" name="set_alpha_lambda" value="cross_validation" CHECKED>Find the optimal alpha and lambda through cross-validation on the training set</input></td>
+					<td style="width:50%;"><input type="radio" name="set_alpha_lambda" value="user_enters" id="user_enters_radio_option">Choose alpha and lambda ranges</input></td>
+				</tr>
+				<tr id="user_enters_alpha_row" style="display:none;">
+					<td id="input_alpha_lower_bound">Alpha lower bound<input type="number" class="form-control" style="width: 50px;" name="alpha_lower_bound" min="0" max="100">%</input></td>
+					<td id="input_alpha_upper_bound">Alpha upper bound<input type="number" class="form-control" style="width: 50px;" name="alpha_upper_bound" min="0" max="100">%</input></td>
+				</tr>
+				<tr id="user_enters_lambda_row" style="display:none;">
+					<td id="input_lambda_lower_bound">Lambda lower bound<input type="number" class="form-control" style="width: 50px;" name="lambda_lower_bound" min="0"></input></td>
+					<td id="input_lambda_upper_bound">Lambda upper bound<input type="number" class="form-control" style="width: 50px;" name="lambda_upper_bound" min="0"></input></td>
+				</tr> 
+			</table>
 		</div>
 		
 		<h4>Choose the Number of Features to Use<h4>
