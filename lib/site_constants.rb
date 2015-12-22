@@ -41,7 +41,10 @@ module SiteConstants
 		meth27: 	'DNA Methylation (Illumina Infinium Human DNA Methylation 27)',
 		meth450: 	'DNA Methylation (Illumina Infinium Human DNA Methylation 450)',
 		mirnaga: 	'microRNA (Illumina GA platform)',
-		mirnahiseq: 'microRNA (Illumina HiSeq platform)',
+		mirnahiseq: 'microRNA (Illumina HiSeq platform)'
+	}
+
+	PREDICTION_TARGTS = {
 		stage: 		'Tumor stage (TNM)',
 		stage_t: 	'T stage',
 		stage_n: 	'N stage',
