@@ -35,6 +35,23 @@
 	function go_analysis() {
 		document.getElementById("go_form").submit();	
 	}
+
+	function show_rand_row() {
+		if ($('#rand_radio_option').is(':checked')) {
+			$('#additional_rand_batch_params').show();
+		} else {
+			$('#additional_rand_batch_params').hide();
+		}
+	}
+
+	function show_seed_selection() {
+		if ($('#choose_seed_radio_option').is(':checked')) {
+			$('#input_seed_number').show();
+		} else {
+			$('#input_seed_number').hide();
+		}
+	}
+
 </script>
 <h2>Tumor Stage Analysis</h2>
 <% if @valid_command %>
@@ -55,6 +72,21 @@
 		<h4>Choose the Prediction Target</h4>
 		<div class="well">
 			<%= select_tag "prediction_target", options_for_select(SiteConstants::PREDICTION_TARGTS.invert) %>
+		</div>
+
+		<h4>Choose the Training / Test Partition</h4>
+		<div class="well">
+			<table class="noborder">
+				<tr onClick="show_rand_row();">
+					<td><input type="radio" name="training_test_partition" value="batch" CHECKED>Batch Partition</input></td>
+					<td><input type="radio" name="training_test_partition" value="rand" id="rand_radio_option">Random Partition</input></td>
+				</tr>
+				<tr id="additional_rand_batch_params" style="display:none;" onClick="show_seed_selection();">
+					<td><input type="radio" name="rand_partition_params" value="random_seed" CHECKED>Random Seed</input></td>
+					<td><input type="radio" name="rand_partition_params" value="choose_seed" id="choose_seed_radio_option">Specify Seed</input></td>
+					<td id="input_seed_number" style="display:none;"><input type="number" class="form-control" style="width: 50px;" name="choose_seed_val" min="1"></input></td>
+				</tr>
+			</table>
 		</div>
 
 		<h4>Choose the Feature Selection Method</h4>
