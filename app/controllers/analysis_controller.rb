@@ -7,14 +7,19 @@ class AnalysisController < ApplicationController
 				tumor_type: SiteConstants::TUMOR_TYPES.keys.map { |x| x.to_s },
 				data_source: SiteConstants::DATA_TYPES.keys.map { |x| x.to_s },
 				prediction_target: SiteConstants::PREDICTION_TARGTS.keys.map { |x| x.to_s },
-				partition: SiteConstants::DATA_TYPES,
-				random_seed: 'FLOAT',
+				partition: SiteConstants::PARTITION_TYPES,
+				random_seed: 'INTEGER',
 				training_percentage: 'FLOAT',
 				feature_selection_method: SiteConstants::FEATURE_SELECTION_METHOD.keys.map { |x| x.to_s },
-				k: 'INTEGER'
+				num_top_features: 'INTEGER'
 			}
-			params[:random_seed] = -1 if !params[:random_seed]
-			params[:training_percentage] = -1 if !params[:training_percentage]
+			params[:random_seed] = -1 if !params[:random_seed] || params[:random_seed].length == 0
+
+			if params[:training_percentage] && params[:training_percentage].length > 0
+				params[:training_percentage] = Float(params[:training_percentage])/100
+			else
+				params[:training_percentage] = -1
+			end
 
 			@valid_command = true
 			@command = "Rscript binaryClassification.R"

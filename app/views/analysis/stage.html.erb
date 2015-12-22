@@ -95,15 +95,13 @@
 
 		<h4>Choose the Feature Selection Method</h4>
 		<div class="well">
-			<%= select_tag "data_source", options_for_select(SiteConstants::FEATURE_SELECTION_METHOD.invert) %>
+			<%= select_tag "feature_selection_method", options_for_select(SiteConstants::FEATURE_SELECTION_METHOD.invert) %>
 			<div id="features" style="overflow:auto;height:200px;width:300px;margin-top:5px;border:2px solid #000;"></div>
 			<br><div id="go_link"><input type="button" class="btn" onClick="go_analysis()" value="Run GO analysis on feature set"></div>
 		</div>
 
-
-
 		<div class="well">
-			Use top <input type="text" name="k" value="10" style="width:30px;"> features for building the machine learning models.
+			Use top <input type="text" name="num_top_features" value="10" style="width:30px;"> features for building the machine learning models.
 			Click the links to visit the relevant GeneCard page.
 		</div>
 		<input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>"></input>
