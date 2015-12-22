@@ -36,24 +36,20 @@
 		document.getElementById("go_form").submit();	
 	}
 
-	function show_rand_row() {
-		if ($('#rand_radio_option').is(':checked')) {
-			$('#additional_rand_batch_params_1').show();
-			$('#additional_rand_batch_params_2').show();
-		} else {
-			$('#additional_rand_batch_params_1').hide();
-			$('#additional_rand_batch_params_2').hide();
+	$(document).ready(function() {
+		var change_partition = function() {
+			$('.random-partition-params').toggle($("input[name=partition]:checked").val() == "random");
+		};
+		var specify_seed = function() {
+			$('input[name=random_seed]').toggle($("input[name=seed_type]:checked").val() == "specify_seed");
 		}
-	}
 
-	function show_seed_selection() {
-		if ($('#choose_seed_radio_option').is(':checked')) {
-			$('#input_seed_number').show();
-		} else {
-			$('#input_seed_number').hide();
-		}
-	}
+		$("input[name=partition]").click(change_partition);
+		change_partition();
 
+		$("input[name=seed_type]").click(specify_seed);
+		specify_seed();
+	});
 </script>
 <h2>Tumor Stage Analysis</h2>
 <% if @valid_command %>
@@ -79,19 +75,22 @@
 		<h4>Choose the Training / Test Partition</h4>
 		<div class="well">
 			<table class="noborder">
-				<tr onClick="show_rand_row();">
-					<td><input type="radio" name="training_test_partition" value="batch" CHECKED>Batch Partition</input></td>
-					<td><input type="radio" name="training_test_partition" value="rand" id="rand_radio_option">Random Partition</input></td>
+				<tr>
+					<td><input type="radio" name="partition" value="batch" CHECKED>Batch Partition</input></td>
+					<td><input type="radio" name="partition" value="random">Random Partition</input></td>
 				</tr>
-				<tr id="additional_rand_batch_params_1" style="display:none;" onClick="show_seed_selection();">
-					<td><input type="radio" name="rand_partition_params" value="random_seed" CHECKED>Random Seed</input></td>
-					<td><input type="radio" name="rand_partition_params" value="choose_seed" id="choose_seed_radio_option">Specify Seed</input></td>
-					<td id="input_seed_number" style="display:none;"><input type="number" class="form-control" style="width: 50px;" name="choose_seed_val" min="1"></input></td>
+				<tr class="random-partition-params" style="display:none; height:52px;">
+					<td><input type="radio" name="seed_type" value="random_seed" CHECKED>Random seed</input></td>
+					<td>
+						<input type="radio" name="seed_type" value="specify_seed">Specify seed</input>
+						<input type="number" class="form-control" style="display: none; width: 50px;" name="random_seed" min="1">
+					</td>
 				</tr>
-				<tr id="additional_rand_batch_params_2" style="display:none;">
-					<td>Percentage of cases used as training data<input type="number" class="form-control" style="width: 50px; margin-left:10px;" name="enter_training_data_percentage" min="0" max="100">%</input></td>
-				</tr> 
 			</table>
+			<div class="random-partition-params" style="display:none;">
+				Percentage of cases used as training data
+				<input type="number" class="form-control" style="width: 50px;" name="enter_training_data_percentage" min="0" max="100">%
+			</div>
 		</div>
 
 		<h4>Choose the Feature Selection Method</h4>

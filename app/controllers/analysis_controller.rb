@@ -7,6 +7,7 @@ class AnalysisController < ApplicationController
 				tumor_type: SiteConstants::TUMOR_TYPES.keys.map { |x| x.to_s },
 				data_source: SiteConstants::DATA_TYPES.keys.map { |x| x.to_s },
 				prediction_target: SiteConstants::PREDICTION_TARGTS.keys.map { |x| x.to_s },
+				partition: SiteConstants::DATA_TYPES,
 				feature_selection_method: SiteConstants::FEATURE_SELECTION_METHOD.keys.map { |x| x.to_s },
 				k: 'INTEGER'
 			}

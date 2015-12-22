@@ -58,5 +58,7 @@ module SiteConstants
 		randf: 		'Random Forest Importance',
 		_features: 	'Custom' # Prepend SESSION_ID and append TXT when submitting this
 	}
+
+	PARTITION_TYPES = ['batch', 'random']
 end
 
