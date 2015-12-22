@@ -38,9 +38,11 @@
 
 	function show_rand_row() {
 		if ($('#rand_radio_option').is(':checked')) {
-			$('#additional_rand_batch_params').show();
+			$('#additional_rand_batch_params_1').show();
+			$('#additional_rand_batch_params_2').show();
 		} else {
-			$('#additional_rand_batch_params').hide();
+			$('#additional_rand_batch_params_1').hide();
+			$('#additional_rand_batch_params_2').hide();
 		}
 	}
 
@@ -81,11 +83,14 @@
 					<td><input type="radio" name="training_test_partition" value="batch" CHECKED>Batch Partition</input></td>
 					<td><input type="radio" name="training_test_partition" value="rand" id="rand_radio_option">Random Partition</input></td>
 				</tr>
-				<tr id="additional_rand_batch_params" style="display:none;" onClick="show_seed_selection();">
+				<tr id="additional_rand_batch_params_1" style="display:none;" onClick="show_seed_selection();">
 					<td><input type="radio" name="rand_partition_params" value="random_seed" CHECKED>Random Seed</input></td>
 					<td><input type="radio" name="rand_partition_params" value="choose_seed" id="choose_seed_radio_option">Specify Seed</input></td>
 					<td id="input_seed_number" style="display:none;"><input type="number" class="form-control" style="width: 50px;" name="choose_seed_val" min="1"></input></td>
 				</tr>
+				<tr id="additional_rand_batch_params_2" style="display:none;">
+					<td>Percentage of cases used as training data<input type="number" class="form-control" style="width: 50px; margin-left:10px;" name="enter_training_data_percentage" min="0" max="100">%</input></td>
+				</tr> 
 			</table>
 		</div>
 
