@@ -50,5 +50,13 @@ module SiteConstants
 		stage_n: 	'N stage',
 		stage_m: 	'M stage' 
 	}
+
+	FEATURE_SELECTION_METHOD = {
+		infog: 		'Information Gain',
+		gainr: 		'Gain Ratio',
+		symu: 		'Symmetrical Uncertainty',
+		randf: 		'Random Forest Importance',
+		_features: 	'Custom' # Prepend SESSION_ID and append TXT when submitting this
+	}
 end
 
