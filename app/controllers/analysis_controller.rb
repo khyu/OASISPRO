@@ -21,26 +21,11 @@ class AnalysisController < ApplicationController
 				params[:training_percentage] = -1
 			end
 
-			@valid_command = true
-			@command = "Rscript binaryClassification.R"
-
-			# Validate and build the command
-			validators.each do |param, possible_values|
-				arg = params[param]
-				arg = Integer(arg) if possible_values == 'INTEGER'
-				arg = Float(arg) if possible_values == 'FLOAT'
-				arg = -1 if arg == -1.0
-
-				if ((possible_values.class == Array && possible_values.include?(arg)) ||
-					(possible_values.class != Array && arg.is_a?(Numeric)))
-					@command += " #{arg}"
-				else
-					@valid_command = false
-					break
-				end
-			end
+			result = build_command(validators, params)
+			@valid_command = result[:valid_command]
 
 			if @valid_command
+				@command = "Rscript binaryClassification.R#{result[:command]}"
 				system(@command)
 			end
 
@@ -65,25 +50,11 @@ class AnalysisController < ApplicationController
 				params[param] = -1 if params[param].blank?
 			end
 
-			@valid_command = true
-			@command = "Rscript elasticNetCox.R"
+			result = build_command(validators, params)
+			@valid_command = result[:valid_command]
 
-			validators.each do |param, possible_values|
-				arg = params[param]
-				arg = Integer(arg) if possible_values == 'INTEGER'
-				arg = Float(arg) if possible_values == 'FLOAT'
-				arg = -1 if arg == -1.0
-
-				if ((possible_values.class == Array && possible_values.include?(arg)) ||
-					(possible_values.class != Array && arg.is_a?(Numeric)))
-					@command += " #{arg}"
-				else
-					@valid_command = false
-					break
-				end
-			end
-			
 			if @valid_command
+				@command = "Rscript elasticNetCox.R#{result[:command]}"
 				system(@command)
 			end
 		end
@@ -101,5 +72,29 @@ class AnalysisController < ApplicationController
 		f.close
 
 		render json: lines
+	end
+
+
+	private
+
+	def build_command(validators, params)
+		command = ""
+		valid_command = true
+		validators.each do |param, possible_values|
+			arg = params[param]
+			arg = Integer(arg) if possible_values == 'INTEGER'
+			arg = Float(arg) if possible_values == 'FLOAT'
+			arg = -1 if arg == -1.0
+
+			if ((possible_values.class == Array && possible_values.include?(arg)) ||
+				(possible_values.class != Array && arg.is_a?(Numeric)))
+				command += " #{arg}"
+			else
+				valid_command = false
+				break
+			end
+		end
+
+		{command: command, valid_command: valid_command}
 	end
 end
