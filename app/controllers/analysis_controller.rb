@@ -8,11 +8,13 @@ class AnalysisController < ApplicationController
 				data_source: SiteConstants::DATA_TYPES.keys.map { |x| x.to_s },
 				prediction_target: SiteConstants::PREDICTION_TARGTS.keys.map { |x| x.to_s },
 				partition: SiteConstants::DATA_TYPES,
-				random_seed: 'INTEGER',
+				random_seed: 'FLOAT',
+				training_percentage: 'FLOAT',
 				feature_selection_method: SiteConstants::FEATURE_SELECTION_METHOD.keys.map { |x| x.to_s },
 				k: 'INTEGER'
 			}
 			params[:random_seed] = -1 if !params[:random_seed]
+			params[:training_percentage] = -1 if !params[:training_percentage]
 
 			@valid_command = true
 			@command = "Rscript binaryClassification.R"
