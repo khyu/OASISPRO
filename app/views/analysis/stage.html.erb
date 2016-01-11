@@ -39,6 +39,7 @@
 	$(document).ready(function() {
 		var change_partition = function() {
 			$('.random-partition-params').toggle($("input[name=partition]:checked").val() == "random");
+			$('.batch-partition-params').toggle($("input[name=partition]:checked").val() == "batch");
 		};
 		var specify_seed = function() {
 			$('input[name=random_seed]').toggle($("input[name=seed_type]:checked").val() == "specify_seed");
@@ -78,6 +79,18 @@
 				<tr>
 					<td><input type="radio" name="partition" value="batch" CHECKED>Batch Partition</input></td>
 					<td><input type="radio" name="partition" value="random">Random Partition</input></td>
+				</tr>
+				<tr class="batch-partition-params" style="display:none; height:52px;">
+					<td colspan="2">
+						<table style="border: 1px solid #000">
+							<% SiteConstants::MEDICAL_CENTERS.each do |medical_center| %>
+								<tr>
+									<td style="padding:10px;border:1px solid #000"><input type="checkbox" name="medical_centers[]" value="<%= medical_center %>" style="margin-bottom:7px"></td>
+									<td style="border:1px solid #000;padding:5px"><%= medical_center %></td>
+								</tr>
+							<% end %>
+						</table>
+					</td>
 				</tr>
 				<tr class="random-partition-params" style="display:none; height:52px;">
 					<td><input type="radio" name="seed_type" value="random_seed" CHECKED>Random seed</input></td>

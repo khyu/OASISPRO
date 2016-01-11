@@ -3,17 +3,24 @@ class AnalysisController < ApplicationController
 
 	def stage
 		if params[:generate]
+			session_id = rand.to_s.sub("0.", "") 
 			validators = {
 				tumor_type: SiteConstants::TUMOR_TYPES.keys.map { |x| x.to_s },
 				data_source: SiteConstants::DATA_TYPES.keys.map { |x| x.to_s },
 				prediction_target: SiteConstants::PREDICTION_TARGTS.keys.map { |x| x.to_s },
 				partition: SiteConstants::PARTITION_TYPES,
-				random_seed: 'INTEGER',
+				random_seed: '*',
 				training_percentage: 'FLOAT',
 				feature_selection_method: SiteConstants::FEATURE_SELECTION_METHOD.keys.map { |x| x.to_s },
 				num_top_features: 'INTEGER'
 			}
-			params[:random_seed] = -1 if params[:random_seed].blank?
+
+			if params[:partition] == 'batch'
+				params[:random_seed] = "#{session_id}_batch.txt"
+				File.write("public/batch/" + params[:random_seed], params[:medical_centers].join("\n") + "\n")
+			elsif params[:random_seed].blank?
+				params[:random_seed] = -1
+			end
 
 			if params[:training_percentage].present?
 				params[:training_percentage] = Float(params[:training_percentage])/100
@@ -86,7 +93,8 @@ class AnalysisController < ApplicationController
 			arg = Float(arg) if possible_values == 'FLOAT'
 			arg = -1 if arg == -1.0
 
-			if ((possible_values.class == Array && possible_values.include?(arg)) ||
+			if (possible_values == '*' ||
+				(possible_values.class == Array && possible_values.include?(arg)) ||
 				(possible_values.class != Array && arg.is_a?(Numeric)))
 				command += " #{arg}"
 			else

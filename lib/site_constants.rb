@@ -60,5 +60,11 @@ module SiteConstants
 	}
 
 	PARTITION_TYPES = ['batch', 'random']
+
+	MEDICAL_CENTERS = [
+		'TCGA-XY',
+		'TCGA-YY',
+		'TCGA-ZZ'
+	]
 end
 
