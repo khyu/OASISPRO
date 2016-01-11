@@ -17,6 +17,7 @@ class AnalysisController < ApplicationController
 
 			if params[:partition] == 'batch'
 				params[:random_seed] = "#{session_id}/batch.txt"
+				Dir.mkdir("public/sessions") unless File.exists?("public/sessions")
 				Dir.mkdir("public/sessions/#{session_id}") unless File.exists?("public/sessions/#{session_id}")
 				File.write("public/sessions/" + params[:random_seed], (params[:medical_centers] || []).join("\n") + "\n")
 			elsif params[:random_seed].blank?
