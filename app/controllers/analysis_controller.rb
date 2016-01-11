@@ -3,7 +3,7 @@ class AnalysisController < ApplicationController
 
 	def stage
 		if params[:generate]
-			session_id = rand.to_s.sub("0.", "")
+			session_id = rand.to_s.sub("0.", "") 
 			validators = {
 				tumor_type: SiteConstants::TUMOR_TYPES.keys.map { |x| x.to_s },
 				data_source: SiteConstants::DATA_TYPES.keys.map { |x| x.to_s },
@@ -73,14 +73,18 @@ class AnalysisController < ApplicationController
 		source = params[:source]
 		method = params[:method]
 
-		lines = Array.new
-		f = File.open("public/feature_selection/"+source+"-"+method+".txt", "r")
-		f.each_line do |line|
-		  lines << line
-		end
-		f.close
+		if source && method
+			lines = Array.new
+			f = File.open("public/feature_selection/"+source+"-"+method+".txt", "r")
+			f.each_line do |line|
+			  lines << line
+			end
+			f.close
 
-		render json: lines
+			render json: lines
+		else
+			render text: ''
+		end
 	end
 
 
