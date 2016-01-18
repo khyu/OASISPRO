@@ -52,7 +52,16 @@
 		specify_seed();
 
 		$('#tumor_type').on('change', function() {
-			console.log($('#tumor_type').val());
+			var tbl = document.getElementById('batch-options-table');
+			for (var i = tbl.rows.length - 1; i >= 0; i--) {
+				$(tbl.rows[i]).hide();
+			};
+			$.get(location.pathname + "batch_ids", { tumor_type: $('#tumor_type').val() }, function(data) {
+				// return data as a json array of batch-ids
+				for (var i = data.length - 1; i >= 0; i--) {
+					$('#' + data[i].toString()).show();
+				};
+			});
 		});
 	});
 </script>
@@ -92,7 +101,7 @@
 				<tr class="batch-partition-params" style="display:none; height:52px;">
 					<td colspan="2">
 						<div style="height:390px;overflow:auto">
-							<table style="border: 1px solid #000;">
+							<table style="border: 1px solid #000;" id="batch-options-table">
 								<% SiteConstants::MEDICAL_CENTERS.each do |medical_center| %>
 									<tr id="<%='batch-' + medical_center[:id] %>">
 										<td style="padding:10px;border:1px solid #000"><input type="checkbox" name="medical_centers[]" value="<%= medical_center[:id] %>" style="margin-bottom:7px"></td>
