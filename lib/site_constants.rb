@@ -61,10 +61,11 @@ module SiteConstants
 
 	PARTITION_TYPES = ['batch', 'random']
 
-	MEDICAL_CENTERS = [
-		'TCGA-XY',
-		'TCGA-YY',
-		'TCGA-ZZ'
-	]
+	MEDICAL_CENTERS = []
+	medical_center_lines = File.read("public/notes/tissueSourceSite.txt").split("\n")[1..-1]
+	medical_center_lines.each do |medical_center_line|
+		medical_center_line = medical_center_line.split("\t")
+		MEDICAL_CENTERS << {id: medical_center_line[0], name: medical_center_line[1]}
+	end
 end
 
