@@ -37,13 +37,6 @@
 	}
 </script>
 
-<%= javascript_include_tag 'BatchParamsManager' %>
-<%= javascript_tag do %>
-	$(document).ready(function() {
-		new BatchParamsManager();
-	});	
-<% end %>
-
 <h2>Tumor Stage Analysis</h2>
 <% if @valid_command %>
 	<b>(For testing) Command: <%= @command %></b>
