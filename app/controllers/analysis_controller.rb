@@ -87,8 +87,25 @@ class AnalysisController < ApplicationController
 		end
 	end
 
+	def batch_ids
+		ids = Array.new
+		filename = 'nationwidechildrens.org_clinical_patient_' + params[:tumor_type] + '.txt'
+		path = 'public/data/' # will need to alter to source of data pulled by file downloader
+		f = File.open(path + filename, "r")
+		numLines = 0
+		f.each_line do |line|
+			if (numLines > 2 && line != '')
+				fullID = line.strip.split(' ')[1]
+				ids.insert(-1, fullID.split('-')[1])
+			end
+			numLines = numLines + 1
+		end
+		f.close
+		render json: {ids: ids}
+	end
 
-	private
+
+	private #------------------------------------------------------------------------------#
 
 	def build_command(validators, params)
 		command = ""

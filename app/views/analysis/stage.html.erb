@@ -56,10 +56,10 @@
 			for (var i = tbl.rows.length - 1; i >= 0; i--) {
 				$(tbl.rows[i]).hide();
 			};
-			$.get(location.pathname + "batch_ids", { tumor_type: $('#tumor_type').val() }, function(data) {
+			$.get("/analysis/batch_ids", { tumor_type: $('#tumor_type').val() }, function(data) {
 				// return data as a json array of batch-ids
-				for (var i = data.length - 1; i >= 0; i--) {
-					$('#' + data[i].toString()).show();
+				for (var i = data['ids'].length - 1; i >= 0; i--) {
+					$('#batch-' + data['ids'][i].toString()).show();
 				};
 			});
 		});
