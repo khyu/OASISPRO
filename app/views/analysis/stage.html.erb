@@ -50,6 +50,10 @@
 
 		$("input[name=seed_type]").click(specify_seed);
 		specify_seed();
+
+		$('#tumor_type').on('change', function() {
+			console.log($('#tumor_type').val());
+		});
 	});
 </script>
 <h2>Tumor Stage Analysis</h2>
