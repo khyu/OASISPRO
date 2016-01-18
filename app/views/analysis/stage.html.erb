@@ -56,23 +56,28 @@
 <% if @valid_command %>
 	<b>(For testing) Command: <%= @command %></b>
 <% end %>
-<div style="float:left;width:360px;">
-	<form method="post">
+<form method="post" action="#results">
+	<div style="float:left;width:325px;">
 		<h4>Choose the Tumor Type</h4>
 		<div class="well">
 			<%= select_tag "tumor_type", options_for_select(SiteConstants::TUMOR_TYPES.invert) %>
 		</div>
-
+	</div>
+	<div style="float:left;width:325px;margin-left:10px;">
 		<h4>Choose the Data Source</h4>
 		<div class="well">
 			<%= select_tag "data_source", options_for_select(SiteConstants::DATA_TYPES.invert) %>
 		</div>
-		
+	</div>
+	<div style="float:left;width:325px;margin-left:10px;">
 		<h4>Choose the Prediction Target</h4>
 		<div class="well">
 			<%= select_tag "prediction_target", options_for_select(SiteConstants::PREDICTION_TARGTS.invert) %>
 		</div>
+	</div>
 
+	<br style="clear:both;">
+	<div style="float:left;width:490px;">
 		<h4>Choose the Training / Test Partition</h4>
 		<div class="well">
 			<table class="noborder">
@@ -82,7 +87,7 @@
 				</tr>
 				<tr class="batch-partition-params" style="display:none; height:52px;">
 					<td colspan="2">
-						<div style="height:200px;overflow:auto">
+						<div style="height:390px;overflow:auto">
 							<table style="border: 1px solid #000;">
 								<% SiteConstants::MEDICAL_CENTERS.each do |medical_center| %>
 									<tr>
@@ -107,7 +112,8 @@
 				<input type="number" class="form-control" style="width: 50px;" name="training_percentage" min="0" max="100">%
 			</div>
 		</div>
-
+	</div>
+	<div style="float:left;width:490px; margin-left: 10px">
 		<h4>Choose the Feature Selection Method</h4>
 		<div class="well">
 			<%= select_tag "feature_selection_method", options_for_select(SiteConstants::FEATURE_SELECTION_METHOD.invert) %>
@@ -119,13 +125,19 @@
 			Use top <input type="text" name="num_top_features" value="10" style="width:30px;"> features for building the machine learning models.
 			Click the links to visit the relevant GeneCard page.
 		</div>
+	</div>
+	<br style="clear:both;">
+	<div style="text-align: center">
 		<input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>"></input>
-		<input type="submit" value="Generate Analysis" name="generate" class="btn btn-primary">
-	</form>
-</div>
+		<input type="submit" value="Generate Analysis" name="generate" class="btn btn-primary" style="height:50px;font-size:16pt;">
+	</div>
+</form>
+
+<br style="clear:both;">
+
 <div style="float:left;width:620px;margin-left:20px;">
 	<% if params[:generate] %>
-		<h2>Results</h2>
+		<h2 id="results">Results</h2>
 		<div class="well">
 		<a href="/dropbox/analysis/StageOverall/output.png?r=<%= rand(100000) %>" target="_blank">
 			<img src="/dropbox/analysis/StageOverall/output.png?r=<%= rand(100000) %>">
