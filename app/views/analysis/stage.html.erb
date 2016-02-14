@@ -1,10 +1,30 @@
 <script>
+	function get_prediction_targets() {
+		$('select[name="prediction_target"]').html("");
+
+		var tumor_type = $('select[name="tumor_type"]').val();
+		$.get('/analysis/get_prediction_targets', {tumor_type: tumor_type}, function (data) {
+			var html = ""
+			data.forEach(function(prediction_target) {
+				html += '<option>' + prediction_target + '</option>'
+			});
+			$('select[name="prediction_target"]').html(html);
+		});
+	}
+
+	$(document).ready(function() {
+		get_prediction_targets();
+		$(document).on('change', 'select[name="tumor_type"]', function(){
+			get_prediction_targets();
+		});
+	});
+
 	$(document).on('change', 'input[name="data_source"]:radio', function(){
-		render_list()
+	  render_list()
 	});
 
 	$(document).on('change', 'input[name="feature_selection_method"]:radio', function(){
-		render_list();
+	  render_list();
 	});
 
 	function render_list() {
@@ -37,7 +57,7 @@
 	}
 </script>
 
-<h2>Tumor Stage Analysis</h2>
+<h2>Classification of Clinical Phenotypes</h2>
 <% if @valid_command %>
 	<b>(For testing) Command: <%= @command %></b>
 <% end %>
@@ -45,19 +65,19 @@
 	<div style="float:left;width:325px;">
 		<h4>Choose the Tumor Type</h4>
 		<div class="well">
-			<%= select_tag "tumor_type", options_for_select(SiteConstants::TUMOR_TYPES.invert) %>
+			<%= select_tag "tumor_type", options_for_select({'Choose Tumor Type' => ''}.merge(SiteConstants::TUMOR_TYPES.invert)) %>
 		</div>
 	</div>
 	<div style="float:left;width:325px;margin-left:10px;">
 		<h4>Choose the Data Source</h4>
 		<div class="well">
-			<%= select_tag "data_source", options_for_select(SiteConstants::DATA_TYPES.invert) %>
+			<%= select_tag "data_source", options_for_select({'Choose Data Source' => ''}.merge(SiteConstants::DATA_TYPES.invert)) %>
 		</div>
 	</div>
 	<div style="float:left;width:325px;margin-left:10px;">
 		<h4>Choose the Prediction Target</h4>
 		<div class="well">
-			<%= select_tag "prediction_target", options_for_select(SiteConstants::PREDICTION_TARGTS.invert) %>
+			<%= select_tag "prediction_target" %>
 		</div>
 	</div>
 

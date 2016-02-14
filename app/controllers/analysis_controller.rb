@@ -104,6 +104,40 @@ class AnalysisController < ApplicationController
 		render json: {ids: ids}
 	end
 
+	def get_prediction_targets
+		path = 'public/data/nationwidechildrens.org_clinical_patient_' + params[:tumor_type] + '.txt'
+
+		targets = []
+		i = 0
+		File.open(path, "r") do |file_handle|
+			file_handle.each_line do |line|
+				if i == 1
+					targets = line.strip.split("\t")
+				elsif i > 1
+					break
+				end
+				i += 1
+			end
+		end
+
+		path = 'public/data/not_prediction_target.txt'
+		non_targets = []
+		File.open(path, "r") do |file_handle|
+			file_handle.each_line do |line|
+				non_targets << line.strip
+			end
+		end
+
+		data = []
+		targets.each do |target|
+			if !non_targets.include?(target)
+				data << target
+			end
+		end
+
+		render json: data
+	end
+
 
 	private #------------------------------------------------------------------------------#
 

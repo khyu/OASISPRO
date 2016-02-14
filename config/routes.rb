@@ -64,6 +64,7 @@ Cs273aproject::Application.routes.draw do
     post 'survival', on: :collection
     get 'get_features', on: :collection
     get 'batch_ids', on: :collection
+    get 'get_prediction_targets', on: :collection
   end
 
   resources :clinical do
