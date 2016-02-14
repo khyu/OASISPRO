@@ -1,2 +1,6 @@
+bcr_patient_barcode
 bcr_patient_uuid
-
+form_completion_date
+prospective_collection
+retrospective_collection
+informed_consent_verified
