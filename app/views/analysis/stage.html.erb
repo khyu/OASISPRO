@@ -3,13 +3,15 @@
 		$('select[name="prediction_target"]').html("");
 
 		var tumor_type = $('select[name="tumor_type"]').val();
-		$.get('/analysis/get_prediction_targets', {tumor_type: tumor_type}, function (data) {
-			var html = ""
-			data.forEach(function(prediction_target) {
-				html += '<option>' + prediction_target + '</option>'
+		if (tumor_type) {
+			$.get('/analysis/get_prediction_targets', {tumor_type: tumor_type}, function (data) {
+				var html = ""
+				data.forEach(function(prediction_target) {
+					html += '<option>' + prediction_target + '</option>'
+				});
+				$('select[name="prediction_target"]').html(html);
 			});
-			$('select[name="prediction_target"]').html(html);
-		});
+		}
 	}
 
 	$(document).ready(function() {

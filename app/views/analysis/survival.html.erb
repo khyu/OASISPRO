@@ -27,20 +27,26 @@
 <% if @valid_command %>
 	<b>(For testing) Command: <%= @command %></b>
 <% end %>
-<div style="float:left;width:400px;">
-	<form method="post">
+
+<form method="post">
+	<div style="float:left;width:400px;">
 		<h4>Choose the Tumor Type</h4>
 		<div class="well">
 			<%= select_tag "tumor_type", options_for_select(SiteConstants::TUMOR_TYPES.invert) %>
 		</div>
-
+	</div>
+	<div style="float:left;width:400px;margin-left:10px;">
 		<h4>Choose the Data Source</h4>
 		<div class="well">
 			<%= select_tag "data_source", options_for_select(SiteConstants::DATA_TYPES.invert) %>
 		</div>
-
+	</div>
+	<br style="clear:both;">
+	
+	<div style="float:left;width:400px;">
 		<%= render partial: 'batch' %>
-
+	</div>
+	<div style="float:left;width:400px;margin-left:10px">
 		<h4>Alpha / Lambda</h4>
 		<div class="well">
 			<table class="noborder">
@@ -70,18 +76,15 @@
 				</tr>
 			</table>
 		</div>
+	</div>
 
-		<h4>Choose the Number of Features to Use<h4>
-		<div class="well">
-			<input id="amount" value="10" name="k" style="width:50px;">
-			<br><br>
-			<div id="slider" style="background-color:rgba(0,0,255,.1);"></div>
-		
-			<input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>"></input>
-		</div>
-		<input type="submit" value="Generate Analysis" name="generate" class="btn btn-primary">
-	</form>
-</div>
+	<br style="clear:both;">
+	<div style="text-align: center">
+		<input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>"></input>
+		<input type="submit" value="Generate Analysis" name="generate" class="btn btn-primary" style="height:50px;font-size:16pt;">
+	</div>
+</form>
+
 <div style="float:left;width:570px;margin-left:30px;">
 	<% if params[:generate] %>
 		<h2>Results</h2>
