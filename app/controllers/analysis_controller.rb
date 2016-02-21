@@ -3,7 +3,7 @@ class AnalysisController < ApplicationController
 
 	def stage
 		if params[:generate]
-			session_id = rand.to_s.sub("0.", "") 
+			params[:session_id] = rand.to_s.sub("0.", "") 
 			validators = {
 				tumor_type: SiteConstants::TUMOR_TYPES.keys.map { |x| x.to_s },
 				data_source: SiteConstants::DATA_TYPES.keys.map { |x| x.to_s },
@@ -12,14 +12,15 @@ class AnalysisController < ApplicationController
 				random_seed: '*',
 				training_percentage: 'FLOAT',
 				feature_selection_method: SiteConstants::FEATURE_SELECTION_METHOD.keys.map { |x| x.to_s },
-				num_top_features: 'INTEGER'
+				num_top_features: 'INTEGER',
+				session_id: '*'
 			}
 
 			if params[:partition] == 'batch'
-				params[:random_seed] = "#{session_id}/batch.txt"
+				params[:random_seed] = "batch.txt"
 				Dir.mkdir("public/sessions") unless File.exists?("public/sessions")
-				Dir.mkdir("public/sessions/#{session_id}") unless File.exists?("public/sessions/#{session_id}")
-				File.write("public/sessions/" + params[:random_seed], (params[:medical_centers] || []).join("\n") + "\n")
+				Dir.mkdir("public/sessions/#{params[:session_id]}") unless File.exists?("public/sessions/#{params[:session_id]}")
+				File.write("public/sessions/#{params[:session_id]}/" + params[:random_seed], (params[:medical_centers] || []).join("\n") + "\n")
 			elsif params[:random_seed].blank?
 				params[:random_seed] = -1
 			end
@@ -34,7 +35,7 @@ class AnalysisController < ApplicationController
 			@valid_command = result[:valid_command]
 
 			if @valid_command
-				@command = "Rscript binaryClassification.R#{result[:command]}"
+				@command = "Rscript public/RCodes/binaryClassification.R#{result[:command]}"
 				system(@command)
 			end
 
@@ -63,7 +64,7 @@ class AnalysisController < ApplicationController
 			@valid_command = result[:valid_command]
 
 			if @valid_command
-				@command = "Rscript elasticNetCox.R#{result[:command]}"
+				@command = "Rscript public/RCodes/elasticNetCox.R#{result[:command]}"
 				system(@command)
 			end
 		end

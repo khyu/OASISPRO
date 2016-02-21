@@ -33,7 +33,7 @@ if (partitionType == "random") {
 	nRandGroups<-20
 } else {
 	partitionSeed<-(-1)
-	selectedBatchesFile<-read.table(sysargs[5], sep="")
+	selectedBatchesFile<-read.table(paste("public/sessions/",sysargs[9],"/",sysargs[5],sep=""), sep="")
 	selectedBatches<-selectedBatchesFile[,1]
 	trainingPercentage<-(-1)
 	nRandGroups<-1
@@ -64,13 +64,13 @@ print (featureSelectionMethod)
 print (numFeatures)
 
 # read files
-omicsFile<-read.table(paste("../../data/", tumorType, "_", dataType, ".txt", sep=""), stringsAsFactors=F, sep=",")
-omicsNameFile<-read.table(paste("../../data/", tumorType, "_", dataType, "_ids.txt", sep=""), stringsAsFactors=F, sep="")
+omicsFile<-read.table(paste("../data/", tumorType, "_", dataType, ".txt", sep=""), stringsAsFactors=F, sep=",")
+omicsNameFile<-read.table(paste("../data/", tumorType, "_", dataType, "_ids.txt", sep=""), stringsAsFactors=F, sep="")
 omicsFile<-omicsFile[substr(omicsNameFile[,1],14,15)=="01",]
 omicsNameFile<-omicsNameFile[substr(omicsNameFile[,1],14,15)=="01",]
 omicsID<-substr(omicsNameFile, 1, 12)
 
-clinicalFile<-read.table(paste("../../data/", "nationwidechildrens.org_clinical_patient_", tumorType, ".txt", sep=""), stringsAsFactors = F, sep="\t", quote="")
+clinicalFile<-read.table(paste("../data/", "nationwidechildrens.org_clinical_patient_", tumorType, ".txt", sep=""), stringsAsFactors = F, sep="\t", quote="")
 clinical<-clinicalFile[4:dim(clinicalFile)[1],]
 colnames(clinical)<-clinicalFile[2,]
 clinicalID<-clinical[,2]
