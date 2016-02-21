@@ -35,6 +35,7 @@ class ClinicalController < ApplicationController
 			end
 			x += 1
 		end
+	end
 
 	def get_col_index(target_var_name, file)
 		var_names_row = get_variable_names_row(file)
