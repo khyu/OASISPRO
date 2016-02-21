@@ -1,28 +1,3 @@
-/*function chart7(data) {
-	$('#container').highcharts({
-		title: {
-			text: 'Last Contact Years To'
-		},
-		tooltip: {
-			pointFormat: '<b>{point.y} ({point.percentage:.1f}%)</b>'
-		},
-		plotOptions: {
-			pie: {
-				allowPointSelect: true,
-				cursor: 'pointer',
-				dataLabels: {
-					enabled: true
-				}
-			}
-		},
-		series: [{
-			type: 'pie',
-			name: '',
-			data: generate_pie_categories(data)
-		}]
-	});
-}*/
-
 function chart7(data) {
 	var distribution = [0,.5,1,2,3,4,5,6,7,8,9,10,20];
 	var generated_bar = generate_continuous_bar(distribution, data, function(data) { return data/365; })

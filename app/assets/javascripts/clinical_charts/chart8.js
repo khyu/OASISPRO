@@ -1,28 +1,3 @@
-/*function chart8(data) {
-	$('#container').highcharts({
-		title: {
-			text: 'Death Days To'
-		},
-		tooltip: {
-			pointFormat: '<b>{point.y} ({point.percentage:.1f}%)</b>'
-		},
-		plotOptions: {
-			pie: {
-				allowPointSelect: true,
-				cursor: 'pointer',
-				dataLabels: {
-					enabled: true
-				}
-			}
-		},
-		series: [{
-			type: 'pie',
-			name: '',
-			data: generate_pie_categories(data)
-		}]
-	});
-}*/
-
 function chart8(data) {
 	var distribution = [0,400,800,1200,1600,2000];
 	var generated_bar = generate_continuous_bar(distribution, data)

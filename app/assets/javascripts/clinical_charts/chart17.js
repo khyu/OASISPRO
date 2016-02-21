@@ -1,28 +1,3 @@
-/*function chart17(data) {
-	$('#container').highcharts({
-		title: {
-			text: 'Age At Diagnosis'
-		},
-		tooltip: {
-			pointFormat: '<b>{point.y} ({point.percentage:.1f}%)</b>'
-		},
-		plotOptions: {
-			pie: {
-				allowPointSelect: true,
-				cursor: 'pointer',
-				dataLabels: {
-					enabled: true
-				}
-			}
-		},
-		series: [{
-			type: 'pie',
-			name: '',
-			data: generate_pie_categories(data)
-		}]
-	});
-}*/
-
 function chart17(data) {
 	var distribution = [10,90,10];
 	var generated_bar = generate_continuous_bar(distribution, data);
