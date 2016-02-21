@@ -90,7 +90,7 @@ class AnalysisController < ApplicationController
 	def batch_ids
 		ids = Array.new
 		filename = 'nationwidechildrens.org_clinical_patient_' + params[:tumor_type] + '.txt'
-		path = 'public/data/' # will need to alter to source of data pulled by file downloader
+		path = '../data/' # will need to alter to source of data pulled by file downloader
 		f = File.open(path + filename, "r")
 		numLines = 0
 		f.each_line do |line|
@@ -105,7 +105,7 @@ class AnalysisController < ApplicationController
 	end
 
 	def get_prediction_targets
-		path = 'public/data/nationwidechildrens.org_clinical_patient_' + params[:tumor_type] + '.txt'
+		path = '../data/nationwidechildrens.org_clinical_patient_' + params[:tumor_type] + '.txt'
 
 		targets = []
 		i = 0
@@ -120,7 +120,7 @@ class AnalysisController < ApplicationController
 			end
 		end
 
-		path = 'public/data/not_prediction_target.txt'
+		path = '../data/not_prediction_target.txt'
 		non_targets = []
 		File.open(path, "r") do |file_handle|
 			file_handle.each_line do |line|
