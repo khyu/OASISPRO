@@ -39,7 +39,7 @@
 		else {
 			$("#go_link").show();
 		}
-		
+
 		$.get('/analysis/get_features', {source: source, method: method}, function (data) {
 			var features = '';
 			content = '<table style="width:100%;">';

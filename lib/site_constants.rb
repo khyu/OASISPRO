@@ -67,5 +67,28 @@ module SiteConstants
 		medical_center_line = medical_center_line.split("\t")
 		MEDICAL_CENTERS << {id: medical_center_line[0], name: medical_center_line[1]}
 	end
+
+	CLINICAL_VARIABLES = [
+		nil,
+		'Age',
+		'Gender',
+		'Race',
+		'Ethnicity',
+		'History Neoadjuvant Treatment',
+		'Vital Status',
+		'Last Contact Years To',
+		'Death Days To',
+		'History Thyroid Disease',
+		'Family History Thyroid Cancer',
+		'History Radiation Exposure',
+		'Anatomic Subdivision',
+		'Tumor Focality',
+		'Tumor Size Length',
+		'Tumor Size Width',
+		'Tumor Size Depth',
+		'Age At Diagnosis',
+		'Extrathyroidal Extension',
+		'Ajcc Tumor Pathologic pt'
+	]
 end
 

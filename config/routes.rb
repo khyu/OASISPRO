@@ -68,7 +68,8 @@ Cs273aproject::Application.routes.draw do
   end
 
   resources :clinical do
-	 get :chart_data, on: :collection
+	  get :chart_data, on: :collection
+    get 'get_clinical_variables', on: :collection
   end
   
   resources :results
