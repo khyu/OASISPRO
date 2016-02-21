@@ -7,15 +7,7 @@ class ClinicalController < ApplicationController
 	def get_clinical_variables
 		data = []
 		f = File.open("../data/" + params[:tumor_type] + "-clinical-cut.txt", "r")
-		x = 0
-		f.each_line do |line|
-			if x > 0
-				data = line.strip.replace("_", " ").capitolize.split("\t")
-				break
-			end
-			x += 1
-		end
-
+		data = get_variable_names_row(f).strip.replace("_", " ").capitolize.split("\t")
 		render json: data
 	end
 
@@ -31,4 +23,29 @@ class ClinicalController < ApplicationController
 		
 		render json: data[3..-1]
 	end
+
+	private # -------------------------------------
+
+	# returns the line in the file containing the varibale names
+	def get_variable_names_row(file)
+		x = 0
+		file.each_line do |line|
+			if x == 1
+				return line
+			end
+			x += 1
+		end
+
+	def get_col_index(target_var_name, file)
+		var_names_row = get_variable_names_row(file)
+		variables = var_names_row.split(' ')
+		index = 0
+		for var in variables
+			if var == target_var_name
+				return index
+			end
+			index += 1
+		end
+	end
+
 end
