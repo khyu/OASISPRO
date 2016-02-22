@@ -5,22 +5,27 @@ class ClinicalController < ApplicationController
 	end
 
 	def get_clinical_variables
-		data = []
-		f = File.open("../data/" + params[:tumor_type] + "-clinical-cut.txt", "r")
+		f = File.open("../data/nationwidechildrens.org_clinical_patient_" + params[:tumor_type] + ".txt", "r")
 		data = get_variable_names_row(f).strip.replace("_", " ").capitolize.split("\t")
+		f.close
+
 		render json: data
 	end
 
 	def chart_data
 		data = Array.new
 		
-		f = File.open("../data/" + params[:tumor_type] + "-clinical-cut.txt", "r")
-		f.each_line do |line|
-		  line = line.strip.split("\t")
-		  data << line[params[:chart].to_i - 1]
-		end
+		f = File.open("../data/nationwidechildrens.org_clinical_patient_" + params[:tumor_type] + ".txt", "r")
+		clinical_variable_index = get_col_index(params[:clinical_variable], f)
 		f.close
-		
+
+		g = File.open("../data/nationwidechildrens.org_clinical_patient_" + params[:tumor_type] + ".txt", "r")
+		g.each_line do |line|
+		  line = line.strip.split("\t")
+		  data << line[clinical_variable_index]
+		end
+		g.close
+
 		render json: data[3..-1]
 	end
 
@@ -35,6 +40,7 @@ class ClinicalController < ApplicationController
 			end
 			x += 1
 		end
+	end
 
 	def get_col_index(target_var_name, file)
 		var_names_row = get_variable_names_row(file)
