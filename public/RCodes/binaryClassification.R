@@ -433,7 +433,7 @@ ggplot() +
 dev.off()
 
 # output AUC
-write.table(AUC,paste("public/sessions/"sessionID,"/ROC.png",sep=""),quote=F, sep="\t",row.names=F, col.names=F)
+write.table(AUC,paste("public/sessions/"sessionID,"/AUCs.txt",sep=""),quote=F, sep="\t",row.names=F, col.names=F)
 
 
 
