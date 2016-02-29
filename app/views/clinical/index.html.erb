@@ -9,6 +9,12 @@
 			$('select[name="clinical_variable"]').html(html);
 		});
 	});
+
+	$(document).on('change', 'select[name="clinical_variable"]', function(){
+		var tumor_type = $('select[name="tumor_type"]').val();
+		var clinical_variable = $('select[name="clinical_variable"]').val();
+		get_data(tumor_type, clinical_variable);
+	});
 </script>
 
 <b>Demographic profile on the 480 lung adenocarcinoma patients we analyzed.</b>
@@ -20,5 +26,5 @@ View Chart:
 
 <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
 <script>
-	get_data(1);
+	//get_data(1);
 </script>

@@ -6,7 +6,7 @@ class ClinicalController < ApplicationController
 
 	def get_clinical_variables
 		f = File.open("../data/nationwidechildrens.org_clinical_patient_" + params[:tumor_type] + ".txt", "r")
-		data = get_variable_names_row(f).strip.replace("_", " ").capitolize.split("\t")
+		data = get_variable_names_row(f).gsub("_", " ").split("\t")
 		f.close
 
 		render json: data
