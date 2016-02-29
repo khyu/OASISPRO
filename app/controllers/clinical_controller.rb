@@ -18,7 +18,7 @@ class ClinicalController < ApplicationController
 	def chart_data
 		data = Array.new
 		
-		clinical_variable = params[:clinical_variable].gsub(" ", "_")
+		clinical_variable = params[:clinical_variable].gsub(" ", "_").downcase
 		f = File.open("../data/nationwidechildrens.org_clinical_patient_" + params[:tumor_type] + ".txt", "r")
 		clinical_variable_index = get_col_index(clinical_variable, f)
 		f.close
