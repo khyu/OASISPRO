@@ -10,7 +10,9 @@ class ClinicalController < ApplicationController
 
 		f.close
 
-		render json: data.sort_by!{ |var| var.downcase }
+		data = data.map{ |var| var.capitalize }
+
+		render json: data.sort_by!{ |var| var.upcase }
 	end
 
 	def chart_data
