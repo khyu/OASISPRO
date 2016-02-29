@@ -10,15 +10,13 @@ class ClinicalController < ApplicationController
 
 		f.close
 
-		data = data.map{ |var| var.split.map(&:capitalize).join(' ') }
-
 		render json: data.sort_by!{ |var| var.upcase }
 	end
 
 	def chart_data
 		data = Array.new
 		
-		clinical_variable = params[:clinical_variable].gsub(" ", "_").downcase
+		clinical_variable = params[:clinical_variable].gsub(" ", "_")
 		f = File.open("../data/nationwidechildrens.org_clinical_patient_" + params[:tumor_type] + ".txt", "r")
 		clinical_variable_index = get_col_index(clinical_variable, f)
 		f.close
@@ -51,7 +49,7 @@ class ClinicalController < ApplicationController
 		variables = var_names_row.split(' ')
 		index = 0
 		for var in variables
-			if var == target_var_name
+			if var.downcase == target_var_name.downcase
 				return index
 			end
 			index += 1

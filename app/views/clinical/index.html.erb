@@ -4,7 +4,8 @@
 		$.get('/clinical/get_clinical_variables', {tumor_type: tumor_type}, function (data) {
 			var html = ""
 			data.forEach(function(clinical_variable) {
-				html += '<option>' + clinical_variable + '</option>'
+				capitalized = clinical_variable.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+				html += '<option value="' + clinical_variable + '">' + capitalized + '</option>'
 			});
 			$('select[name="clinical_variable"]').html(html);
 		});
