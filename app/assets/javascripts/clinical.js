@@ -50,6 +50,19 @@ function generate_bar_dataPoints(categories, data) {
 	return dataPoints;
 }
 
+function generate_distribution(data) {
+	var min = Math.min.apply(Math, data);
+	var max = Math.max.apply(Math, data);
+	var increment = (max - min) / 10;
+
+	var distribution = [];
+	for (var x = 0; x < 10; x++) {
+		distribution.push(min + increment * x);
+	}
+
+	return distribution;
+}
+
 function generate_continuous_bar(distribution, data, transform) {
 	var labels = ['N/A'];
 	var groups = [0];

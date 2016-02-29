@@ -1,5 +1,4 @@
 function continuousBarChart(data, title, y_axis) {
-	//var distribution = [10,90,10];
 	var distribution = generate_distribution(data);
 	var generated_bar = generate_continuous_bar(distribution, data);
 	
