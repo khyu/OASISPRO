@@ -51,12 +51,19 @@ function generate_bar_dataPoints(categories, data) {
 }
 
 function generate_distribution(data) {
-	var min = Math.min.apply(Math, data);
-	var max = Math.max.apply(Math, data);
+	var numeric_data = []
+	for (var x in data) {
+		if (parseFloat(data[x]) == data[x]) {
+			numeric_data.push(data[x]);
+		}
+	}
+
+	var min = Math.min.apply(Math, numeric_data);
+	var max = Math.max.apply(Math, numeric_data) + 1;
 	var increment = (max - min) / 10;
 
 	var distribution = [];
-	for (var x = 0; x < 10; x++) {
+	for (var x = 0; x <= 10; x++) {
 		distribution.push(min + increment * x);
 	}
 
