@@ -2,7 +2,7 @@
 	$(document).on('change', 'select[name="tumor_type"]', function(){
 		var tumor_type = $('select[name="tumor_type"]').val();
 		$.get('/clinical/get_clinical_variables', {tumor_type: tumor_type}, function (data) {
-			num_records_string = "The " + data["tumor_type"] + " dataset has " + data["num_records"].toString() + " records in it.";
+			num_records_string = "In this dataset, there are " + data["num_records"].toString() + " patients with " + data["tumor_type"] + "."
 
 			$('#data-set-overview').text(num_records_string);
 			data = data["vars"];
