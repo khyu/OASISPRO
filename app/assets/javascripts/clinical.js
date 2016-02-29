@@ -1,6 +1,6 @@
 function get_data(tumor_type, clinical_variable) {
-	$.get('/clinical/chart_data', {tumor_type: tumor_type, clinical_variable: clinical_variable}, function (data) {
-		window[chart_type](data);
+	$.get('/clinical/chart_data', {tumor_type: tumor_type, clinical_variable: clinical_variable}, function(result) {
+		window['chart_' + result['chart_type']](result['data']);
 	});
 }
 

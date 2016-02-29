@@ -1,4 +1,4 @@
-function pieChart(data, title) {
+function chart_d(data, title) {
 	$('#container').highcharts({
 		title: {
 			text: title

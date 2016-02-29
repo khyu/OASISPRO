@@ -15,8 +15,9 @@ class ClinicalController < ApplicationController
 	def chart_data
 		data = Array.new
 		
+		clinical_variable = params[:clinical_variable].gsub(" ", "_")
 		f = File.open("../data/nationwidechildrens.org_clinical_patient_" + params[:tumor_type] + ".txt", "r")
-		clinical_variable_index = get_col_index(params[:clinical_variable].gsub(" ", "_"), f)
+		clinical_variable_index = get_col_index(clinical_variable, f)
 		f.close
 
 		g = File.open("../data/nationwidechildrens.org_clinical_patient_" + params[:tumor_type] + ".txt", "r")
@@ -26,7 +27,7 @@ class ClinicalController < ApplicationController
 		end
 		g.close
 
-		render json: data[3..-1]
+		render json: {data: data[3..-1], chart_type: SiteConstants::CLINICAL_VARIABLE_TYPES[clinical_variable]}
 	end
 
 	private # -------------------------------------
