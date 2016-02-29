@@ -38,7 +38,7 @@ class ClinicalController < ApplicationController
 		file.each_line do |line|
 			x += 1
 		end
-		return x - 2
+		return x - 1
 	end
 
 	# returns the line in the file containing the varibale names
