@@ -7,10 +7,10 @@ class ClinicalController < ApplicationController
 	def get_clinical_variables
 		f = File.open("../data/nationwidechildrens.org_clinical_patient_" + params[:tumor_type] + ".txt", "r")
 		data = get_variable_names_row(f).gsub("_", " ").split("\t")
-
+		num_records = get_num_records(f)
 		f.close
-
-		render json: data.sort_by!{ |var| var.upcase }
+		data = data.sort_by!{ |var| var.upcase }
+		render json: {"tumor_type": SiteConstants::TUMOR_TYPES[params[:tumor_type].to_sym], "num_records": num_records, "vars": data}
 	end
 
 	def chart_data
@@ -32,6 +32,14 @@ class ClinicalController < ApplicationController
 	end
 
 	private # -------------------------------------
+
+	def get_num_records(file)
+		x = 0
+		file.each_line do |line|
+			x += 1
+		end
+		return x - 2
+	end
 
 	# returns the line in the file containing the varibale names
 	def get_variable_names_row(file)

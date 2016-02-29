@@ -2,6 +2,10 @@
 	$(document).on('change', 'select[name="tumor_type"]', function(){
 		var tumor_type = $('select[name="tumor_type"]').val();
 		$.get('/clinical/get_clinical_variables', {tumor_type: tumor_type}, function (data) {
+			num_records_string = "The " + data["tumor_type"] + " dataset has " + data["num_records"].toString() + " records in it.";
+
+			$('#data-set-overview').text(num_records_string);
+			data = data["vars"];
 			var html = ""
 			data.forEach(function(clinical_variable) {
 				capitalized = clinical_variable.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
@@ -19,6 +23,8 @@
 </script>
 
 <b>Demographic profile on the 480 lung adenocarcinoma patients we analyzed.</b>
+<br>
+<b id="data-set-overview"></b>
 <br><br>
 View Chart:
 <%= select_tag "tumor_type", options_for_select({'Choose Tumor Type' => ''}.merge(SiteConstants::TUMOR_TYPES.invert)) %>
