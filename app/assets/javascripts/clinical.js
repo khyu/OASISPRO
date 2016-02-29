@@ -64,7 +64,8 @@ function generate_distribution(data) {
 
 	var distribution = [];
 	for (var x = 0; x <= 10; x++) {
-		distribution.push(min + increment * x);
+		var d = min + increment * x;
+		distribution.push(Math.round(d * 1000) / 1000);
 	}
 
 	return distribution;

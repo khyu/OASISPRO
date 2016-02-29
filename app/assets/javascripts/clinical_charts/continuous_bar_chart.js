@@ -13,7 +13,10 @@ function chart_c(data, title, y_axis) {
 			text: title
 		},
 		xAxis: {
-			categories: generated_bar['labels']
+			categories: generated_bar['labels'],
+			labels: {
+				rotation: 45
+			}
 		},
 		yAxis: {
 			title: {
