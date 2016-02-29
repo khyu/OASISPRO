@@ -16,7 +16,7 @@ class ClinicalController < ApplicationController
 		data = Array.new
 		
 		f = File.open("../data/nationwidechildrens.org_clinical_patient_" + params[:tumor_type] + ".txt", "r")
-		clinical_variable_index = get_col_index(params[:clinical_variable], f)
+		clinical_variable_index = get_col_index(params[:clinical_variable].gsub(" ", "_"), f)
 		f.close
 
 		g = File.open("../data/nationwidechildrens.org_clinical_patient_" + params[:tumor_type] + ".txt", "r")
