@@ -10,7 +10,7 @@ class ClinicalController < ApplicationController
 
 		f.close
 
-		data = data.map{ |var| var.capitalize }
+		data = data.map{ |var| var.split.map(&:capitalize).join(' ') }
 
 		render json: data.sort_by!{ |var| var.upcase }
 	end
