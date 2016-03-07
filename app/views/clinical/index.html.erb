@@ -2,9 +2,14 @@
 	$(document).on('change', 'select[name="tumor_type"]', function(){
 		var tumor_type = $('select[name="tumor_type"]').val();
 		$.get('/clinical/get_clinical_variables', {tumor_type: tumor_type}, function (data) {
+			num_records_string = "In this dataset, there are " + data["num_records"].toString() + " patients with " + data["tumor_type"] + "."
+
+			$('#data-set-overview').text(num_records_string);
+			data = data["vars"];
 			var html = ""
 			data.forEach(function(clinical_variable) {
-				html += '<option>' + clinical_variable + '</option>'
+				capitalized = clinical_variable.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+				html += '<option value="' + clinical_variable + '">' + capitalized + '</option>'
 			});
 			$('select[name="clinical_variable"]').html(html);
 		});
@@ -18,6 +23,8 @@
 </script>
 
 <b>Demographic profile on the 480 lung adenocarcinoma patients we analyzed.</b>
+<br>
+<b id="data-set-overview"></b>
 <br><br>
 View Chart:
 <%= select_tag "tumor_type", options_for_select({'Choose Tumor Type' => ''}.merge(SiteConstants::TUMOR_TYPES.invert)) %>

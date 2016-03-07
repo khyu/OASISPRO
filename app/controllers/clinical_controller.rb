@@ -7,18 +7,16 @@ class ClinicalController < ApplicationController
 	def get_clinical_variables
 		f = File.open("../data/nationwidechildrens.org_clinical_patient_" + params[:tumor_type] + ".txt", "r")
 		data = get_variable_names_row(f).gsub("_", " ").split("\t")
-
+		num_records = get_num_records(f)
 		f.close
-
-		data = data.map{ |var| var.split.map(&:capitalize).join(' ') }
-
-		render json: data.sort_by!{ |var| var.upcase }
+		data = data.sort_by!{ |var| var.upcase }
+		render json: {"tumor_type": SiteConstants::TUMOR_TYPES[params[:tumor_type].to_sym], "num_records": num_records, "vars": data}
 	end
 
 	def chart_data
 		data = Array.new
 		
-		clinical_variable = params[:clinical_variable].gsub(" ", "_").downcase
+		clinical_variable = params[:clinical_variable].gsub(" ", "_")
 		f = File.open("../data/nationwidechildrens.org_clinical_patient_" + params[:tumor_type] + ".txt", "r")
 		clinical_variable_index = get_col_index(clinical_variable, f)
 		f.close
@@ -34,6 +32,14 @@ class ClinicalController < ApplicationController
 	end
 
 	private # -------------------------------------
+
+	def get_num_records(file)
+		x = 0
+		file.each_line do |line|
+			x += 1
+		end
+		return x - 1
+	end
 
 	# returns the line in the file containing the varibale names
 	def get_variable_names_row(file)
@@ -51,7 +57,7 @@ class ClinicalController < ApplicationController
 		variables = var_names_row.split(' ')
 		index = 0
 		for var in variables
-			if var == target_var_name
+			if var.downcase == target_var_name.downcase
 				return index
 			end
 			index += 1
