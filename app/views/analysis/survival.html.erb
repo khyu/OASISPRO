@@ -32,13 +32,13 @@
 	<div style="float:left;width:400px;">
 		<h4>Choose the Tumor Type</h4>
 		<div class="well">
-			<%= select_tag "tumor_type", options_for_select(SiteConstants::TUMOR_TYPES.invert) %>
+			<%= select_tag "tumor_type", options_for_select({'Choose Tumor Type' => ''}.merge(SiteConstants::TUMOR_TYPES.invert)) %>
 		</div>
 	</div>
 	<div style="float:left;width:400px;margin-left:10px;">
 		<h4>Choose the Data Source</h4>
 		<div class="well">
-			<%= select_tag "data_source", options_for_select(SiteConstants::DATA_TYPES.invert) %>
+			<%= select_tag "data_source", options_for_select({'Choose Data Source' => ''}.merge(SiteConstants::DATA_TYPES.invert)) %>
 		</div>
 	</div>
 	<br style="clear:both;">
