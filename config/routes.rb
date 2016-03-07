@@ -56,6 +56,10 @@ Cs273aproject::Application.routes.draw do
   
   resources :home
 
+  resources :admin do
+    post 'run_downloader', on: :collection
+  end
+
   resources :analysis do
     post 'stageoutput', on: :collection
     get 'stage', on: :collection

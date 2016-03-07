@@ -1,0 +1,13 @@
+<h1>Run Downloader</h1>
+
+<% if @running %>
+	<div style="color:#080;font-weight:bold;">Downloader started!</div>
+<% elsif @password_incorrect %>
+	<div style="color:#800;font-weight:bold;">Wrong password.</div>
+<% end %>
+
+<%= form_tag '/admin/run_downloader', method: :post do %>
+	Password: <%= password_field_tag "password" %>
+	<br><br>
+	<%= submit_tag 'Run downloader', class: 'btn' %>
+<% end %>
