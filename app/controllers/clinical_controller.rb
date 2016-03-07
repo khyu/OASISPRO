@@ -10,7 +10,7 @@ class ClinicalController < ApplicationController
 		num_records = get_num_records(f)
 		f.close
 		data = data.sort_by!{ |var| var.upcase }
-		render json: {"tumor_type": SiteConstants::TUMOR_TYPES[params[:tumor_type].to_sym], "num_records": num_records, "vars": data}
+		render json: {"tumor_type" => SiteConstants::TUMOR_TYPES[params[:tumor_type].to_sym], "num_records" => num_records, "vars" => data}
 	end
 
 	def chart_data
