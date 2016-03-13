@@ -49,14 +49,32 @@ class AnalysisController < ApplicationController
 			validators = {
 				tumor_type: SiteConstants::TUMOR_TYPES.keys.map { |x| x.to_s },
 				data_source: SiteConstants::DATA_TYPES.keys.map { |x| x.to_s },
+				partition: SiteConstants::PARTITION_TYPES,
+				random_seed: '*',
+				training_percentage: 'FLOAT',
 				alpha_lower_bound: 'FLOAT',
 				alpha_upper_bound: 'FLOAT',
 				lambda_lower_bound: 'FLOAT',
 				lambda_upper_bound: 'FLOAT'
 			}
 
+			if params[:partition] == 'batch'
+				params[:random_seed] = "batch.txt"
+				Dir.mkdir("public/sessions") unless File.exists?("public/sessions")
+				Dir.mkdir("public/sessions/#{params[:session_id]}") unless File.exists?("public/sessions/#{params[:session_id]}")
+				File.write("public/sessions/#{params[:session_id]}/" + params[:random_seed], (params[:medical_centers] || []).join("\n") + "\n")
+			elsif params[:random_seed].blank?
+				params[:random_seed] = -1
+			end
+
+			if params[:training_percentage].present?
+				params[:training_percentage] = Float(params[:training_percentage])/100
+			else
+				params[:training_percentage] = -1
+			end
+
 			# Default for alpha/lambda bound params
-			validators.keys[2..5].each do |param|
+			validators.keys[5..8].each do |param|
 				params[param] = -1 if params[param].blank?
 			end
 

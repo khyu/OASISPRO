@@ -96,18 +96,4 @@
 	<% end %>
 </div>
 <br style="clear:both;">
-<script>
-function render_slider(max) {
-	$(function() {
-		$( "#slider" ).slider({
-			min: 1,
-			max: max,
-			value: 10, 
-			slide: function( event, ui ) {
-				$( "#amount" ).val( ui.value );
-			}
-		});
-	});
-}
-render_slider(20531);
-</script>
+
