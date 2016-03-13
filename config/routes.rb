@@ -69,6 +69,7 @@ Cs273aproject::Application.routes.draw do
     get 'get_features', on: :collection
     get 'batch_ids', on: :collection
     get 'get_prediction_targets', on: :collection
+    get 'get_clinical_variables', on: :collection
   end
 
   resources :clinical do

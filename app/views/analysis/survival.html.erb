@@ -20,6 +20,27 @@
 		}
 		set_optimal_lambda();
 		$("input[name=optimal_lambda]").click(set_optimal_lambda);
+
+		var get_clinical_variables = function() {
+			$('#clinical_variables').html("");
+
+			var tumor_type = $('select[name="tumor_type"]').val();
+			if (tumor_type) {
+				$.get('/analysis/get_clinical_variables', {tumor_type: tumor_type}, function (data) {
+					var html = '<table>';
+					var i = 0;
+					data.forEach(function(prediction_target) {
+						html += '<tr><td style="margin:0"><input type="checkbox" name="clinical_variables[]" value="' + i + '" style="margin:0"></td><td>' + prediction_target + '</td></tr>'
+						i++;
+					});
+					html += '</table>';
+					$('#clinical_variables').html(html);
+				});
+			}
+		};
+
+		get_clinical_variables();
+		$('select[name="tumor_type"]').change(get_clinical_variables);
 	});
 </script>
 
@@ -43,10 +64,10 @@
 	</div>
 	<br style="clear:both;">
 	
-	<div style="float:left;width:400px;">
+	<div style="float:left;width:320px;">
 		<%= render partial: 'batch' %>
 	</div>
-	<div style="float:left;width:400px;margin-left:10px">
+	<div style="float:left;width:320px;margin-left:10px">
 		<h4>Alpha / Lambda</h4>
 		<div class="well">
 			<table class="noborder">
@@ -75,6 +96,12 @@
 					</td>
 				</tr>
 			</table>
+		</div>
+	</div>
+	<div style="float:left;width:300px;margin-left:10px">
+		<h4>Add Clinical Variables</h4>
+		<div class="well">
+			<div id="clinical_variables" style="height:400px;overflow-y:auto"></div>
 		</div>
 	</div>
 

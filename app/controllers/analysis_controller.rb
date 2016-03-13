@@ -46,6 +46,7 @@ class AnalysisController < ApplicationController
 
 	def survival
 		if params[:generate]
+			params[:session_id] = rand.to_s.sub("0.", "") 
 			validators = {
 				tumor_type: SiteConstants::TUMOR_TYPES.keys.map { |x| x.to_s },
 				data_source: SiteConstants::DATA_TYPES.keys.map { |x| x.to_s },
@@ -55,7 +56,9 @@ class AnalysisController < ApplicationController
 				alpha_lower_bound: 'FLOAT',
 				alpha_upper_bound: 'FLOAT',
 				lambda_lower_bound: 'FLOAT',
-				lambda_upper_bound: 'FLOAT'
+				lambda_upper_bound: 'FLOAT',
+				clinical_variable_file: '*',
+				session_id: '*'
 			}
 
 			if params[:partition] == 'batch'
@@ -76,6 +79,15 @@ class AnalysisController < ApplicationController
 			# Default for alpha/lambda bound params
 			validators.keys[5..8].each do |param|
 				params[param] = -1 if params[param].blank?
+			end
+
+			if params[:clinical_variables]
+				params[:clinical_variable_file] = "variables.txt"
+				Dir.mkdir("public/sessions") unless File.exists?("public/sessions")
+				Dir.mkdir("public/sessions/#{params[:session_id]}") unless File.exists?("public/sessions/#{params[:session_id]}")
+				File.write("public/sessions/#{params[:session_id]}/" + params[:clinical_variable_file], params[:clinical_variables].join("\n") + "\n")
+			else
+				params[:clinical_variable_file] = -1
 			end
 
 			result = build_command(validators, params)
@@ -155,6 +167,25 @@ class AnalysisController < ApplicationController
 		end
 
 		render json: data
+	end
+
+	def get_clinical_variables
+		path = '../data/nationwidechildrens.org_clinical_patient_' + params[:tumor_type] + '.txt'
+
+		clinical_variables = []
+		i = 0
+		File.open(path, "r") do |file_handle|
+			file_handle.each_line do |line|
+				if i == 1
+					clinical_variables = line.strip.split("\t")
+				elsif i > 1
+					break
+				end
+				i += 1
+			end
+		end
+
+		render json: clinical_variables
 	end
 
 
