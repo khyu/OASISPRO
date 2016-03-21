@@ -116,9 +116,15 @@
 	<% if params[:generate] %>
 		<h2>Results</h2>
 		<div class="well">
-			<a href="/dropbox/analysis/Survival/survivalOutput.png?r=<%= rand(100000) %>" target="_blank">
-				<img src="/dropbox/analysis/Survival/survivalOutput.png?r=<%= rand(100000) %>">
+			<a href="/sessions/<%= @sessionID%>/survivalOutput.png" target="_blank">
+				<img src="/sessions/<%= @sessionID%>/survivalOutput.png">
 			</a>
+		</div>
+		<b>Log Rank P Value in the Test Set</b>
+		<div class="well">
+			<% @pTest.each do |pvalue| %>
+				<p><%= pvalue[0].to_f.round(4) %></p>
+			<% end %>
 		</div>
 	<% end %>
 </div>

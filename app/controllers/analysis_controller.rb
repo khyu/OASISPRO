@@ -4,6 +4,7 @@ class AnalysisController < ApplicationController
 	def stage
 		if params[:generate]
 			params[:session_id] = rand.to_s.sub("0.", "") 
+			@sessionID = "#{params[:session_id]}"
 			validators = {
 				tumor_type: SiteConstants::TUMOR_TYPES.keys.map { |x| x.to_s },
 				data_source: SiteConstants::DATA_TYPES.keys.map { |x| x.to_s },
@@ -21,8 +22,12 @@ class AnalysisController < ApplicationController
 				Dir.mkdir("public/sessions") unless File.exists?("public/sessions")
 				Dir.mkdir("public/sessions/#{params[:session_id]}") unless File.exists?("public/sessions/#{params[:session_id]}")
 				File.write("public/sessions/#{params[:session_id]}/" + params[:random_seed], (params[:medical_centers] || []).join("\n") + "\n")
-			elsif params[:random_seed].blank?
-				params[:random_seed] = -1
+			else
+				if params[:random_seed].blank?
+					params[:random_seed] = -1
+				end
+				Dir.mkdir("public/sessions") unless File.exists?("public/sessions")
+				Dir.mkdir("public/sessions/#{params[:session_id]}") unless File.exists?("public/sessions/#{params[:session_id]}")
 			end
 
 			if params[:training_percentage].present?
@@ -39,8 +44,30 @@ class AnalysisController < ApplicationController
 				system(@command)
 			end
 
-			# TBD
-			@area_under_curve = []
+			# area under curve
+			@area_under_curve = Array.new
+			f = File.open("public/sessions/#{params[:session_id]}/AUCs.txt", "r")
+			
+			auc_labels = [
+				'Recursive Partitioning Trees',
+				'Conditional Inference Trees (CITs)', 
+				'Random Forest with CITs', 
+				'Bagging',
+				'SVMs with Gaussian Kernel',
+				'SVMs with Linear Kernel',
+				'SVMs with Polynomial Kernel',
+				'SVMs with Sigmoid Kernel',
+				'Decision Trees',
+				'Random Forest',
+				'Naive Bayes',
+				'Naive Bayes with Laplace Smoothing'
+			]
+			x = 0
+			f.each_line do |line|
+				@area_under_curve << [line, auc_labels[x]]
+				x += 1
+			end
+			f.close
 		end
 	end
 
@@ -66,8 +93,12 @@ class AnalysisController < ApplicationController
 				Dir.mkdir("public/sessions") unless File.exists?("public/sessions")
 				Dir.mkdir("public/sessions/#{params[:session_id]}") unless File.exists?("public/sessions/#{params[:session_id]}")
 				File.write("public/sessions/#{params[:session_id]}/" + params[:random_seed], (params[:medical_centers] || []).join("\n") + "\n")
-			elsif params[:random_seed].blank?
-				params[:random_seed] = -1
+			else
+				if params[:random_seed].blank?
+					params[:random_seed] = -1
+				end
+				Dir.mkdir("public/sessions") unless File.exists?("public/sessions")
+				Dir.mkdir("public/sessions/#{params[:session_id]}") unless File.exists?("public/sessions/#{params[:session_id]}")
 			end
 
 			if params[:training_percentage].present?
@@ -97,6 +128,17 @@ class AnalysisController < ApplicationController
 				@command = "Rscript public/RCodes/elasticNetCox.R#{result[:command]}"
 				system(@command)
 			end
+			
+			@sessionID = "#{params[:session_id]}"
+			# p value
+			@pTest = Array.new
+			f = File.open("public/sessions/#{params[:session_id]}/pTest.txt", "r")
+			
+			x = 0
+			f.each_line do |line|
+				@pTest << [line]
+			end
+			f.close
 		end
 	end
 

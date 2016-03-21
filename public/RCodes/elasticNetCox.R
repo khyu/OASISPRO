@@ -128,7 +128,7 @@ survivedDays<-survivedDays[survivedDays!=-1]
 Ymatrix<-Surv(survivedDays,event)
 Ymatrix[,1]<-Ymatrix[,1]+1
 
-print("Ymatrix done")
+print("Finished building survival matrix")
 write("Finished building survival matrix",milestonesFileName,append=T)
 
 if (partitionType == "random") {
@@ -153,7 +153,7 @@ if (minLambda == -1) {
 } else {
   elasticnet<-lapply(alphas, function(alpha){cv.glmnet(as.matrix(X[trainingSet,]), Ymatrix[trainingSet,], lambda=seq(minLambda,maxLambda,0.0001), alpha=alpha, family="cox")})
 }
-print("cv done")
+print("Finished regularization")
 write("Finished regularization",milestonesFileName,append=T)
 
 minCVMs<-rep(0,length(alphas))
@@ -172,8 +172,8 @@ predAll<-predict(cv.tr,as.matrix(X),s=lambdaFit,type='response')
 predTrain<-predict(cv.tr,as.matrix(X[trainingSet,]),s=lambdaFit,type='response')
 predTest<-predict(cv.tr,as.matrix(X[testSet,]),s=lambdaFit,type='response')
 
-print("prediction done")
-write("Finished prediction",milestonesFileName,append=T)
+print("Finished survival prediction")
+write("Finished survival prediction",milestonesFileName,append=T)
 
 # #Make predictions. Use cross validation to find optimal lambda if user did not specify lambda range.
 # if (minLambda == -1) {
@@ -237,6 +237,14 @@ plotTestGGsurv<-plotTest
 plotTestGGsurv[,2]<-plotTestGGsurv[,2]/12
 plotTest.surv <- survfit(Surv(V2, V3) ~ X1, data = plotTestGGsurv)
 
+
+survdiffTrain<-survdiff(Surv(survivedDays[trainingSet], event[trainingSet]) ~ plotTrain[,1], plotTrain)
+survdiffTest<-survdiff(Surv(survivedDays[testSet], event[testSet]) ~ plotTest[,1], plotTest)
+pTrain<-1-pchisq(survdiffTrain$chisq, length(survdiffTrain$n)-1)
+pTest<-1-pchisq(survdiffTest$chisq, length(survdiffTest$n)-1)
+print(pTest)
+write(pTest,paste("public/sessions/",sysargs[11],"/pTest.txt",sep=""),append=T)
+
 print("everything but ggsurv done")
 write("Finished building survival groups",milestonesFileName,append=T)
 
@@ -244,7 +252,7 @@ write("Finished building survival groups",milestonesFileName,append=T)
 #source("../public/dropbox/analysis/Survival/ggsurv.R")
 source("public/RCodes/ggsurv.R")
 
-png(filename=paste("public/sessions/",sysargs[11],"/survivalOutput_", tumorType, ".png", sep=""), width=1000, height=500)
+png(filename=paste("public/sessions/",sysargs[11],"/survivalOutput.png", sep=""), width=1000, height=500)
 ggsurv(plotTest.surv) + 
   guides(linetype = F) + 
   xlab("Months") + ggtitle("Kaplan-Meier Curve") +
@@ -258,7 +266,7 @@ ggsurv(plotTest.surv) +
 # Close and save the PNG file.
 dev.off()
 
-print("all done")
+print("Completed!")
 write("Completed!",milestonesFileName,append=T)
 #}
   

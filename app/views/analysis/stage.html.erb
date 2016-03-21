@@ -113,8 +113,8 @@
 	<% if params[:generate] %>
 		<h2 id="results">Results</h2>
 		<div class="well">
-		<a href="/dropbox/analysis/StageOverall/output.png?r=<%= rand(100000) %>" target="_blank">
-			<img src="/dropbox/analysis/StageOverall/output.png?r=<%= rand(100000) %>">
+		<a href="/sessions/<%= @sessionID%>/roc.png" target="_blank">
+			<img src="/sessions/<%= @sessionID%>/roc.png">
 		</a>
 		</div>
 		<b>Area Under Curve for machine learning models:</b>

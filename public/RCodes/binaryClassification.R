@@ -14,7 +14,7 @@
 # param 9: session ID
 #
 # Kun-Hsing Yu
-# Dec. 8, 2015
+# March 20, 2016
 
 rm(list=ls())
 library(FSelector)
@@ -29,8 +29,8 @@ dataType<-sysargs[2]
 predictionTarget<-sysargs[3]
 partitionType<-sysargs[4]
 if (partitionType == "random") {
-	partitionSeed<-sysargs[5]
-	trainingPercentage<-sysargs[6]
+	partitionSeed<-as.numeric(sysargs[5])
+	trainingPercentage<-as.numeric(sysargs[6])
 	nRandGroups<-20
 } else {
 	partitionSeed<-(-1)
@@ -65,13 +65,21 @@ AUCs<-rep(0,12)
 
 print (featureSelectionMethod)
 print (numFeatures)
+milestonesFileName<-paste("public/sessions/",sessionID,"/milestones.txt",sep="")
+
 
 # read files
 omicsFile<-read.table(paste("../data/", tumorType, "_", dataType, ".txt", sep=""), stringsAsFactors=F, sep=",")
+print("Finished reading omics file")
+write("Finished reading omics file",milestonesFileName)
+
+
 omicsNameFile<-read.table(paste("../data/", tumorType, "_", dataType, "_ids.txt", sep=""), stringsAsFactors=F, sep="")
 omicsFile<-omicsFile[substr(omicsNameFile[,1],14,15)=="01",]
 omicsNameFile<-omicsNameFile[substr(omicsNameFile[,1],14,15)=="01",]
 omicsID<-substr(omicsNameFile, 1, 12)
+
+
 
 clinicalFile<-read.table(paste("../data/", "nationwidechildrens.org_clinical_patient_", tumorType, ".txt", sep=""), stringsAsFactors = F, sep="\t", quote="")
 clinical<-clinicalFile[4:dim(clinicalFile)[1],]
@@ -96,6 +104,10 @@ Y<-as.factor(Y)
 X<-omics[!is.na(YFile),]
 iDs<-intersectIDs[!is.na(YFile)]
 
+print("Finished building survival matrix")
+write("Finished building survival matrix",milestonesFileName,append=T)
+
+
 
 if (partitionType == "random") {
   trainingSet<-sample(length(Y), floor(length(Y)*trainingPercentage), replace=F)
@@ -115,22 +127,19 @@ if (featureSelectionMethod == "infog"){
     #X<-X[,weights>0.155]
   subsetFeatures<-cutoff.k(weights, numFeatures)
   X<-X[,subsetFeatures]
-}
-else if (featureSelectionMethod == "gainr"){
+} else if (featureSelectionMethod == "gainr"){
   # gain ratio
   weights <- gain.ratio(YTrain~., XTune)
     #X<-X[,(weights>0.22 & is.na(weights)==F)]
   subsetFeatures<-cutoff.k(weights, numFeatures)
   X<-X[,subsetFeatures]
-}
-else if (featureSelectionMethod == "symu"){
+} else if (featureSelectionMethod == "symu"){
   # symmetrical uncertainty
   weights <- symmetrical.uncertainty(YTrain~., XTune)
     #X<-X[,weights>0.21]
   subsetFeatures<-cutoff.k(weights, numFeatures)
   X<-X[,subsetFeatures]
-}
-else if (FALSE){
+} else if (FALSE){
   # consistency
   weights <- consistency(YTrain~., XTune)
   X<-X[,weights]
@@ -139,25 +148,25 @@ else if (FALSE){
   weights <- chi.squared(YTrain~., XTune)
   subsetFeatures<-cutoff.k(weights, numFeatures)
   X<-X[,subsetFeatures]
-}
-else if (FALSE){
+} else if (FALSE){
   # cfs
   weights <- cfs(YTrain~., XTune)
   subsetFeatures<-cutoff.k(weights, numFeatures)
   X<-X[,weights]
-}
-else if (featureSelectionMethod == "randf"){
+} else if (featureSelectionMethod == "randf"){
   # random forest importance
   weights <- random.forest.importance(YTrain~., XTune, importance.type = 1)
   subsetFeatures<-cutoff.k(weights, numFeatures)
   X<-X[,subsetFeatures]
-}
-else {
+} else {
   # custom
   customFile<-read.table(featureSelectionMethod, sep="")
   subsetFeatures<-customFile[,1]
   X<-X[,subsetFeatures]
 }
+print("Finished feature selection")
+write("Finished feature selection",milestonesFileName,append=T)
+
 
 # create model using recursive partitioning on the training data set
 library(rpart)
@@ -297,6 +306,9 @@ x.nb.prob <- predict(x.nb, type="raw", newdata=X[testSet,], probability = TRUE)
 x.nb.l<-naiveBayes(X[trainingSet,],Y[trainingSet], laplace = 3)
 x.nb.l.prob <- predict(x.nb.l, type="raw", newdata=X[testSet,], probability = TRUE)
 
+print("Finished prediction")
+write("Finished prediction",milestonesFileName,append=T)
+
 ##
 ## plot ROC curves to compare the performance of the individual classifiers
 ##
@@ -406,9 +418,12 @@ AUCs[12]<-unlist(performance(x.nb.l.prob.rocr,"auc")@y.values)
 #plot(x.svm.perf, col=13, add=TRUE)
 d12 <- data.frame(x1=x.nb.l.perf@x.values[[1]], y1=x.nb.l.perf@y.values[[1]], Methods="NB with Laplace Smoothing")
 
+print("Finished model evaluation")
+write("Finished model evaluation",milestonesFileName,append=T)
+
 
 # output plot
-figureFileName<-paste("public/sessions/"sessionID,"/ROC.png",sep="")
+figureFileName<-paste("public/sessions/",sessionID,"/ROC.png",sep="")
 png(filename=figureFileName, width=1000, height=500)
 ggplot() +
   geom_path(aes(x1, y1, colour=Methods), d1) +
@@ -433,9 +448,10 @@ ggplot() +
 dev.off()
 
 # output AUC
-write.table(AUC,paste("public/sessions/"sessionID,"/AUCs.txt",sep=""),quote=F, sep="\t",row.names=F, col.names=F)
+write.table(AUCs,paste("public/sessions/",sessionID,"/AUCs.txt",sep=""),quote=F, sep="\t",row.names=F, col.names=F)
 
-
+print("Completed!")
+write("Completed!",milestonesFileName,append=T)
 
 
 
