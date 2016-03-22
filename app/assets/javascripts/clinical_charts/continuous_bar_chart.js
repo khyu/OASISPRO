@@ -25,8 +25,11 @@ function chart_c(data, title, y_axis) {
 		},
 		plotOptions: {
 			column: {
-				pointPadding: 0.2,
+				pointPadding: 0,
 				borderWidth: 0
+			},
+			series: {
+				groupPadding: 0
 			}
 		},
 		tooltip: {
