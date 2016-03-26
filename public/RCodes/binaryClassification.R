@@ -423,7 +423,7 @@ write("Finished model evaluation",milestonesFileName,append=T)
 
 
 # output plot
-figureFileName<-paste("public/sessions/",sessionID,"/ROC.png",sep="")
+figureFileName<-paste("public/sessions/",sessionID,"/roc.png",sep="")
 png(filename=figureFileName, width=1000, height=500)
 ggplot() +
   geom_path(aes(x1, y1, colour=Methods), d1) +
