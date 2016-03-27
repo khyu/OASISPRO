@@ -14,28 +14,48 @@ class ClinicalController < ApplicationController
 	end
 
 	def chart_data
+		data = get_data(params[:clinical_variable], params[:tumor_type])
+
+		render json: {data: data[3..-1], chart_type: SiteConstants::CLINICAL_VARIABLE_TYPES[params[:clinical_variable]]}
+	end
+
+	def table_data
+		data = get_data(params[:clinical_variable], params[:tumor_type])
+		render :partial => "data_table", :locals => { data: data_table_data(data)}
+	end
+
+	private # -------------------------------------
+
+	def get_data(clinical_variable, tumor_type)
 		data = Array.new
-		
-		clinical_variable = params[:clinical_variable].gsub(" ", "_")
-		f = File.open("../data/nationwidechildrens.org_clinical_patient_" + params[:tumor_type] + ".txt", "r")
+		clinical_variable = clinical_variable.gsub(" ", "_")
+		f = File.open("../data/nationwidechildrens.org_clinical_patient_" + tumor_type + ".txt", "r")
 		clinical_variable_index = get_col_index(clinical_variable, f)
 		f.close
 
-		g = File.open("../data/nationwidechildrens.org_clinical_patient_" + params[:tumor_type] + ".txt", "r")
+		g = File.open("../data/nationwidechildrens.org_clinical_patient_" + tumor_type + ".txt", "r")
 		g.each_line do |line|
 		  line = line.strip.split("\t")
 		  data << line[clinical_variable_index]
 		end
 		g.close
-
-		render json: {data: data[3..-1], chart_type: SiteConstants::CLINICAL_VARIABLE_TYPES[clinical_variable]}
+		return data
 	end
 
-	def table_data
-		
+	def data_table_data(data)
+		elems = {}
+		for line in data
+			if !elems['line']
+				elems['line'] = 0
+			end
+			elems['line'] = elems['line'] + 1
+		end
+		data_array = Array.new()
+		for elem in elems
+			data_array << [elem, elems[elem]]
+		end
+		return data_array
 	end
-
-	private # -------------------------------------
 
 	def get_num_records(file)
 		x = 0

@@ -34,6 +34,20 @@
 			};	
 		});
 	};
+
+	$('#data-table-toggle').on('click', function() {
+		var tumor_type = $('select[name="tumor_type"]').val();
+		var clinical_variable = $('select[name="clinical_variable"]').val();
+		if ($('#data-table-toggle').text() == 'View as data table') {
+			$('#data-table-toggle').text("View as pie chart")
+			$.get('/clinical/table_data', {tumor_type: tumor_type, clinical_variable: clinical_variable}, function(result) {
+				$('#container').html(result);
+			});
+		} else {
+			$('#data-table-toggle').text("View as data table");
+			get_data(tumor_type, clinical_variable);
+		};
+	});
 </script>
 
 <b id="data-set-overview"></b>
