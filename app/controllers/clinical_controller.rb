@@ -31,6 +31,10 @@ class ClinicalController < ApplicationController
 		render json: {data: data[3..-1], chart_type: SiteConstants::CLINICAL_VARIABLE_TYPES[clinical_variable]}
 	end
 
+	def table_data
+		
+	end
+
 	private # -------------------------------------
 
 	def get_num_records(file)

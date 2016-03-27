@@ -14,6 +14,7 @@
 
 			$('select[name="clinical_variable"]').html(html);
 			get_data(tumor_type, data[0]);
+			init_data_table(tumor_type, data[0]);
 		});
 	});
 
@@ -21,7 +22,18 @@
 		var tumor_type = $('select[name="tumor_type"]').val();
 		var clinical_variable = $('select[name="clinical_variable"]').val();
 		get_data(tumor_type, clinical_variable);
+		init_data_table(tumor_type, clinical_variable);
 	});
+
+	function init_data_table(tumor_type, clinical_variable) {
+		$.get('/clinical/chart_data', {tumor_type: tumor_type, clinical_variable: clinical_variable}, function(result) {
+			if (result["chart_type"] != 'd') {
+				$('#data-table-toggle').hide();
+			} else {
+				$('#data-table-toggle').show();
+			};	
+		});
+	};
 </script>
 
 <b id="data-set-overview"></b>
@@ -30,6 +42,8 @@ View Chart:
 <%= select_tag "tumor_type", options_for_select({'Choose Tumor Type' => ''}.merge(SiteConstants::TUMOR_TYPES.invert)) %>
 
 <%= select_tag "clinical_variable" %>
+
+<span class="span-like-link" style="display: none; float:right;" id="data-table-toggle">View as data table</span>
 
 <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
 <script>

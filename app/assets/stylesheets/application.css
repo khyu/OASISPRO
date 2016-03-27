@@ -30,3 +30,12 @@ td, th {
 #slider .ui-state-default {
 	background: repeat-x scroll 50% 50% #e6e6e6 !important;
 }
+
+span.span-like-link {
+	cursor: pointer;
+	color: #337ab7;
+
+	&:hover {
+		text-decoration: underline;
+	}
+}
