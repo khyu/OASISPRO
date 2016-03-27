@@ -16,7 +16,7 @@ class ClinicalController < ApplicationController
 	def chart_data
 		data = get_data(params[:clinical_variable], params[:tumor_type])
 
-		render json: {data: data[3..-1], chart_type: SiteConstants::CLINICAL_VARIABLE_TYPES[params[:clinical_variable]]}
+		render json: {data: data[3..-1], chart_type: SiteConstants::CLINICAL_VARIABLE_TYPES[params[:clinical_variable].gsub(" ", "_")]}
 	end
 
 	def table_data
@@ -45,10 +45,10 @@ class ClinicalController < ApplicationController
 	def data_table_data(data)
 		elems = {}
 		for line in data
-			if !elems['line']
-				elems['line'] = 0
+			if !elems[line]
+				elems[line] = 0
 			end
-			elems['line'] = elems['line'] + 1
+			elems[line] = elems[line] + 1
 		end
 		data_array = Array.new()
 		for elem in elems

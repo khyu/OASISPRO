@@ -25,17 +25,8 @@
 		init_data_table(tumor_type, clinical_variable);
 	});
 
-	function init_data_table(tumor_type, clinical_variable) {
-		$.get('/clinical/chart_data', {tumor_type: tumor_type, clinical_variable: clinical_variable}, function(result) {
-			if (result["chart_type"] != 'd') {
-				$('#data-table-toggle').hide();
-			} else {
-				$('#data-table-toggle').show();
-			};	
-		});
-	};
-
-	$('#data-table-toggle').on('click', function() {
+	var data_table_toggle = function() {
+		console.log($('#data-table-toggle').text());
 		var tumor_type = $('select[name="tumor_type"]').val();
 		var clinical_variable = $('select[name="clinical_variable"]').val();
 		if ($('#data-table-toggle').text() == 'View as data table') {
@@ -47,7 +38,18 @@
 			$('#data-table-toggle').text("View as data table");
 			get_data(tumor_type, clinical_variable);
 		};
-	});
+	};
+
+	function init_data_table(tumor_type, clinical_variable) {
+		$.get('/clinical/chart_data', {tumor_type: tumor_type, clinical_variable: clinical_variable}, function(result) {
+			if (result["chart_type"] != 'd') {
+				$('#data-table-toggle').hide();
+			} else {
+				$('#data-table-toggle').show();
+				$('#data-table-toggle').on('click', data_table_toggle );
+			};	
+		});
+	};	
 </script>
 
 <b id="data-set-overview"></b>
