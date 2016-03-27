@@ -44,17 +44,23 @@ class ClinicalController < ApplicationController
 
 	def data_table_data(data)
 		elems = {}
+		count = 0
 		for line in data
-			if !elems[line]
-				elems[line] = 0
+			if count >= 2
+				if !elems[line]
+					elems[line] = 0
+				end
+				elems[line] = elems[line] + 1
 			end
-			elems[line] = elems[line] + 1
+			count = count + 1
 		end
 		data_array = Array.new()
-		for elem in elems
-			data_array << [elem, elems[elem]]
+		for line in data
+			if elems[line]
+				data_array << [line, elems[line], (elems[line].to_d / [(count - 2), 1].max).to_d]
+			end
 		end
-		return data_array
+		return data_array.sort {|x,y| y[1] <=> x[1]}
 	end
 
 	def get_num_records(file)

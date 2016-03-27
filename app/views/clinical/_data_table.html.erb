@@ -2,11 +2,13 @@
     <tr style="background-color:#E6EBF0;">
         <th>Attribute</th>
         <th>Count</th>
+        <th>Percent</th>
     </tr>
     <% for elem in data %>
         <tr>
-            <td><%= elem[0][0] %></td>
-            <td><%= elem[0][1] %></td>
+            <td><%= elem[0] %></td>
+            <td><%= elem[1] %></td>
+            <td><%= sprintf('%.2f', (elem[2] * 100).to_d) %>%</td>
         </tr>
     <% end %>
 </table>
