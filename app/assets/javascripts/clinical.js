@@ -113,5 +113,7 @@ function generate_continuous_bar(distribution, data, transform) {
 		groups = groups.slice(1);
 	}
 	
+	console.log(labels);
+	console.log(groups);
 	return {'labels': labels, 'groups': groups}	
 }

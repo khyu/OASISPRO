@@ -19,6 +19,22 @@ class ClinicalController < ApplicationController
 		render json: {data: data[3..-1], chart_type: SiteConstants::CLINICAL_VARIABLE_TYPES[params[:clinical_variable].gsub(" ", "_")]}
 	end
 
+	def get_chart_type
+		render text: SiteConstants::CLINICAL_VARIABLE_TYPES[params[:clinical_variable].gsub(" ", "_")]
+	end
+
+	def table_data_continuous
+		count = 0
+		for elem in params[:values]
+			count = count + Integer(elem)
+		end
+		data_array = Array.new()
+		for i in 0..(params[:labels].length - 1)
+			data_array << [params[:labels][i], params[:values][i], (params[:values][i].to_d / [(count), 1].max).to_d]
+		end
+		render :partial => "data_table", :locals => { data: data_array }
+	end
+
 	def table_data
 		data = get_data(params[:clinical_variable], params[:tumor_type])
 		render :partial => "data_table", :locals => { data: data_table_data(data)}

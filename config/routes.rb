@@ -76,6 +76,8 @@ Cs273aproject::Application.routes.draw do
 	  get :chart_data, on: :collection
     get 'get_clinical_variables', on: :collection
     get :table_data, on: :collection
+    get :get_chart_type, on: :collection
+    get :table_data_continuous, on: :collection
   end
   
   resources :results

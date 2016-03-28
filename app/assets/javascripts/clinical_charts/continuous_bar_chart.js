@@ -1,8 +1,6 @@
 function chart_c(data, title, y_axis) {
 	data.sort();
-	console.log(data);
 	var distribution = generate_distribution(data);
-	console.log(distribution);
 	var generated_bar = generate_continuous_bar(distribution, data);
 	
 	$('#container').highcharts({
