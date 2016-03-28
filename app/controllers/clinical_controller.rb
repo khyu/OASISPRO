@@ -63,7 +63,7 @@ class ClinicalController < ApplicationController
 		lines = []
 		count = 0
 		for line in data
-			if count >= 2
+			if count > 2
 				if !elems[line]
 					elems[line] = 0
 					lines << line
@@ -75,7 +75,7 @@ class ClinicalController < ApplicationController
 		data_array = Array.new()
 		for line in lines
 			if elems[line]
-				data_array << [line, elems[line], (elems[line].to_d / [(count - 2), 1].max).to_d]
+				data_array << [line, elems[line], (elems[line].to_d / [(count - 3), 1].max).to_d]
 			end
 		end
 		return data_array.sort {|x,y| y[1] <=> x[1]}
