@@ -32,7 +32,7 @@ class ClinicalController < ApplicationController
 		for i in 0..(params[:labels].length - 1)
 			data_array << [params[:labels][i], params[:values][i], (params[:values][i].to_d / [(count), 1].max).to_d]
 		end
-		render :partial => "data_table", :locals => { data: data_array }
+		render :partial => "data_table", :locals => { data: data_array.sort {|x,y| Integer(y[1]) <=> Integer(x[1])} }
 	end
 
 	def table_data
@@ -60,18 +60,20 @@ class ClinicalController < ApplicationController
 
 	def data_table_data(data)
 		elems = {}
+		lines = []
 		count = 0
 		for line in data
 			if count >= 2
 				if !elems[line]
 					elems[line] = 0
+					lines << line
 				end
 				elems[line] = elems[line] + 1
 			end
 			count = count + 1
 		end
 		data_array = Array.new()
-		for line in data
+		for line in lines
 			if elems[line]
 				data_array << [line, elems[line], (elems[line].to_d / [(count - 2), 1].max).to_d]
 			end
