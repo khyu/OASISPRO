@@ -123,7 +123,8 @@
 		<b>Log Rank P Value in the Test Set</b>
 		<div class="well">
 			<% @pTest.each do |pvalue| %>
-				<p><%= pvalue[0].to_f.round(4) %></p>
+				<!-- <p><%= pvalue[0].to_f.round(4) %></p> -->
+				<p><%= pvalue[0] %></p>
 			<% end %>
 		</div>
 	<% end %>
