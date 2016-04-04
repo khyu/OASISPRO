@@ -2,8 +2,12 @@
 <div class="well">
 	<table class="noborder">
 		<tr>
-			<td><input type="radio" name="partition" value="batch" CHECKED>Batch Partition</input></td>
-			<td><input type="radio" name="partition" value="random">Random Partition</input></td>
+			<td colspan="2">
+				<input type="radio" name="partition" value="batch" CHECKED>Batch Partition
+				<input type="radio" name="partition" value="random">Random Partition
+				<input type="radio" name="partition" value="fold">K-fold
+				<input type="radio" name="partition" value="LOOCV">LOOCV
+			</td>
 		</tr>
 		<tr class="batch-partition-params" style="display:none; height:52px;">
 			<td colspan="2">
@@ -26,6 +30,11 @@
 				<input type="number" class="form-control" style="display: none; width: 50px;" name="random_seed" min="1">
 			</td>
 		</tr>
+		<tr class="fold-params" style="display:none; height:52px;">
+			<td colspan="2">
+				Number of folds: <input type="number" name="random_seed" min="1" style="width:50px"></input>
+			</td>
+		</tr> 
 	</table>
 	<div class="random-partition-params" style="display:none;">
 				Percentage of cases used as training data

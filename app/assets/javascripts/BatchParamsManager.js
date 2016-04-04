@@ -2,9 +2,10 @@ function BatchParamsManager() {
 	var change_partition = function() {
 		$('.random-partition-params').toggle($("input[name=partition]:checked").val() == "random");
 		$('.batch-partition-params').toggle($("input[name=partition]:checked").val() == "batch");
+		$('.fold-params').toggle($("input[name=partition]:checked").val() == "fold");
 	};
 	var specify_seed = function() {
-		$('input[name=random_seed]').toggle($("input[name=seed_type]:checked").val() == "specify_seed");
+		$('.random-partition-params input[name=random_seed]').toggle($("input[name=seed_type]:checked").val() == "specify_seed");
 	}
 
 	$("input[name=partition]").click(change_partition);

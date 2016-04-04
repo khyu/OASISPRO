@@ -242,14 +242,7 @@ class AnalysisController < ApplicationController
 			arg = Float(arg) if possible_values == 'FLOAT'
 			arg = -1 if arg == -1.0
 
-			if (true || possible_values == '*' ||
-				(possible_values.class == Array && possible_values.include?(arg)) ||
-				(possible_values.class != Array && arg.is_a?(Numeric)))
-				command += " #{arg}"
-			else
-				valid_command = false
-				break
-			end
+			command += " #{arg}"
 		end
 
 		{command: command, valid_command: valid_command}
