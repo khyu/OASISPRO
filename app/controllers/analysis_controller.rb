@@ -40,6 +40,7 @@ class AnalysisController < ApplicationController
 			@valid_command = result[:valid_command]
 
 			if @valid_command
+				puts @command
 				@command = "Rscript public/RCodes/binaryClassification.R#{result[:command]}"
 				system(@command)
 			end
