@@ -8,7 +8,6 @@ class ResultsController < ApplicationController
 		milestones = []
 		done = false
 
-		puts "public/sessions/#{params[:session_id]}/milestones.txt"
 		t = Time.now.to_i
 		while milestones.length <= params[:lines].to_i && Time.now.to_i - t < 10
 			if File.exists?("public/sessions/#{params[:session_id]}/milestones.txt")
@@ -23,7 +22,6 @@ class ResultsController < ApplicationController
 			end
 
 			sleep 1
-			break
 		end
 
 		render json: {milestones: milestones, done: done}
