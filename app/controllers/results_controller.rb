@@ -11,18 +11,18 @@ class ResultsController < ApplicationController
 
 		t = Time.now.to_i
 		while milestones.length <= params[:lines].to_i && Time.now.to_i - t < 10
+			if File.exists?("public/sessions/#{params[:session_id]}/error.txt")
+				error_file = File.open("public/sessions/#{params[:session_id]}/error.txt", "r").read
+			end
+
+			if error_file.include?('Execution halted') || error_file.include?('Rscript: command not found')
+				break
+			else
+				error_file = ""
+			end
+
 			if File.exists?("public/sessions/#{params[:session_id]}/milestones.txt")
 				milestones = File.open("public/sessions/#{params[:session_id]}/milestones.txt", "r").read.split("\n")
-
-				if File.exists?("public/sessions/#{params[:session_id]}/error.txt")
-					error_file = File.open("public/sessions/#{params[:session_id]}/error.txt", "r").read
-				end
-
-				if error_file.include?('Execution halted') || error_file.include?('Rscript: command not found')
-					break
-				else
-					error_file = ""
-				end
 
 				if milestones.last == 'Completed!'
 					done = true
