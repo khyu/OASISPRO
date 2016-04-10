@@ -2,9 +2,38 @@ class AnalysisController < ApplicationController
 	require 'site_constants.rb'
 
 	def stage
-		if params[:generate]
-			params[:session_id] = rand.to_s.sub("0.", "") 
+		if params[:done]
 			@sessionID = "#{params[:session_id]}"
+
+			# area under curve
+			@area_under_curve = Array.new
+			f = File.open("public/sessions/#{params[:session_id]}/AUCs.txt", "r")
+			
+			auc_labels = [
+				'Recursive Partitioning Trees',
+				'Conditional Inference Trees (CITs)', 
+				'Random Forest with CITs', 
+				'Bagging',
+				'SVMs with Gaussian Kernel',
+				'SVMs with Linear Kernel',
+				'SVMs with Polynomial Kernel',
+				'SVMs with Sigmoid Kernel',
+				'Decision Trees',
+				'Random Forest',
+				'Naive Bayes',
+				'Naive Bayes with Laplace Smoothing'
+			]
+			x = 0
+			f.each_line do |line|
+				@area_under_curve << [line, auc_labels[x]]
+				x += 1
+			end
+			f.close
+		end
+
+		if params[:generate]
+			return if params[:session_id] !~ /\A[0-9]+\z/
+
 			validators = {
 				tumor_type: SiteConstants::TUMOR_TYPES.keys.map { |x| x.to_s },
 				data_source: SiteConstants::DATA_TYPES.keys.map { |x| x.to_s },
@@ -41,34 +70,9 @@ class AnalysisController < ApplicationController
 
 			if @valid_command
 				puts @command
-				@command = "Rscript public/RCodes/binaryClassification.R#{result[:command]}"
+				@command = "Rscript public/RCodes/binaryClassification.R#{result[:command]} &"
 				system(@command)
 			end
-
-			# area under curve
-			@area_under_curve = Array.new
-			f = File.open("public/sessions/#{params[:session_id]}/AUCs.txt", "r")
-			
-			auc_labels = [
-				'Recursive Partitioning Trees',
-				'Conditional Inference Trees (CITs)', 
-				'Random Forest with CITs', 
-				'Bagging',
-				'SVMs with Gaussian Kernel',
-				'SVMs with Linear Kernel',
-				'SVMs with Polynomial Kernel',
-				'SVMs with Sigmoid Kernel',
-				'Decision Trees',
-				'Random Forest',
-				'Naive Bayes',
-				'Naive Bayes with Laplace Smoothing'
-			]
-			x = 0
-			f.each_line do |line|
-				@area_under_curve << [line, auc_labels[x]]
-				x += 1
-			end
-			f.close
 		end
 	end
 

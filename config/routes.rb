@@ -80,7 +80,9 @@ Cs273aproject::Application.routes.draw do
     get :table_data_continuous, on: :collection
   end
   
-  resources :results
+  resources :results do
+    get :progress, on: :collection
+  end
   
   resources :acknowledgements
 end
