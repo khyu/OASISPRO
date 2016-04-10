@@ -12,7 +12,10 @@ ResultsManager.prototype.run = function() {
 		$.get( "/results/progress", {session_id: self.session_id, lines: self.lines}, function(data) {
 		  $("#results-modal-content").html(data.milestones.join("<br>"));
 		  if (data.done) {
-		  	location.href = "/analysis/stage?done=1&session_id=" + self.session_id;
+		  	location.href = "/analysis/stage?done=1&session_id=" + self.session_id + "#results";
+		  }
+		  if (data.error) {
+		  	$("#results-modal-content").html("ERROR: <br><br>" + data.error);
 		  }
 		});
 	}, 2000);

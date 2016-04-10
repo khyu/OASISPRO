@@ -7,11 +7,22 @@ class ResultsController < ApplicationController
 
 		milestones = []
 		done = false
+		error_file = ""
 
 		t = Time.now.to_i
 		while milestones.length <= params[:lines].to_i && Time.now.to_i - t < 10
 			if File.exists?("public/sessions/#{params[:session_id]}/milestones.txt")
-				milestones = File.open("public/sessions/#{params[:session_id]}/milestones.txt", "rb").read.split("\n")
+				milestones = File.open("public/sessions/#{params[:session_id]}/milestones.txt", "r").read.split("\n")
+
+				if File.exists?("public/sessions/#{params[:session_id]}/error.txt")
+					error_file = File.open("public/sessions/#{params[:session_id]}/error.txt", "r").read
+				end
+
+				if error_file.include?('Execution halted')
+					break
+				else
+					error_file = ""
+				end
 
 				if milestones.last == 'Completed!'
 					done = true
@@ -24,6 +35,6 @@ class ResultsController < ApplicationController
 			sleep 1
 		end
 
-		render json: {milestones: milestones, done: done}
+		render json: {milestones: milestones, done: done, error: error_file.gsub("\n", "<br>")}
 	end
 end

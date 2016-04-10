@@ -70,7 +70,7 @@ class AnalysisController < ApplicationController
 
 			if @valid_command
 				puts @command
-				@command = "Rscript public/RCodes/binaryClassification.R#{result[:command]} &"
+				@command = "Rscript public/RCodes/binaryClassification.R#{result[:command]} 2>public/sessions/#{params[:session_id]}/error.txt &"
 				system(@command)
 			end
 		end
