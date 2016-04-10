@@ -8,7 +8,7 @@ ResultsManager.prototype.run = function() {
 	$("#results-modal").modal();
 	var self = this;
 
-	setInterval(function() {
+	var interval = setInterval(function() {
 		$.get( "/results/progress", {session_id: self.session_id, lines: self.lines}, function(data) {
 		  $("#results-modal-content").html(data.milestones.join("<br>"));
 		  if (data.done) {
@@ -16,6 +16,7 @@ ResultsManager.prototype.run = function() {
 		  }
 		  if (data.error) {
 		  	$("#results-modal-content").html("ERROR: <br><br>" + data.error);
+		  	clearInterval(interval);
 		  }
 		});
 	}, 2000);
