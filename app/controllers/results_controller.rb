@@ -18,7 +18,7 @@ class ResultsController < ApplicationController
 					error_file = File.open("public/sessions/#{params[:session_id]}/error.txt", "r").read
 				end
 
-				if error_file.include?('Execution halted')
+				if error_file.include?('Execution halted') || error_file.include?('Rscript: command not found')
 					break
 				else
 					error_file = ""
