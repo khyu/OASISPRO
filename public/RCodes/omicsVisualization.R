@@ -6,13 +6,14 @@
 # param 2: data type (RNAseq, proteomics, etc)
 # param 3: gene name
 # param 4: clinical categories
+# param 5: session ID
 #
 # Kun-Hsing Yu
 # April 3, 2016
 
 rm(list=ls())
 library(ggplot2)
-setwd("~/Movies/OASISPRO/oasispro/")
+#setwd("~/Movies/OASISPRO/oasispro/")
 
 sysargs<-commandArgs(trailingOnly=TRUE)
 print (sysargs)
@@ -20,20 +21,23 @@ tumorType<-sysargs[1]
 dataType<-sysargs[2]
 geneName<-sysargs[3]
 clinicalCat<-sysargs[4]
-
+sessionID<-sysargs[5]
 
 #tumorType<-"acc"
 #dataType<-"proteomics"
-#geneName<-"ACTN1"
-#clinicalCat<-"gender"
-
-#milestonesFileName<-paste("public/sessions/",sessionID,"/milestones.txt",sep="")
+#geneName<-"14-3-3_beta-R-V"
+#geneName<-"TFRC-R-V"
+clinicalCat<-"gender"
+#clinicalCat<-"pathologic_T"
+#sessionID<-"810110794241357"
+milestonesFileName<-paste("public/sessions/",sessionID,"/milestones.txt",sep="")
 
 
 # read files
 omicsFile<-read.table(paste("../data/", tumorType, "_", dataType, ".txt", sep=""), stringsAsFactors=F, sep=",")
+omicsName<-read.table(paste("../data/", tumorType, "_", dataType, "_elemid.txt", sep=""), stringsAsFactors=F, sep=",")
 print("Finished reading omics file")
-#write("Finished reading omics file",milestonesFileName)
+write("Finished reading omics file",milestonesFileName)
 
 
 omicsIDFile<-read.table(paste("../data/", tumorType, "_", dataType, "_ids.txt", sep=""), stringsAsFactors=F, sep="")
@@ -60,12 +64,12 @@ if (clinicalCat!="NULL"){
   intersectIDs<-omicsID
 }
 
-
+omicsColNum<-which(omicsName[1,]==geneName)
 ## plot boxplots
-figureFileName<-paste("public/sessions/",sessionID,"/decisionTree.png",sep="")
+figureFileName<-paste("public/sessions/",sessionID,"/boxplot.png",sep="")
 png(filename=figureFileName, width=1000, height=500)
 if (clinicalCat!="NULL"){
-  qplot(clinical[,clinicalCat],omics[,1], geom = "boxplot", xlab=geneName, ylab="Value")
+  qplot(clinical[,clinicalCat],omics[,omicsColNum], geom = "boxplot", xlab=geneName, ylab="Value")
 } else {
   qplot(1,omics[,1], geom = "boxplot", xlab=geneName, ylab="Value")
 }
@@ -74,6 +78,18 @@ dev.off()
 print("Finished building boxplots")
 write("Finished building boxplots",milestonesFileName,append=T)
 
+
+## perform statistical tests
+if (length(unique(clinical[,clinicalCat]))==2){ # Wilcoxon test
+  uniqueClinicalCats<-unique(clinical[,clinicalCat])
+  pValue<-wilcox.test(omics[clinical[,clinicalCat]==uniqueClinicalCats[1],omicsColNum],omics[clinical[,clinicalCat]==uniqueClinicalCats[2],omicsColNum])$p.value  
+} else { # ANOVA
+  uniqueClinicalCats<-unique(clinical[,clinicalCat])
+  fit <- aov(omics[,omicsColNum] ~ as.factor(clinical[,clinicalCat]))
+  pValue<-summary(fit)[[1]][["Pr(>F)"]][1]
+}
+print(pValue)
+write(pValue,paste("public/sessions/",sessionID,"/pValue.txt",sep=""))
 
 
 # write histogram tables
