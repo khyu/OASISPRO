@@ -51,7 +51,7 @@ maxAlpha<-as.numeric(sysargs[7])
 minLambda<-as.numeric(sysargs[8])
 maxLambda<-as.numeric(sysargs[9])
 if (sysargs[10] != "-1") {
-  clinicalVariablesFile<-read.table(sysargs[10], sep="")
+  clinicalVariablesFile<-read.table(paste("public/sessions/",sysargs[11],"/",sysargs[10],sep=""), sep="")
   clinicalVariables<-clinicalVariablesFile[,1]
 }
 
