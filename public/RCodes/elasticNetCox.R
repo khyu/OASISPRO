@@ -81,11 +81,14 @@ print (maxAlpha)
 print (tumorType)
 #print (clinicalVariables)
 milestonesFileName<-paste("public/sessions/",sysargs[11],"/milestones.txt",sep="")
+percentageFinish<-0
+
 
 # read files
 omicsFile<-read.table(paste("../data/", tumorType, "_", dataType, ".txt", sep=""), stringsAsFactors=F, sep=",")
-print("Finished reading omics file")
-write("Finished reading omics file",milestonesFileName)
+percentageFinish<-2
+print(paste("Finished reading omics file",percentageFinish,sep=","))
+write(paste("Finished reading omics file",percentageFinish,sep=","),milestonesFileName)
 
 omicsNameFile<-read.table(paste("../data/", tumorType, "_", dataType, "_ids.txt", sep=""), stringsAsFactors=F, sep="")
 omics<-omicsFile[substr(omicsNameFile[,1],14,15)=="01",]
@@ -131,8 +134,9 @@ survivedDays<-survivedDays[survivedDays!=-1]
 Ymatrix<-Surv(survivedDays,event)
 Ymatrix[,1]<-Ymatrix[,1]+1
 
-print("Finished building survival matrix")
-write("Finished building survival matrix",milestonesFileName,append=T)
+percentageFinish<-5
+print(paste("Finished building survival matrix",percentageFinish,sep=","))
+write(paste("Finished building survival matrix",percentageFinish,sep=","),milestonesFileName,append=T)
 
 if (partitionType == "random"){ #random
   # set.seed(randSeed)
@@ -159,6 +163,8 @@ if (minAlpha == -1) {
 alphas<-seq(minAlpha,maxAlpha,by=0.1)
 print("alphas done")
 
+
+percentageStep<-90/nFolds
 plotTest<-as.data.frame(cbind(0,survivedDays,event))
 for (fold in 1:nFolds) {
   if (nFolds>1){ # kfold or loocv
@@ -172,12 +178,14 @@ for (fold in 1:nFolds) {
   } else {
     elasticnet<-lapply(alphas, function(alpha){cv.glmnet(as.matrix(X[trainingSet,]), Ymatrix[trainingSet,], lambda=seq(minLambda,maxLambda,0.0001), alpha=alpha, family="cox")})
   }
+
+  percentageFinish<-percentageFinish+(percentageStep/2)
   if (nFolds>1){
-    print(paste("Fold ",fold,": Finished regularization",sep=""))
-    write(paste("Fold ",fold,": Finished regularization",sep=""),milestonesFileName,append=T)
+    print(paste(paste("Fold ",fold,": Finished regularization",sep=""),round(percentageFinish,0),sep=","))
+    write(paste(paste("Fold ",fold,": Finished regularization",sep=""),round(percentageFinish,0),sep=","),milestonesFileName,append=T)
   } else {
-    print("Finished regularization")
-    write("Finished regularization",milestonesFileName,append=T)
+    print(paste("Finished regularization",round(percentageFinish,0),sep=","))
+    write(paste("Finished regularization",round(percentageFinish,0),sep=","),milestonesFileName,append=T)
   }
 
   minCVMs<-rep(0,length(alphas))
@@ -196,12 +204,13 @@ for (fold in 1:nFolds) {
   predTrain<-predict(cv.tr,as.matrix(X[trainingSet,]),s=lambdaFit,type='response')
   predTest<-predict(cv.tr,as.matrix(X[testSet,]),s=lambdaFit,type='response')
 
+  percentageFinish<-percentageFinish+(percentageStep/2)
   if (nFolds>1){
-    print(paste("Fold ",fold,": Finished survival prediction",sep=""))
-    write(paste("Fold ",fold,": Finished survival prediction",sep=""),milestonesFileName,append=T)
+    print(paste(paste("Fold ",fold,": Finished survival prediction",sep=""),round(percentageFinish,0),sep=","))
+    write(paste(paste("Fold ",fold,": Finished survival prediction",sep=""),round(percentageFinish,0),sep=","),milestonesFileName,append=T)
   } else {
-    print("Finished survival prediction")
-    write("Finished survival prediction",milestonesFileName,append=T)
+    print(paste("Finished survival prediction",round(percentageFinish,0),sep=","))
+    write(paste("Finished survival prediction",round(percentageFinish,0),sep=","),milestonesFileName,append=T)
   }
 
   # #Make predictions. Use cross validation to find optimal lambda if user did not specify lambda range.
@@ -278,8 +287,9 @@ if (length(unique(plotTestGGsurv[,1]))>1){
 print(pTest)
 write(pTest,paste("public/sessions/",sysargs[11],"/pTest.txt",sep=""))
 
-print("Finished building survival groups")
-write("Finished building survival groups",milestonesFileName,append=T)
+percentageFinish<-percentageFinish+2
+print(paste("Finished building survival groups",percentageFinish,sep=","))
+write(paste("Finished building survival groups",percentageFinish,sep=","),milestonesFileName,append=T)
 
 # re-define ggsurv
 #source("../public/dropbox/analysis/Survival/ggsurv.R")
@@ -299,5 +309,6 @@ ggsurv(plotTest.surv) +
 # Close and save the PNG file.
 dev.off()
 
-print("Completed!")
-write("Completed!",milestonesFileName,append=T)
+percentageFinish<-100
+print(paste("Completed!",percentageFinish,sep=","))
+write(paste("Completed!",percentageFinish,sep=","),milestonesFileName,append=T)

@@ -14,7 +14,7 @@
 # param 9: session ID
 #
 # Kun-Hsing Yu
-# March 28, 2016
+# April 15, 2016
 
 rm(list=ls())
 library(FSelector)
@@ -75,18 +75,23 @@ AUCs<-rep(0,12)
 print (featureSelectionMethod)
 print (numFeatures)
 milestonesFileName<-paste("public/sessions/",sessionID,"/milestones.txt",sep="")
-
+percentageFinish<-0
 
 # read files
 omicsFile<-read.table(paste("../data/", tumorType, "_", dataType, ".txt", sep=""), stringsAsFactors=F, sep=",")
-print("Finished reading omics file")
-write("Finished reading omics file",milestonesFileName)
+
+percentageFinish<-2
+print(paste("Finished reading omics file",percentageFinish,sep=","))
+write(paste("Finished reading omics file",percentageFinish,sep=","),milestonesFileName)
 
 
-omicsNameFile<-read.table(paste("../data/", tumorType, "_", dataType, "_ids.txt", sep=""), stringsAsFactors=F, sep="")
-omicsFile<-omicsFile[substr(omicsNameFile[,1],14,15)=="01",]
-omicsNameFile<-omicsNameFile[substr(omicsNameFile[,1],14,15)=="01",]
-omicsID<-substr(omicsNameFile, 1, 12)
+omicsIDFile<-read.table(paste("../data/", tumorType, "_", dataType, "_ids.txt", sep=""), stringsAsFactors=F, sep="")
+omicsFile<-omicsFile[substr(omicsIDFile[,1],14,15)=="01",]
+omicsIDFile<-omicsIDFile[substr(omicsIDFile[,1],14,15)=="01",]
+omicsID<-substr(omicsIDFile, 1, 12)
+
+
+omicsNameFile<-t(read.table(paste("../data/", tumorType, "_", dataType, "_elemid.txt", sep=""), stringsAsFactors=F, sep=","))
 
 
 
@@ -113,8 +118,9 @@ Y<-as.factor(Y)
 X<-omics[!is.na(YFile),]
 iDs<-intersectIDs[!is.na(YFile)]
 
-print("Finished building clinical matrix")
-write("Finished building clinical matrix",milestonesFileName,append=T)
+percentageFinish<-5
+print(paste("Finished building clinical matrix",percentageFinish,sep=","))
+write(paste("Finished building clinical matrix",percentageFinish,sep=","),milestonesFileName,append=T)
 
 
 
@@ -133,6 +139,8 @@ if (partitionType == "random"){ # random
   nFolds<-1
 }
 
+
+percentageStep<-90/nFolds
 x.rp.prob<-as.data.frame(matrix(ncol=2, nrow=length(Y)))
 x.ct.prob<-as.data.frame(matrix(ncol=1, nrow=length(Y)))
 x.cf.prob<-as.data.frame(matrix(ncol=1, nrow=length(Y)))
@@ -158,14 +166,20 @@ for (i in 1:nFolds) {
   XTune<-cbind(X[trainingSet,],YTrain)
   if (featureSelectionMethod == "infog"){ # information gain
     weights <- information.gain(YTrain~., XTune)
+    weightsOutput<-cbind(omicsNameFile,weights)
+    weightsOutput<-weightsOutput[order(weightsOutput[,2],decreasing=T),]
     subsetFeatures<-cutoff.k(weights, numFeatures)
     X<-X[,subsetFeatures]
   } else if (featureSelectionMethod == "gainr"){ # gain ratio
     weights <- gain.ratio(YTrain~., XTune)
+    weightsOutput<-cbind(omicsNameFile,weights)
+    weightsOutput<-weightsOutput[order(weightsOutput[,2],decreasing=T),]
     subsetFeatures<-cutoff.k(weights, numFeatures)
     X<-X[,subsetFeatures]
   } else if (featureSelectionMethod == "symu"){ # symmetrical uncertainty
     weights <- symmetrical.uncertainty(YTrain~., XTune)
+    weightsOutput<-cbind(omicsNameFile,weights)
+    weightsOutput<-weightsOutput[order(weightsOutput[,2],decreasing=T),]
     subsetFeatures<-cutoff.k(weights, numFeatures)
     X<-X[,subsetFeatures]
   } else if (FALSE){ # consistency
@@ -182,6 +196,8 @@ for (i in 1:nFolds) {
     X<-X[,weights]
   } else if (featureSelectionMethod == "randf"){ # random forest importance
     weights <- random.forest.importance(YTrain~., XTune, importance.type = 1)
+    weightsOutput<-cbind(omicsNameFile,weights)
+    weightsOutput<-weightsOutput[order(weightsOutput[,2],decreasing=T),]
     subsetFeatures<-cutoff.k(weights, numFeatures)
     X<-X[,subsetFeatures]
   } else { # custom
@@ -189,12 +205,17 @@ for (i in 1:nFolds) {
     subsetFeatures<-customFile[,1]
     X<-X[,subsetFeatures]
   }
+
+  write.table(weightsOutput,paste("public/sessions/",sessionID,"/featureWeights.txt",sep=""),quote=F, sep=",",row.names=F, col.names=F)
+
+
+  percentageFinish<-percentageFinish+(percentageStep/2)
   if (nFolds>1){
-    print(paste("Fold ",i,": Finished feature selection",sep=""))
-    write(paste("Fold ",i,": Finished feature selection",sep=""),milestonesFileName,append=T)
+    print(paste(paste("Fold ",i,": Finished feature selection",sep=""),round(percentageFinish,0),sep=","))
+    write(paste(paste("Fold ",i,": Finished feature selection",sep=""),round(percentageFinish,0),sep=","),milestonesFileName,append=T)
   } else {
-    print("Finished feature selection")
-    write("Finished feature selection",milestonesFileName,append=T)
+    print(paste("Finished feature selection",round(percentageFinish,0),sep=","))
+    write(paste("Finished feature selection",round(percentageFinish,0),sep=","),milestonesFileName,append=T)
   }
   
 
@@ -278,12 +299,13 @@ for (i in 1:nFolds) {
   x.nb.l<-naiveBayes(X[trainingSet,],Y[trainingSet], laplace = 3)
   x.nb.l.prob[testSet,] <- predict(x.nb.l, type="raw", newdata=X[testSet,], probability = TRUE)
 
+  percentageFinish<-percentageFinish+(percentageStep/2)
   if (nFolds>1){
-    print(paste("Fold ",i,": Finished prediction",sep=""))
-    write(paste("Fold ",i,": Finished prediction",sep=""),milestonesFileName,append=T)
+    print(paste(paste("Fold ",i,": Finished prediction",sep=""),round(percentageFinish,0),sep=","))
+    write(paste(paste("Fold ",i,": Finished prediction",sep=""),round(percentageFinish,0),sep=","),milestonesFileName,append=T)
   } else {
-    print("Finished prediction")
-    write("Finished prediction",milestonesFileName,append=T)
+    print(paste("Finished prediction",round(percentageFinish,0),sep=","))
+    write(paste("Finished prediction",round(percentageFinish,0),sep=","),milestonesFileName,append=T)
   }
 }
 
@@ -375,8 +397,10 @@ performance(x.nb.l.prob.rocr,"auc")@y.values
 AUCs[12]<-unlist(performance(x.nb.l.prob.rocr,"auc")@y.values)
 d12 <- data.frame(x1=x.nb.l.perf@x.values[[1]], y1=x.nb.l.perf@y.values[[1]], Methods="NB with Laplace Smoothing")
 
-print("Finished model evaluation")
-write("Finished model evaluation",milestonesFileName,append=T)
+
+percentageFinish<-percentageFinish+2
+print(paste("Finished model evaluation",round(percentageFinish,0),sep=","))
+write(paste("Finished model evaluation",round(percentageFinish,0),sep=","),milestonesFileName,append=T)
 
 
 ## output decision tree
@@ -414,8 +438,9 @@ dev.off()
 # output AUC
 write.table(AUCs,paste("public/sessions/",sessionID,"/AUCs.txt",sep=""),quote=F, sep="\t",row.names=F, col.names=F)
 
-print("Completed!")
-write("Completed!",milestonesFileName,append=T)
+percentageFinish<-100
+print(paste("Completed!",percentageFinish,sep=","))
+write(paste("Completed!",percentageFinish,sep=","),milestonesFileName,append=T)
 
 
 
