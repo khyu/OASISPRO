@@ -24,7 +24,7 @@ class ResultsController < ApplicationController
 			if File.exists?("public/sessions/#{params[:session_id]}/milestones.txt")
 				milestones = File.open("public/sessions/#{params[:session_id]}/milestones.txt", "r").read.split("\n")
 
-				if milestones.last == 'Completed!'
+				if milestones.last == 'Completed!,100'
 					done = true
 					break
 				elsif milestones.length > params[:lines].to_i
