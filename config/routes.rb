@@ -79,6 +79,11 @@ Cs273aproject::Application.routes.draw do
     get :get_chart_type, on: :collection
     get :table_data_continuous, on: :collection
   end
+
+  resources :omics do
+    post :index, on: :collection
+    get :get_gene_names, on: :collection
+  end
   
   resources :results do
     get :progress, on: :collection

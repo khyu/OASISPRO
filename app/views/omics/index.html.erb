@@ -1,0 +1,71 @@
+<script>
+	$(document).on('change', 'select[name="tumor_type"]', function(){
+		var tumor_type = $('select[name="tumor_type"]').val();
+		$.get('/clinical/get_clinical_variables', {tumor_type: tumor_type}, function (data) {
+			data = data["vars"];
+			var html = '<option value="NULL">No Clinical Variable</option>';
+			data.forEach(function(clinical_variable) {
+				capitalized = clinical_variable.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+				html += '<option value="' + clinical_variable + '">' + capitalized + '</option>';
+			});
+
+			$('select[name="clinical_variable"]').html(html);
+		});
+	});
+
+	$(document).on('change', 'select[name="data_source"]', function() {
+		var tumor_type = $('select[name="tumor_type"]').val();
+		var data_source = $('select[name="data_source"]').val();
+
+		$.get('/omics/get_gene_names', {tumor_type: tumor_type, data_source: data_source}, function(data) {
+			var html = "";
+			data.forEach(function(gene_name) {
+				html += '<option>' + gene_name + '</option>';
+			});
+			$('select[name="gene_name"]').html(html);
+		});
+	});
+
+</script>
+
+<b><%= @command %></b>
+
+<form method="post" action="#results">
+	<div style="float:left;width:325px;">
+		<h4>Choose the Tumor Type</h4>
+		<div class="well">
+			<%= select_tag "tumor_type", options_for_select({'Choose Tumor Type' => ''}.merge(SiteConstants::TUMOR_TYPES.invert)) %>
+		</div>
+	</div>
+	<div style="float:left;width:325px;margin-left:10px;">
+		<h4>Choose the Data Source</h4>
+		<div class="well">
+			<%= select_tag "data_source", options_for_select({'Choose Data Source' => ''}.merge(SiteConstants::DATA_TYPES.invert)) %>
+		</div>
+	</div>
+	<div style="float:left;width:325px;margin-left:10px;">
+		<h4>Choose the Gene Name</h4>
+		<div class="well">
+			<%= select_tag "gene_name" %>
+		</div>
+	</div>
+	
+	<br style="clear:both;">
+
+	<div style="float:left;width:325px;margin-left:10px;">
+		<h4>Choose the Clinical Variable (optional)</h4>
+		<div class="well">
+			<%= select_tag "clinical_variable" %>
+		</div>
+	</div>
+
+	<br style="clear:both;">
+
+
+	<div style="text-align: center">
+		<input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>"></input>
+		<input type="submit" value="Submit" name="generate" class="btn btn-primary" style="height:50px;font-size:16pt;">
+	</div>
+</form>
+
+<br style="clear:both;">
