@@ -27,7 +27,7 @@ sessionID<-sysargs[5]
 #dataType<-"proteomics"
 #geneName<-"14-3-3_beta-R-V"
 #geneName<-"TFRC-R-V"
-clinicalCat<-"gender"
+#clinicalCat<-"gender"
 #clinicalCat<-"pathologic_T"
 #sessionID<-"810110794241357"
 milestonesFileName<-paste("public/sessions/",sessionID,"/milestones.txt",sep="")
