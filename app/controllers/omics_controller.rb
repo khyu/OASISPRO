@@ -8,9 +8,15 @@ class OmicsController < ApplicationController
 			gene_name = params[:gene_name]
 			clinical_variable = params[:clinical_variable]
 
-			session_id = rand.to_s.sub("0.", "")
-			@command = "Rscript public/RCodes/omicsVisualization.R #{tumor_type} #{data_source} #{gene_name} #{clinical_variable} #{session_id}"
+			@session_id = rand.to_s.sub("0.", "")
+
+			Dir.mkdir("public/sessions") unless File.exists?("public/sessions")
+			Dir.mkdir("public/sessions/#{@session_id}") unless File.exists?("public/sessions/#{@session_id}")
+
+			@command = "Rscript public/RCodes/omicsVisualization.R #{tumor_type} #{data_source} #{gene_name} #{clinical_variable} #{@session_id}"
 			system(@command)
+
+			@pvalue = File.open("public/sessions/#{@session_id}/pValue.txt", "r").read
 		end
 	end
 
