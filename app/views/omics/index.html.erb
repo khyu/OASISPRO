@@ -68,4 +68,12 @@
 	</div>
 </form>
 
+<% if params[:generate] %>
+	<div id="results">
+		P-value: <%= @pvalue %>
+		<br>
+		<img src="/sessions/<%= @session_id %>/boxplot.png">
+	</div>
+<% end %>
+
 <br style="clear:both;">
