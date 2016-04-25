@@ -70,7 +70,15 @@
 
 <% if params[:generate] %>
 	<div id="results">
-		P-value: <%= @pvalue %>
+		<b>Tumor type:</b> <%= @tumor_type %>
+		<br>
+		<b>Data source:</b> <%= @data_source%>
+		<br>
+		<b>Feature name:</b> <%= @gene_name%>
+		<br>
+		<b>Clinical variable:</b> <%= @clinical_variable %>
+		<br>
+		<b>P-value:</b> <%= @pvalue %>
 		<br>
 		<img src="/sessions/<%= @session_id %>/boxplot.png">
 	</div>

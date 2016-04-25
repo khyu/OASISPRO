@@ -15,7 +15,10 @@ class OmicsController < ApplicationController
 
 			@command = "Rscript public/RCodes/omicsVisualization.R #{tumor_type} #{data_source} #{gene_name} #{clinical_variable} #{@session_id}"
 			system(@command)
-
+			@tumor_type = tumor_type
+			@data_source = data_source
+			@gene_name = gene_name
+			@clinical_variable = clinical_variable
 			@pvalue = File.open("public/sessions/#{@session_id}/pValue.txt", "r").read
 		end
 	end
