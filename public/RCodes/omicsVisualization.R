@@ -80,13 +80,17 @@ write("Finished building boxplots",milestonesFileName,append=T)
 
 
 ## perform statistical tests
-if (length(unique(clinical[,clinicalCat]))==2){ # Wilcoxon test
-  uniqueClinicalCats<-unique(clinical[,clinicalCat])
-  pValue<-wilcox.test(omics[clinical[,clinicalCat]==uniqueClinicalCats[1],omicsColNum],omics[clinical[,clinicalCat]==uniqueClinicalCats[2],omicsColNum])$p.value  
-} else { # ANOVA
-  uniqueClinicalCats<-unique(clinical[,clinicalCat])
-  fit <- aov(omics[,omicsColNum] ~ as.factor(clinical[,clinicalCat]))
-  pValue<-summary(fit)[[1]][["Pr(>F)"]][1]
+if (clinicalCat!="NULL"){
+  if (length(unique(clinical[,clinicalCat]))==2){ # Wilcoxon test
+    uniqueClinicalCats<-unique(clinical[,clinicalCat])
+    pValue<-wilcox.test(omics[clinical[,clinicalCat]==uniqueClinicalCats[1],omicsColNum],omics[clinical[,clinicalCat]==uniqueClinicalCats[2],omicsColNum])$p.value  
+  } else { # ANOVA
+    uniqueClinicalCats<-unique(clinical[,clinicalCat])
+    fit <- aov(omics[,omicsColNum] ~ as.factor(clinical[,clinicalCat]))
+    pValue<-summary(fit)[[1]][["Pr(>F)"]][1]
+  }
+} else {
+  pValue<-""
 }
 print(pValue)
 write(pValue,paste("public/sessions/",sessionID,"/pValue.txt",sep=""))
