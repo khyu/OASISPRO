@@ -115,7 +115,7 @@ Y<-YFile[!is.na(YFile)]
 Y<-(as.numeric(as.factor(Y))>threshold)
 Y<-ifelse(Y=="TRUE", 1, 0)
 Y<-as.factor(Y)
-X<-omics[!is.na(YFile),]
+Xall<-omics[!is.na(YFile),]
 iDs<-intersectIDs[!is.na(YFile)]
 
 percentageFinish<-5
@@ -163,28 +163,28 @@ for (i in 1:nFolds) {
 
   ## feature selection
   YTrain<-Y[trainingSet]
-  XTune<-cbind(X[trainingSet,],YTrain)
+  XTune<-cbind(Xall[trainingSet,],YTrain)
   if (featureSelectionMethod == "infog"){ # information gain
     weights <- information.gain(YTrain~., XTune)
     weightsOutput<-cbind(omicsNameFile,weights)
     weightsOutput<-weightsOutput[order(weightsOutput[,2],decreasing=T),]
     subsetFeatures<-cutoff.k(weights, numFeatures)
-    X<-X[,subsetFeatures]
+    X<-Xall[,subsetFeatures]
   } else if (featureSelectionMethod == "gainr"){ # gain ratio
     weights <- gain.ratio(YTrain~., XTune)
     weightsOutput<-cbind(omicsNameFile,weights)
     weightsOutput<-weightsOutput[order(weightsOutput[,2],decreasing=T),]
     subsetFeatures<-cutoff.k(weights, numFeatures)
-    X<-X[,subsetFeatures]
+    X<-Xall[,subsetFeatures]
   } else if (featureSelectionMethod == "symu"){ # symmetrical uncertainty
     weights <- symmetrical.uncertainty(YTrain~., XTune)
     weightsOutput<-cbind(omicsNameFile,weights)
     weightsOutput<-weightsOutput[order(weightsOutput[,2],decreasing=T),]
     subsetFeatures<-cutoff.k(weights, numFeatures)
-    X<-X[,subsetFeatures]
+    X<-Xall[,subsetFeatures]
   } else if (FALSE){ # consistency
     weights <- consistency(YTrain~., XTune)
-    X<-X[,weights]
+    X<-Xall[,weights]
 
     # chi-squared
     weights <- chi.squared(YTrain~., XTune)
@@ -193,17 +193,17 @@ for (i in 1:nFolds) {
   } else if (FALSE){ # cfs
     weights <- cfs(YTrain~., XTune)
     subsetFeatures<-cutoff.k(weights, numFeatures)
-    X<-X[,weights]
+    X<-Xall[,weights]
   } else if (featureSelectionMethod == "randf"){ # random forest importance
     weights <- random.forest.importance(YTrain~., XTune, importance.type = 1)
     weightsOutput<-cbind(omicsNameFile,weights)
     weightsOutput<-weightsOutput[order(weightsOutput[,2],decreasing=T),]
     subsetFeatures<-cutoff.k(weights, numFeatures)
-    X<-X[,subsetFeatures]
+    X<-Xall[,subsetFeatures]
   } else { # custom
     customFile<-read.table(featureSelectionMethod, sep="")
     subsetFeatures<-customFile[,1]
-    X<-X[,subsetFeatures]
+    X<-Xall[,subsetFeatures]
   }
 
   write.table(weightsOutput,paste("public/sessions/",sessionID,"/featureWeights.txt",sep=""),quote=F, sep=",",row.names=F, col.names=F)
