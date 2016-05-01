@@ -29,6 +29,8 @@ class AnalysisController < ApplicationController
 				x += 1
 			end
 			f.close
+
+			@feature_weights = File.open("public/sessions/#{params[:session_id]}/featureWeights.txt", "r").read.split("\n")
 		end
 
 		if params[:generate]
