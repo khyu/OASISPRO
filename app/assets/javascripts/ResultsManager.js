@@ -20,4 +20,14 @@ ResultsManager.prototype.run = function() {
 		  }
 		});
 	}, 2000);
-}
+};
+
+ResultsManager.prototype.run_stringdb = function() {
+	var feature_weight_nodes = $('name="feature_weights"');
+	var feature_weights = [];
+	feature_weight_nodes.forEach(feature_weight_nodes, function(feature_weight_node) {
+		feature_weights.push(feature_weight_node.innerHTML);
+	});
+	$('#stringdb_input').value(feature_weights.join("\n"));
+	$('#stringdb_form').submit();
+};
