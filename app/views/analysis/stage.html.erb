@@ -140,26 +140,32 @@
 			</a>
 		</div>
 
-		<%= @feature_weights.each do |feature_weight| %>
-			<input type="checkbox" name="feature_weights" value="<%= feature_weight %>">
-			<%= feature_weight %>
+		<table>
+		<% @feature_weights.each do |feature_weight| %>
+			<tr>
+				<td><input type="checkbox" name="feature_weights" value="<%= feature_weight %>"></td>
+				<td><%= feature_weight %></td>
+			</tr>
 		<% end %>
+		</table>
 		<input type="button" class="btn" onClick="resultsManager.run_stringdb()" value="Search String DB">
 
-		<form method="post" action="http://string-db.org/newstring_cgi/show_network_section.pl" target="_blank" enctype="multipart/form-data" id="stringdb_form">
-			<input type="hidden" name="flash" value="19">
-			<input type="hidden" name="required_score" value="400">
-			<input type="hidden" name="empty" value="">
-			<input type="hidden" name="have_user_input" value="2">
-			<input type="hidden" name="multi_input" value="1">
-			<input type="hidden" name="multiple_input_type" value="multi_identifier">
-			<input type="hidden" name="advanced_menu" value="yes">
-			<input type="hidden" name="limit" value="0">
-			<input type="hidden" name="species_text" value="Homo sapiens">
-			<input type="hidden" name="input_query_species" value="auto_detect">
-			<textarea id="stringdb_input" name="multiple_input_items" rows="10" cols="40"></textarea>
-			<input type="submit" value="View genes on string-db.org">
-		</form>
+		<div style="visibility:hidden">
+			<form method="post" action="http://string-db.org/newstring_cgi/show_network_section.pl" target="_blank" enctype="multipart/form-data" id="stringdb_form">
+				<input type="hidden" name="flash" value="19">
+				<input type="hidden" name="required_score" value="400">
+				<input type="hidden" name="empty" value="">
+				<input type="hidden" name="have_user_input" value="2">
+				<input type="hidden" name="multi_input" value="1">
+				<input type="hidden" name="multiple_input_type" value="multi_identifier">
+				<input type="hidden" name="advanced_menu" value="yes">
+				<input type="hidden" name="limit" value="0">
+				<input type="hidden" name="species_text" value="Homo sapiens">
+				<input type="hidden" name="input_query_species" value="auto_detect">
+				<textarea id="stringdb_input" name="multiple_input_items" rows="10" cols="40"></textarea>
+				<input type="submit">
+			</form>
+		</div>
 	<% end %>
 </div>
 <br style="clear:both;">
@@ -202,8 +208,8 @@
 
 <script>
 	render_list();
+	var resultsManager = new ResultsManager("<%= params[:session_id] %>");
 	<% if params[:generate] %>
-		var resultsManager = new ResultsManager("<%= params[:session_id] %>");
 		resultsManager.run();
 	<% end %>
 </script>

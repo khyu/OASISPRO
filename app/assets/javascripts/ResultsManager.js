@@ -23,11 +23,12 @@ ResultsManager.prototype.run = function() {
 };
 
 ResultsManager.prototype.run_stringdb = function() {
-	var feature_weight_nodes = $('name="feature_weights"');
 	var feature_weights = [];
-	feature_weight_nodes.forEach(feature_weight_nodes, function(feature_weight_node) {
-		feature_weights.push(feature_weight_node.innerHTML);
+	
+	$('input[name="feature_weights"]:checked').each(function() {
+		console.log($(this));
+		feature_weights.push($(this).val());
 	});
-	$('#stringdb_input').value(feature_weights.join("\n"));
+	$('#stringdb_input').val(feature_weights.join("\n"));
 	$('#stringdb_form').submit();
 };

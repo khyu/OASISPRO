@@ -31,6 +31,10 @@ class AnalysisController < ApplicationController
 			f.close
 
 			@feature_weights = File.open("public/sessions/#{params[:session_id]}/featureWeights.txt", "r").read.split("\n")
+			@feature_weights.each_with_index do |feature_weight, index|
+				tmp = feature_weight.split(",")
+				@feature_weights[index] = tmp[0]
+			end
 		end
 
 		if params[:generate]
@@ -64,6 +68,10 @@ class AnalysisController < ApplicationController
 			if params[:training_percentage].present?
 				params[:training_percentage] = Float(params[:training_percentage])/100
 			else
+				params[:training_percentage] = -1
+			end
+
+			if ['LOOCV', 'batch', 'kfold'].include?(params[:partition])
 				params[:training_percentage] = -1
 			end
 
