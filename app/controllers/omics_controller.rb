@@ -19,7 +19,7 @@ class OmicsController < ApplicationController
 			@data_source = data_source
 			@gene_name = gene_name
 			@clinical_variable = clinical_variable
-			@pvalue = File.open("public/sessions/#{@session_id}/pValue.txt", "r").read
+			@pvalue = File.open("public/sessions/#{@session_id}/pValue.txt", "r").read.strip
 		end
 	end
 

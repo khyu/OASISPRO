@@ -78,7 +78,7 @@
 		<br>
 		<b>Clinical variable:</b> <%= @clinical_variable %>
 		<br>
-		<b>P-value:</b> <%= @pvalue %>
+		<%= ("<b>P-value:</b> ".html_safe + @pvalue) if @pvalue.length > 0 %>
 		<br>
 		<img src="/sessions/<%= @session_id %>/boxplot.png">
 	</div>
