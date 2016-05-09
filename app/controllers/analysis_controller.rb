@@ -33,13 +33,9 @@ class AnalysisController < ApplicationController
 			@feature_weights = File.open("public/sessions/#{params[:session_id]}/featureWeights.txt", "r").read.split("\n")
 			@feature_weights.each_with_index do |feature_weight, index|
 				tmp = feature_weight.split(",")
-				feature_weight = tmp[0].gsub(/-.-.\z/, '')
-				if feature_weight.length == tmp[0].length
-					feature_weight = feature_weight.gsub(/_.*\z/, '')
-				end
-
-				@feature_weights[index] = feature_weight
+				@feature_weights[index] = tmp[0].gsub(/-.-.\z/, '').gsub(/_.*\z/, '')
 			end
+			@feature_weights = @feature_weights.uniq
 		end
 
 		if params[:generate]
