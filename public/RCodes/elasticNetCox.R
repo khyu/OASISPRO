@@ -31,6 +31,7 @@ library(cvTools)
 
 sysargs<-commandArgs(trailingOnly=TRUE)
 print (sysargs)
+sessionID<-sysargs[11]
 tumorType<-sysargs[1]
 dataType<-sysargs[2]
 partitionType<-sysargs[3]
@@ -39,7 +40,7 @@ if (partitionType == "random") { # random
 	trainingPercentage<-as.numeric(sysargs[5])
 } else if (partitionType == "batch") { # batch
   partitionSeed<-(-1)
-  selectedBatchesFile<-read.table(paste("public/sessions/",sysargs[11],"/",sysargs[4],sep=""), sep="", colClasses="character")
+  selectedBatchesFile<-read.table(paste("public/sessions/",sessionID,"/",sysargs[4],sep=""), sep="", colClasses="character")
   selectedBatches<-selectedBatchesFile[,1]
   trainingPercentage<-(-1)
 } else if (partitionType == "kfold") {
@@ -51,7 +52,7 @@ maxAlpha<-as.numeric(sysargs[7])
 minLambda<-as.numeric(sysargs[8])
 maxLambda<-as.numeric(sysargs[9])
 if (sysargs[10] != "-1") {
-  clinicalVariablesFile<-read.table(paste("public/sessions/",sysargs[11],"/",sysargs[10],sep=""), sep="")
+  clinicalVariablesFile<-read.table(paste("public/sessions/",sessionID,"/",sysargs[10],sep=""), sep="")
   clinicalVariables<-clinicalVariablesFile[,1]
 }
 
@@ -80,19 +81,20 @@ if (sysargs[10] != "-1") {
 print (maxAlpha)
 print (tumorType)
 #print (clinicalVariables)
-milestonesFileName<-paste("public/sessions/",sysargs[11],"/milestones.txt",sep="")
+milestonesFileName<-paste("public/sessions/",sessionID,"/milestones.txt",sep="")
 percentageFinish<-0
 
 
 # read files
 omicsFile<-read.table(paste("../data/", tumorType, "_", dataType, ".txt", sep=""), stringsAsFactors=F, sep=",")
+omicsNameFile<-t(read.table(paste("../data/", tumorType, "_", dataType, "_elemid.txt", sep=""), stringsAsFactors=F, sep=","))
 percentageFinish<-2
 print(paste("Finished reading omics file",percentageFinish,sep=","))
 write(paste("Finished reading omics file",percentageFinish,sep=","),milestonesFileName)
 
-omicsNameFile<-read.table(paste("../data/", tumorType, "_", dataType, "_ids.txt", sep=""), stringsAsFactors=F, sep="")
-omics<-omicsFile[substr(omicsNameFile[,1],14,15)=="01",]
-omicsName<-omicsNameFile[substr(omicsNameFile[,1],14,15)=="01",]
+omicsIDFile<-read.table(paste("../data/", tumorType, "_", dataType, "_ids.txt", sep=""), stringsAsFactors=F, sep="")
+omics<-omicsFile[substr(omicsIDFile[,1],14,15)=="01",]
+omicsName<-omicsIDFile[substr(omicsIDFile[,1],14,15)=="01",]
 omicsID<-substr(omicsName, 1, 12)
 
 clinicalFile<-read.table(paste("../data/nationwidechildrens.org_clinical_patient_", tumorType, ".txt", sep=""), stringsAsFactors = F, quote="", sep="\t")
@@ -285,17 +287,32 @@ if (length(unique(plotTestGGsurv[,1]))>1){
   pTest<-"NA"
 }
 print(pTest)
-write(pTest,paste("public/sessions/",sysargs[11],"/pTest.txt",sep=""))
+write(pTest,paste("public/sessions/",sessionID,"/pTest.txt",sep=""))
 
 percentageFinish<-percentageFinish+2
 print(paste("Finished building survival groups",percentageFinish,sep=","))
 write(paste("Finished building survival groups",percentageFinish,sep=","),milestonesFileName,append=T)
 
+
+
+# output feature weights
+coefFit<-as.data.frame(as.matrix(coef(cv.tr, s=lambdaFit)))
+coefFit<-cbind(0,coefFit)
+rownames(coefFit)<-omicsNameFile
+coefFitNonZero<-coefFit[coefFit[,2]!=0,]
+coefFitNonZero<-coefFitNonZero[order(-coefFitNonZero[,2]),]
+coefFitOutput<-rbind(coefFitNonZero,coefFit[coefFit[,2]==0,])
+coefFitOutput[,1]<-rownames(coefFitOutput)
+
+write.table(coefFitOutput,paste("public/sessions/",sessionID,"/featureWeights.txt",sep=""),quote=F, sep=",",row.names=F, col.names=F)
+
+
+
 # re-define ggsurv
 #source("../public/dropbox/analysis/Survival/ggsurv.R")
 source("public/RCodes/ggsurv.R")
 
-png(filename=paste("public/sessions/",sysargs[11],"/survivalOutput.png", sep=""), width=1000, height=500)
+png(filename=paste("public/sessions/",sessionID,"/survivalOutput.png", sep=""), width=1000, height=500)
 ggsurv(plotTest.surv) + 
   guides(linetype = F) + 
   xlab("Months") + ggtitle("Kaplan-Meier Curve") +
