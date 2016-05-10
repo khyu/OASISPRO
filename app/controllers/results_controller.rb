@@ -6,35 +6,28 @@ class ResultsController < ApplicationController
 		return if params[:session_id] !~ /\A[0-9]+\z/
 
 		milestones = []
+		percent = 0
 		done = false
 		error_file = ""
 
-		t = Time.now.to_i
-		while milestones.length <= params[:lines].to_i && Time.now.to_i - t < 10
-			if File.exists?("public/sessions/#{params[:session_id]}/error.txt")
-				error_file = File.open("public/sessions/#{params[:session_id]}/error.txt", "r").read
-			end
-
-			if error_file.include?('Execution halted') || error_file.include?('Rscript: command not found')
-				break
-			else
-				error_file = ""
-			end
-
-			if File.exists?("public/sessions/#{params[:session_id]}/milestones.txt")
-				milestones = File.open("public/sessions/#{params[:session_id]}/milestones.txt", "r").read.split("\n")
-
-				if milestones.last == 'Completed!,100'
-					done = true
-					break
-				elsif milestones.length > params[:lines].to_i
-					break
-				end
-			end
-
-			sleep 1
+		if File.exists?("public/sessions/#{params[:session_id]}/error.txt")
+			error_file = File.open("public/sessions/#{params[:session_id]}/error.txt", "r").read
 		end
 
-		render json: {milestones: milestones, done: done, error: error_file.gsub("\n", "<br>")}
+		error_file = "" if !(error_file.include?('Execution halted') || error_file.include?('Rscript: command not found'))
+	
+		if File.exists?("public/sessions/#{params[:session_id]}/milestones.txt")
+			milestones = File.open("public/sessions/#{params[:session_id]}/milestones.txt", "r").read.split("\n")
+
+			percent = milestones.last.split(',')[1].to_i
+
+			if milestones.last == 'Completed!,100'
+				done = true
+			end
+
+
+		end		
+
+		render json: {percent: percent, done: done, error: error_file.gsub("\n", "<br>")}
 	end
 end
