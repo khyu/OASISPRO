@@ -3,7 +3,7 @@ class ResultsController < ApplicationController
 	end
 
 	def progress
-		return if params[:session_id] !~ /\A[0-9]+\z/
+		#return if params[:session_id] !~ /\A[0-9]+\z/
 
 		milestones = []
 		percent = 0

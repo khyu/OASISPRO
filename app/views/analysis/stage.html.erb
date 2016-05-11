@@ -104,8 +104,10 @@
 	<div style="text-align: center">
 		<input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>"></input>
 		<input type="hidden" name="session_id" value="<%= rand.to_s.sub("0.", "") %>">
-		<input type="submit" value="Generate Analysis" name="generate" class="btn btn-primary" style="height:50px;font-size:16pt;">
+		<input type="submit" value="Generate Analysis" name="generate" class="btn btn-primary" style="height:50px;font-size:16pt;" id="generate-analysis-button">
 	</div>
+	<div id="progress-status" style="display: none;"></div>
+	<div id="progressbar"></div>
 </form>
 
 <br style="clear:both;">
@@ -213,8 +215,9 @@
 
 <script>
 	render_list();
-	var resultsManager = new ResultsManager("<%= params[:session_id] %>");
-	<% if params[:generate] %>
-		resultsManager.run();
-	<% end %>
+	var resultsManager = new ResultsManager("test_session") //("<%= params[:session_id] %>");
+	resultsManager.run();
+	$('#generate-analysis-button').on('click', function() {
+		
+	});
 </script>
