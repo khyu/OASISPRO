@@ -7,11 +7,13 @@ class ResultsController < ApplicationController
 
 		milestones = []
 		percent = 0
+		status = ""
 		done = false
 		error_file = ""
 
 		if File.exists?("public/sessions/#{params[:session_id]}/error.txt")
 			error_file = File.open("public/sessions/#{params[:session_id]}/error.txt", "r").read
+			status = "Error, execution halted."
 		end
 
 		error_file = "" if !(error_file.include?('Execution halted') || error_file.include?('Rscript: command not found'))
@@ -20,6 +22,7 @@ class ResultsController < ApplicationController
 			milestones = File.open("public/sessions/#{params[:session_id]}/milestones.txt", "r").read.split("\n")
 
 			percent = milestones.last.split(',')[1].to_i
+			status = milestones.last.split(',')[0].to_s
 
 			if milestones.last == 'Completed!,100'
 				done = true
@@ -28,6 +31,6 @@ class ResultsController < ApplicationController
 
 		end		
 
-		render json: {percent: percent, done: done, error: error_file.gsub("\n", "<br>")}
+		render json: {percent: percent, done: done, status: status, error: error_file.gsub("\n", "<br>")}
 	end
 end

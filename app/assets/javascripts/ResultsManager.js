@@ -15,6 +15,7 @@ ResultsManager.prototype.run = function() {
 			if (data.done) {
 				location.href = "/analysis/stage?done=1&session_id=" + self.session_id + "#results";
 			}
+			$("#progressbar-status").text(data.status);
 			if (data.error) {
 				//$("#results-modal-content").html("ERROR: <br><br>" + data.error);
 				$("#progress-status").html("ERROR: <br><br>" + data.error);
