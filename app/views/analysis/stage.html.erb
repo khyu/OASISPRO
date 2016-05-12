@@ -215,6 +215,6 @@
 
 <script>
 	render_list();
-	var resultsManager = new ResultsManager("test_session") //("<%= params[:session_id] %>");
+	var resultsManager = new ResultsManager("<%= params[:session_id] %>"); //("test_session")
 	resultsManager.run();
 </script>
