@@ -1,23 +1,32 @@
 function ResultsManager(session_id) {
-	this.lines = 0;
 	this.session_id = session_id;
 }
 
 
-ResultsManager.prototype.run = function() {
-	$("#results-modal").modal();
+ResultsManager.prototype.run = function(type) {
+	//$("#results-modal").modal();
 	var self = this;
 
 	var interval = setInterval(function() {
-		$.get( "/results/progress", {session_id: self.session_id, lines: self.lines}, function(data) {
-		  $("#results-modal-content").html(data.milestones.join("<br>"));
-		  if (data.done) {
-		  	location.href = "/analysis/stage?done=1&session_id=" + self.session_id + "#results";
-		  }
-		  if (data.error) {
-		  	$("#results-modal-content").html("ERROR: <br><br>" + data.error);
-		  	clearInterval(interval);
-		  }
+		$.get( "/results/progress", {session_id: self.session_id}, function(data) {
+			//$("#results-modal-content").html(data.milestones.join("<br>"));
+			console.log(data);
+			$("#progressbar").progressbar({ value: data.percent });
+			if (data.done) {
+				clearInterval(interval);
+				if (type == 'stage') {
+					location.href = "/analysis/stage?done=1&session_id=" + self.session_id + "#results";
+				} else if type == 'survival' {
+					location.href = "/analysis/survival?done=1&session_id=" + self.session_id + "#results";
+				}
+				
+			}
+			$("#progressbar-status").text(data.status);
+			if (data.error) {
+				//$("#results-modal-content").html("ERROR: <br><br>" + data.error);
+				$("#progress-status").html("ERROR: <br><br>" + data.error);
+				clearInterval(interval);
+		  	}
 		});
 	}, 2000);
 };
