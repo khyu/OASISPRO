@@ -13,6 +13,7 @@ ResultsManager.prototype.run = function() {
 			console.log(data);
 			$("#progressbar").progressbar({ value: data.percent });
 			if (data.done) {
+				clearInterval(interval);
 				location.href = "/analysis/stage?done=1&session_id=" + self.session_id + "#results";
 			}
 			$("#progressbar-status").text(data.status);
