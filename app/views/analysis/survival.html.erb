@@ -127,6 +127,21 @@
 				<p><%= pvalue[0] %></p>
 			<% end %>
 		</div>
+
+		<table>
+			<tr>
+				<th colspan="2">Feature</th>
+				<th>Weight</th>
+			</tr>
+		<% @feature_weights.each do |feature_weight| %>
+			<tr>
+				<td><input type="checkbox" name="feature_weights" value="<%= feature_weight[:value] %>"></td>
+				<td><%= feature_weight[:name] %></td>
+				<td><%= feature_weight[:weight].to_f.round(5) %></td>
+			</tr>
+		<% end %>
+		</table>
+		<input type="button" class="btn" onClick="resultsManager.run_stringdb()" value="Search String DB">
 	<% end %>
 </div>
 <br style="clear:both;">

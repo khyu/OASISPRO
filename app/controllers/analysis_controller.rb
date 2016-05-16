@@ -30,11 +30,7 @@ class AnalysisController < ApplicationController
 			end
 			f.close
 
-			@feature_weights = File.open("public/sessions/#{params[:session_id]}/featureWeights.txt", "r").read.split("\n")
-			@feature_weights.each_with_index do |feature_weight, index|
-				tmp = feature_weight.split(",")
-				@feature_weights[index] = {name: tmp[0], value: tmp[0].gsub(/-.-.\z/, '').gsub(/_.*\z/, ''), weight: tmp[1]}
-			end
+			@feature_weights = get_feature_weights(params[:session_id])
 		end
 
 		if params[:generate]
@@ -77,7 +73,7 @@ class AnalysisController < ApplicationController
 
 			result = build_command(validators, params)
 			@valid_command = result[:valid_command]
-
+		
 			if @valid_command
 				puts @command
 				@command = "Rscript public/RCodes/binaryClassification.R#{result[:command]} 2>public/sessions/#{params[:session_id]}/error.txt &"
@@ -139,21 +135,23 @@ class AnalysisController < ApplicationController
 			result = build_command(validators, params)
 			@valid_command = result[:valid_command]
 
-			if @valid_command
-				@command = "Rscript public/RCodes/elasticNetCox.R#{result[:command]}"
-				system(@command)
-			end
+			@command = "Rscript public/RCodes/elasticNetCox.R#{result[:command]}"
+			system(@command)
+			puts @command
 			
 			@sessionID = "#{params[:session_id]}"
 			# p value
 			@pTest = Array.new
-			f = File.open("public/sessions/#{params[:session_id]}/pTest.txt", "r")
-			
-			x = 0
-			f.each_line do |line|
-				@pTest << [line]
+			if File.exists?("public/sessions/#{params[:session_id]}/pTest.txt")
+				f = File.open("public/sessions/#{params[:session_id]}/pTest.txt", "r") 	
+				x = 0
+				f.each_line do |line|
+					@pTest << [line]
+				end
+				f.close
 			end
-			f.close
+
+			@feature_weights = get_feature_weights(params[:session_id])
 		end
 	end
 
@@ -261,5 +259,14 @@ class AnalysisController < ApplicationController
 		end
 
 		{command: command, valid_command: valid_command}
+	end
+
+	def get_feature_weights(session_id)
+		feature_weights = File.open("public/sessions/#{session_id}/featureWeights.txt", "r").read.split("\n")
+		feature_weights.each_with_index do |feature_weight, index|
+			tmp = feature_weight.split(",")
+			feature_weights[index] = {name: tmp[0], value: tmp[0].gsub(/-.-.\z/, '').gsub(/_.*\z/, ''), weight: tmp[1]}
+		end
+		return feature_weights
 	end
 end
