@@ -22,7 +22,7 @@ class ResultsController < ApplicationController
 			milestones = File.open("public/sessions/#{params[:session_id]}/milestones.txt", "r").read.split("\n")
 
 			percent = milestones.last.split(',')[1].to_i
-			status = milestones.last.split(',')[0].to_s + ' (' + percent.to_s + '/100%)'
+			status = milestones.last.split(',')[0].to_s + ' (' + percent.to_s + '% Complete)'
 
 			if milestones.last == 'Completed!,100'
 				done = true
