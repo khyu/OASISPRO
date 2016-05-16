@@ -16,7 +16,7 @@ ResultsManager.prototype.run = function(type) {
 				clearInterval(interval);
 				if (type == 'stage') {
 					location.href = "/analysis/stage?done=1&session_id=" + self.session_id + "#results";
-				} else if ('survival') {
+				} else if type == 'survival' {
 					location.href = "/analysis/survival?done=1&session_id=" + self.session_id + "#results";
 				}
 				
