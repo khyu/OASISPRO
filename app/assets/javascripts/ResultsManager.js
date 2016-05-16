@@ -3,7 +3,7 @@ function ResultsManager(session_id) {
 }
 
 
-ResultsManager.prototype.run = function() {
+ResultsManager.prototype.run = function(type) {
 	//$("#results-modal").modal();
 	var self = this;
 
@@ -14,7 +14,12 @@ ResultsManager.prototype.run = function() {
 			$("#progressbar").progressbar({ value: data.percent });
 			if (data.done) {
 				clearInterval(interval);
-				location.href = "/analysis/stage?done=1&session_id=" + self.session_id + "#results";
+				if (type == 'stage') {
+					location.href = "/analysis/stage?done=1&session_id=" + self.session_id + "#results";
+				} else if ('survival') {
+					location.href = "/analysis/survival?done=1&session_id=" + self.session_id + "#results";
+				}
+				
 			}
 			$("#progressbar-status").text(data.status);
 			if (data.error) {
