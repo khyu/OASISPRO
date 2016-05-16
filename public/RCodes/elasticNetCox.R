@@ -19,14 +19,14 @@
 # March 28, 2016
 
 rm(list=ls())
-library(FSelector)
-library(ggplot2)
-library(survival)
-library(glmnet)
-library(rms)
-library(GGally)
-library(dplyr)
-library(cvTools)
+suppressMessages(library(FSelector))
+suppressMessages(library(ggplot2))
+suppressMessages(library(survival))
+suppressMessages(library(glmnet))
+suppressMessages(library(rms))
+suppressMessages(library(GGally))
+suppressMessages(library(dplyr))
+suppressMessages(library(cvTools))
 #setwd("public/dropbox/analysis/StageOverall/")
 
 sysargs<-commandArgs(trailingOnly=TRUE)
