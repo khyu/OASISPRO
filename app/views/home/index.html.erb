@@ -1,36 +1,12 @@
 <div class="homepageAboutContainer">
 	<h3>About this project</h3>
 	<div class="well">
-		<p>Thyroid cancer is one of the few cancers that have increased in incidence rates
-		over recent years. The American Cancer Society estimates that in 2014, there will be 
-		about 60,220 new cases of thyroid cancer in the U.S. and about 1,850 people will die
-		from this disease each year. Current subtyping system is largely based on microscopic
-		characteristics, which doesn't always correlate with clinical outcomes. In addition, the
-		biomolecular mechanisms leading to different clinical phenotypes have not been fully
-		elucidated.</p>
-		<p>The recent availability of cancer omics data has created unique opportunities for
-		the development and refinement of subtyping systems. Consortiums like The Cancer
-		Genome Atlas (TCGA) profiled the genomic variation, DNA methylation status
-		(epigenomics), gene expression (transcriptomics), and protein expression and
-		modification status (proteomics) by next-generation sequencing / high-throughput
-		modalities. Through careful analysis of the omics profiles, we can build a clinically
-		relevant subtyping system and generate important insights into the genomic
-		mechanisms contributing to clinical outcomes.</p>
-		<p>
-		In this project, we aim to:
-		<ol>
-			<li>Obtain the data, which is freely downloadable from the <a href="https://tcga-data.nci.nih.gov/tcga/" target="_blank">TCGA website</a>.
-			<li>Identify patterns of genomic / epigenomic / transcriptomic / proteomic changes
-				that predict clinical outcomes (tumor stage, survival) of thyroid cancer patients
-				through supervised machine learning methods.
-			<li>Determine the biological mechanisms associated with clinical outcomes through
-				enrichment analysis using GO analysis.
-			<li>Analyze the extent to which the identified genes and enrichments make sense, in how they indicate relevant biological mechanisms.
-		</ol>
-		</p>
-		We plan to implement software tools in R and Ruby to perform the data analysis to
-		obtain our results. From our own perspective, we hope to practice using the analytic
-		tools introduced in class and consolidate the concepts we learned through this project.
+		<p><b>Background:</b> Precision oncology is an approach that takes into account individual differences, including genetics differences, to cancer managements. Omics signatures have been shown to predict survival outcomes for several cancer types. However, the vast amount of omics information posed an informatics challenge in identifying patterns associated with health outcomes systematically, and there is no general-purpose data-mining tool available for physicians, medical researchers, and citizen scientists without significant training in programming and bioinformatics.</p>
+
+		<p><b>Results:</b> To bridge this gap, we built the Omics Analysis System for Precision Oncology (OASISPRO), a web-based system to mine the quantitative omics information from The Cancer Genome Atlas (TCGA). This system effectively summarized the patient characteristics in the dataset, executed machine-learning algorithms of choice on the omics data, and evaluated the prediction model performance with held out test sets. With this tool, we successfully identified genes strongly associated with tumor stage and other clinically important phenotypes. We further predicted patients’ survival outcomes in many cancer types accurately. This data mining system is extensible to other diseases and health status.</p>
+
+		<p><b>Conclusions:</b> By building accurate prediction models for clinical phenotypes, this system will contribute to establishing personalized cancer treatment plans, thereby increasing the quality of care and reducing the cost of cancer management.</p>
+
 	</div>
 	<div style="text-align:center;">
 		<a href="/admin">Admin area</a>
