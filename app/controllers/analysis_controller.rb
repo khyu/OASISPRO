@@ -87,6 +87,19 @@ class AnalysisController < ApplicationController
 	end
 
 	def survival
+		if params[:done]
+			@sessionID = "#{params[:session_id]}"
+			# p value
+			@pTest = Array.new
+			f = File.open("public/sessions/#{params[:session_id]}/pTest.txt", "r")
+			
+			x = 0
+			f.each_line do |line|
+				@pTest << [line]
+			end
+			f.close
+		end
+
 		if params[:generate]
 			params[:session_id] = rand.to_s.sub("0.", "") 
 			validators = {
@@ -144,16 +157,6 @@ class AnalysisController < ApplicationController
 				system(@command)
 			end
 			
-			@sessionID = "#{params[:session_id]}"
-			# p value
-			@pTest = Array.new
-			f = File.open("public/sessions/#{params[:session_id]}/pTest.txt", "r")
-			
-			x = 0
-			f.each_line do |line|
-				@pTest << [line]
-			end
-			f.close
 		end
 	end
 
