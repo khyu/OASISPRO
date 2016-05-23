@@ -70,6 +70,7 @@ Cs273aproject::Application.routes.draw do
     get 'batch_ids', on: :collection
     get 'get_prediction_targets', on: :collection
     get 'get_clinical_variables', on: :collection
+    get 'get_unique_prediction_target_values', on: :collection
   end
 
   resources :clinical do

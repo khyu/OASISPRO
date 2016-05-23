@@ -256,6 +256,27 @@ class AnalysisController < ApplicationController
 		render json: clinical_variables
 	end
 
+	def get_unique_prediction_target_values
+		path = '../data/nationwidechildrens.org_clinical_patient_' + params[:tumor_type] + '.txt'
+
+		column_num = 0
+		data = []
+		i = 0
+		File.open(path, "r") do |file_handle|
+			file_handle.each_line do |line|
+				if i == 1
+					clinical_variables = line.strip.split("\t")
+					column_num = clinical_variables.index(params[:prediction_target])
+				elsif i > 2
+					clinical_variables = line.strip.split("\t")
+					data << clinical_variables[column_num]
+				end
+				i += 1
+			end
+		end
+
+		render json: data.uniq
+	end
 
 	private #------------------------------------------------------------------------------#
 

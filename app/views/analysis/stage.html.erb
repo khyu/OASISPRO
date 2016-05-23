@@ -10,6 +10,24 @@
 					html += '<option>' + prediction_target + '</option>'
 				});
 				$('select[name="prediction_target"]').html(html);
+
+
+				$(document).on('change', 'select[name="prediction_target"]', function(){
+					console.log("TEST");
+					var input_target = $(this).val();
+					
+					$.get('/analysis/get_unique_prediction_target_values', {tumor_type: tumor_type, prediction_target: input_target}, function (targets) {
+
+							console.log(targets);
+							var html = '<select size="5" multiple>';
+							targets.forEach(function(target) {
+								html += '<option>' + target + '</option>'
+							});
+							html += '</select>';
+							$("#prediction_target_groups").html(html);
+						});					
+				});
+
 			});
 		}
 	}
@@ -20,6 +38,7 @@
 			get_prediction_targets();
 		});
 	});
+
 
 	$(document).on('change', 'input[name="data_source"]:radio', function(){
 	  render_list()
@@ -80,6 +99,7 @@
 		<h4>Choose the Prediction Target</h4>
 		<div class="well">
 			<%= select_tag "prediction_target" %>
+			<div id="prediction_target_groups"></div>
 		</div>
 	</div>
 
