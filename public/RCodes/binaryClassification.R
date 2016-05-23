@@ -76,13 +76,16 @@ print (featureSelectionMethod)
 print (numFeatures)
 milestonesFileName<-paste("public/sessions/",sessionID,"/milestones.txt",sep="")
 percentageFinish<-0
+print(paste("Initializing...",percentageFinish,sep=","))
+write(paste("Initializing...",percentageFinish,sep=","),milestonesFileName)
+
 
 # read files
 omicsFile<-read.table(paste("../data/", tumorType, "_", dataType, ".txt", sep=""), stringsAsFactors=F, sep=",")
 
 percentageFinish<-2
 print(paste("Finished reading omics file",percentageFinish,sep=","))
-write(paste("Finished reading omics file",percentageFinish,sep=","),milestonesFileName)
+write(paste("Finished reading omics file",percentageFinish,sep=","),milestonesFileName,append=T)
 
 
 omicsIDFile<-read.table(paste("../data/", tumorType, "_", dataType, "_ids.txt", sep=""), stringsAsFactors=F, sep="")
