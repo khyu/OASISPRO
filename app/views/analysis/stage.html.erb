@@ -208,7 +208,7 @@
 		<% @feature_weights.each do |feature_weight| %>
 			<tr>
 				<td><input type="checkbox" name="feature_weights" value="<%= feature_weight[:value] %>"></td>
-				<td><%= feature_weight[:name] %></td>
+				<td><a href="http://www.genecards.org/cgi-bin/carddisp.pl?gene=<%= feature_weight[:value].gsub('_', '') %>" target="_blank"><%= feature_weight[:name] %></a></td>
 				<td><%= feature_weight[:weight].to_f.round(5) %></td>
 			</tr>
 		<% end %>
