@@ -61,6 +61,9 @@ class AnalysisController < ApplicationController
 				Dir.mkdir("public/sessions/#{params[:session_id]}") unless File.exists?("public/sessions/#{params[:session_id]}")
 			end
 
+			File.write("public/sessions/#{params[:session_id]}/outcomeLabel1.txt", params[:prediction_target_group1])
+			File.write("public/sessions/#{params[:session_id]}/outcomeLabel2.txt", params[:prediction_target_group2])
+
 			if params[:training_percentage].present?
 				params[:training_percentage] = Float(params[:training_percentage])/100
 			else

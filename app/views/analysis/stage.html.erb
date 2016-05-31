@@ -1,4 +1,35 @@
 <script>
+	function get_prediction_target_groups() {
+		var tumor_type = $('select[name="tumor_type"]').val();
+		var input_target = $('select[name="prediction_target"]').val();
+
+		$.get('/analysis/get_unique_prediction_target_values', {tumor_type: tumor_type, prediction_target: input_target}, function (targets) {
+			var html = '<select name="prediction_target_groups" size="5" multiple>';
+			targets.forEach(function(target) {
+				html += '<option>' + target + '</option>'
+			});
+			html += '</select>';
+			html += '<div style="width:50%;float:left">';
+				html += '<input type="button" value="Add to Group 1" onClick="addToPredictionTargetGroup(1)">';
+				html += 'Group 1<br>';
+				html += '<textarea style="width:100%" name="prediction_target_group1" readonly>';
+				html += '</textarea>';
+			html += '</div>';
+			html += '<div style="width:50%;float:left">';
+				html += '<input type="button" value="Add to Group 2" onClick="addToPredictionTargetGroup(2)">';
+				html += 'Group 2<br>';
+				html += '<textarea style="width:100%" name="prediction_target_group2" readonly>';
+				html += '</textarea>';
+			html += '</div>';
+			html += '<br style="clear:both;"><input type="button" value="Reset" onClick="reset_prediction_target_groups()">';
+			$("#prediction_target_groups").html(html);
+		});
+	}
+
+	function reset_prediction_target_groups() {
+		get_prediction_target_groups();
+	}
+
 	function get_prediction_targets() {
 		$('select[name="prediction_target"]').html("");
 
@@ -11,25 +42,32 @@
 				});
 				$('select[name="prediction_target"]').html(html);
 
-
-				$(document).on('change', 'select[name="prediction_target"]', function(){
-					console.log("TEST");
-					var input_target = $(this).val();
-					
-					$.get('/analysis/get_unique_prediction_target_values', {tumor_type: tumor_type, prediction_target: input_target}, function (targets) {
-
-							console.log(targets);
-							var html = '<select size="5" multiple>';
-							targets.forEach(function(target) {
-								html += '<option>' + target + '</option>'
-							});
-							html += '</select>';
-							$("#prediction_target_groups").html(html);
-						});					
+				$(document).on('change', 'select[name="prediction_target"]', function() {
+					get_prediction_target_groups();
 				});
 
 			});
 		}
+	}
+
+	function addToPredictionTargetGroup(n) {
+		var group = $('textarea[name="prediction_target_group' + n + '"]');
+		var group_val = group.val();
+		
+		var selected_values = $('select[name="prediction_target_groups"]').val();
+		if (!selected_values) {
+			return;
+		}
+
+		group.val(group_val + selected_values.join("\n") + "\n");
+
+		var html = "";
+		$('select[name="prediction_target_groups"] option').each(function() {
+			if (selected_values.indexOf($(this).text()) == -1) {
+				html += '<option>' + $(this).text() + '</option>';
+			}
+		});
+		$('select[name="prediction_target_groups"]').html(html);
 	}
 
 	$(document).ready(function() {
