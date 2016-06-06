@@ -274,8 +274,8 @@
 
 <script>
 	render_list();
+	var resultsManager = new ResultsManager("<%= params[:session_id] %>");
 	<% if params[:generate] %>
-		var resultsManager = new ResultsManager("<%= params[:session_id] %>");
 		resultsManager.run('stage');
 	<% end %>
 </script>
