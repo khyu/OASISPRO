@@ -49,7 +49,7 @@
 	<b>(For testing) Command: <%= @command %></b>
 <% end %>
 
-<form method="post">
+<form method="post" action="/analysis/survival#progressbar">
 	<div style="float:left;width:400px;">
 		<h4>Choose the Tumor Type</h4>
 		<div class="well">
@@ -111,41 +111,46 @@
 		<input type="hidden" name="session_id" value="<%= rand.to_s.sub("0.", "") %>">
 		<input type="submit" value="Generate Analysis" name="generate" class="btn btn-primary" style="height:50px;font-size:16pt;">
 	</div>
-	<div id="progressbar" style="width:90%; margin-left:auto; margin-right:auto; margin-top:10px;"></div>
-	<div id="progressbar-status" style="width:90%; margin-left:auto; margin-right:auto;"></div>
 </form>
 
-<div style="float:left;width:570px;margin-left:30px;">
-	<% if params[:done] %>
-		<h2 id="results">Results</h2>
-		<div class="well">
-			<a href="/sessions/<%= @sessionID%>/survivalOutput.png" target="_blank">
-				<img src="/sessions/<%= @sessionID%>/survivalOutput.png">
-			</a>
-		</div>
-		<b>Log Rank P Value in the Test Set</b>
-		<div class="well">
-			<p><%= @pTest[0][0].to_f.round(4) %></p>
-		</div>
+<div id="progressbar" style="width:90%; margin-left:auto; margin-right:auto; margin-top:10px;"></div>
+<div id="progressbar-status" style="width:90%; margin-left:auto; margin-right:auto;"></div>
 
-		<table>
-			<tr>
-				<th colspan="2">Feature</th>
-				<th>Weight</th>
-			</tr>
-		<% @feature_weights.each do |feature_weight| %>
-			<tr>
-				<td><input type="checkbox" name="feature_weights" value="<%= feature_weight[:value] %>"></td>
-				<td><%= feature_weight[:name] %></td>
-				<td><%= feature_weight[:weight].to_f.round(5) %></td>
-			</tr>
-		<% end %>
-		</table>
-		<input type="button" class="btn" onClick="resultsManager.run_stringdb()" value="Search String DB">
+
+<% if params[:done] %>
+	<h2 id="results">Results</h2>
+	<div class="well" style="width:600px">
+		<a href="/sessions/<%= @sessionID%>/survivalOutput.png" target="_blank">
+			<img src="/sessions/<%= @sessionID%>/survivalOutput.png">
+		</a>
+	</div>
+	<b>Log Rank P Value in the Test Set</b>
+	<div class="well">
+		<p><%= @pTest[0][0].to_f.round(4) %></p>
+	</div>
+
+	<table>
+		<tr>
+			<th colspan="2">Feature</th>
+			<th>Weight</th>
+		</tr>
+	<% @feature_weights.each do |feature_weight| %>
+		<tr>
+			<td><input type="checkbox" name="feature_weights" value="<%= feature_weight[:value] %>"></td>
+			<td><a href="http://www.genecards.org/Search/Keyword?queryString=<%= feature_weight[:value] %>" target="_blank"><%= feature_weight[:name] %></a></td>
+			<td><%= feature_weight[:weight].to_f.round(5) %></td>
+		</tr>
 	<% end %>
-</div>
+	</table>
+	<input type="button" class="btn" onClick="resultsManager.run_stringdb()" value="Search String DB">
+<% else %>
+	<br><br><br><br>
+<% end %>
+
 <br style="clear:both;">
 <script>
-	var resultsManager = new ResultsManager("<%= params[:session_id] %>");
-	resultsManager.run('survival');
+	<% if params[:generate] %>
+		var resultsManager = new ResultsManager("<%= params[:session_id] %>");
+		resultsManager.run('survival');
+	<% end %>
 </script>

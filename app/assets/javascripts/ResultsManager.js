@@ -7,6 +7,9 @@ ResultsManager.prototype.run = function(type) {
 	//$("#results-modal").modal();
 	var self = this;
 
+	$("#progressbar").progressbar({ value: 0 });
+	$("#progressbar-status").text("Initializing...");
+
 	var interval = setInterval(function() {
 		$.get( "/results/progress", {session_id: self.session_id}, function(data) {
 			//$("#results-modal-content").html(data.milestones.join("<br>"));
@@ -21,6 +24,7 @@ ResultsManager.prototype.run = function(type) {
 				}
 				
 			}
+
 			$("#progressbar-status").text(data.status);
 			if (data.error) {
 				//$("#results-modal-content").html("ERROR: <br><br>" + data.error);

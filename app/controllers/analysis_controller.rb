@@ -78,7 +78,6 @@ class AnalysisController < ApplicationController
 			@valid_command = result[:valid_command]
 		
 			if @valid_command
-				puts @command
 				@command = "Rscript public/RCodes/binaryClassification.R#{result[:command]} 2>public/sessions/#{params[:session_id]}/error.txt &"
 				system(@command)
 			end
@@ -91,12 +90,13 @@ class AnalysisController < ApplicationController
 			# p value
 			@pTest = Array.new
 			f = File.open("public/sessions/#{params[:session_id]}/pTest.txt", "r")
-			
+	
 			x = 0
 			f.each_line do |line|
 				@pTest << [line]
 			end
 			f.close
+			@feature_weights = get_feature_weights(params[:session_id])
 		end
 
 		if params[:generate]
@@ -151,23 +151,10 @@ class AnalysisController < ApplicationController
 			result = build_command(validators, params)
 			@valid_command = result[:valid_command]
 
-			@command = "Rscript public/RCodes/elasticNetCox.R#{result[:command]}"
+			@command = "Rscript public/RCodes/elasticNetCox.R#{result[:command]} 2>public/sessions/#{params[:session_id]}/error.txt &"
 			system(@command)
-			puts @command
 			
 			@sessionID = "#{params[:session_id]}"
-			# p value
-			@pTest = Array.new
-			if File.exists?("public/sessions/#{params[:session_id]}/pTest.txt")
-				f = File.open("public/sessions/#{params[:session_id]}/pTest.txt", "r") 	
-				x = 0
-				f.each_line do |line|
-					@pTest << [line]
-				end
-				f.close
-			end
-
-			@feature_weights = get_feature_weights(params[:session_id])
 		end
 	end
 
