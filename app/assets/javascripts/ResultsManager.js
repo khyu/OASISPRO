@@ -22,10 +22,12 @@ ResultsManager.prototype.run = function(type) {
 				} else if (type == 'survival') {
 					location.href = "/analysis/survival?done=1&session_id=" + self.session_id + "#results";
 				}
-				
 			}
 
-			$("#progressbar-status").text(data.status);
+			if (data.status) {
+				$("#progressbar-status").text(data.status);
+			}
+
 			if (data.error) {
 				//$("#results-modal-content").html("ERROR: <br><br>" + data.error);
 				$("#progress-status").html("ERROR: <br><br>" + data.error);
