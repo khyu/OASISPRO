@@ -4,22 +4,28 @@
 		var input_target = $('select[name="prediction_target"]').val();
 
 		$.get('/analysis/get_unique_prediction_target_values', {tumor_type: tumor_type, prediction_target: input_target}, function (targets) {
-			var html = '<select name="prediction_target_groups" size="5" multiple>';
+			var html = '<select name="prediction_target_groups" style="width:100%" size="5" multiple>';
 			targets.forEach(function(target) {
 				html += '<option>' + target + '</option>'
 			});
-			html += '</select>';
-			html += '<div style="width:50%;float:left">';
+			html += '</select><br style="clear:both;">';
+			html += '<div style="width:40%;float:left">';
 				html += '<input type="button" value="Add to Group 1" onClick="addToPredictionTargetGroup(1)">';
 				html += 'Group 1<br>';
-				html += '<textarea style="width:100%" name="prediction_target_group1" readonly>';
-				html += '</textarea>';
+				html += '<select style="width:100%" name="prediction_target_group1[]" size="5" multiple>';
+				html += '</select>';
 			html += '</div>';
-			html += '<div style="width:50%;float:left">';
+			html += '<div style="width:20%;float:left;padding-top:50px;">';
+				html += '<div style="margin-left:5px;">';
+					html += '<input type="button" value=">" onClick="movePredictionTarget(1, 2)">';
+					html += '<input type="button" value="<" onClick="movePredictionTarget(2, 1)">';
+				html += '</div>';
+			html += '</div>';
+			html += '<div style="width:40%;float:left">';
 				html += '<input type="button" value="Add to Group 2" onClick="addToPredictionTargetGroup(2)">';
 				html += 'Group 2<br>';
-				html += '<textarea style="width:100%" name="prediction_target_group2" readonly>';
-				html += '</textarea>';
+				html += '<select style="width:100%" name="prediction_target_group2[]" size="5" multiple>';
+				html += '</select>';
 			html += '</div>';
 			html += '<br style="clear:both;"><input type="button" value="Reset" onClick="reset_prediction_target_groups()">';
 			$("#prediction_target_groups").html(html);
@@ -51,17 +57,20 @@
 	}
 
 	function addToPredictionTargetGroup(n) {
-		var group = $('textarea[name="prediction_target_group' + n + '"]');
-		var group_val = group.val();
+		var group = $('select[name="prediction_target_group' + n + '[]"]');
 		
 		var selected_values = $('select[name="prediction_target_groups"]').val();
 		if (!selected_values) {
 			return;
 		}
 
-		group.val(group_val + selected_values.join("\n") + "\n");
+		var html = '';
+		selected_values.forEach(function(selected_value) {
+			html += '<option>' + selected_value + '</option>';
+		});
+		group.append(html);
 
-		var html = "";
+		html = "";
 		$('select[name="prediction_target_groups"] option').each(function() {
 			if (selected_values.indexOf($(this).text()) == -1) {
 				html += '<option>' + $(this).text() + '</option>';
@@ -69,6 +78,48 @@
 		});
 		$('select[name="prediction_target_groups"]').html(html);
 	}
+
+	function movePredictionTarget(source, destination) {
+		var selected_values = $('select[name="prediction_target_group' + source + '[]"]').val();
+		if (!selected_values) {
+			return;
+		}
+
+		var destination_group = $('select[name="prediction_target_group' + destination + '[]"]');
+
+		var html = '';
+		selected_values.forEach(function(selected_value) {
+			html += '<option>' + selected_value + '</option>';
+		});
+		destination_group.append(html);
+
+		html = "";
+		$('select[name="prediction_target_group' + source + '[]"] option').each(function() {
+			if (selected_values.indexOf($(this).text()) == -1) {
+				html += '<option>' + $(this).text() + '</option>';
+			}
+		});
+		$('select[name="prediction_target_group' + source + '[]"]').html(html);
+	}
+
+	function submitForm() {
+  		var option_tags = $('select[name="prediction_target_group1[]"] option');
+		var options = [];
+		option_tags.each(function() {
+			options.push($(this).val());
+		});
+
+		$('select[name="prediction_target_group1[]"]').val(options);
+
+		option_tags = $('select[name="prediction_target_group2[]"] option');
+		options = [];
+		option_tags.each(function() {
+			options.push($(this).val());
+		});
+
+		$('select[name="prediction_target_group2[]"]').val(options);
+	}
+
 
 	$(document).ready(function() {
 		get_prediction_targets();
@@ -121,19 +172,19 @@
 	<b>(For testing) Command: <%= @command %></b>
 <% end %>
 <form method="post" action="/analysis/stage#progressbar">
-	<div style="float:left;width:325px;">
+	<div style="float:left;width:300px;">
 		<h4>Choose the Tumor Type</h4>
 		<div class="well">
 			<%= select_tag "tumor_type", options_for_select({'Choose Tumor Type' => ''}.merge(SiteConstants::TUMOR_TYPES.invert)) %>
 		</div>
 	</div>
-	<div style="float:left;width:325px;margin-left:10px;">
+	<div style="float:left;width:300px;margin-left:10px;">
 		<h4>Choose the Data Source</h4>
 		<div class="well">
 			<%= select_tag "data_source", options_for_select({'Choose Data Source' => ''}.merge(SiteConstants::DATA_TYPES.invert)) %>
 		</div>
 	</div>
-	<div style="float:left;width:325px;margin-left:10px;">
+	<div style="float:left;width:375px;margin-left:10px;">
 		<h4>Choose the Prediction Target</h4>
 		<div class="well">
 			<%= select_tag "prediction_target" %>
@@ -162,7 +213,7 @@
 	<div style="text-align: center">
 		<input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>"></input>
 		<input type="hidden" name="session_id" value="<%= rand.to_s.sub("0.", "") %>">
-		<input type="submit" value="Generate Analysis" name="generate" class="btn btn-primary" style="height:50px;font-size:16pt;" id="generate-analysis-button">
+		<input type="submit" onClick="submitForm(); return true" value="Generate Analysis" name="generate" class="btn btn-primary" style="height:50px;font-size:16pt;" id="generate-analysis-button">
 	</div>
 	<div id="progressbar" style="width:90%; margin-left:auto; margin-right:auto; margin-top:10px;"></div>
 	<div id="progressbar-status" style="width:90%; margin-left:auto; margin-right:auto;"></div>

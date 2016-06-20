@@ -4,7 +4,6 @@ function ResultsManager(session_id) {
 
 
 ResultsManager.prototype.run = function(type) {
-	//$("#results-modal").modal();
 	var self = this;
 
 	$("#progressbar").progressbar({ value: 0 });
@@ -12,8 +11,6 @@ ResultsManager.prototype.run = function(type) {
 
 	var interval = setInterval(function() {
 		$.get( "/results/progress", {session_id: self.session_id}, function(data) {
-			//$("#results-modal-content").html(data.milestones.join("<br>"));
-			console.log(data);
 			$("#progressbar").progressbar({ value: data.percent });
 			if (data.done) {
 				clearInterval(interval);
@@ -29,7 +26,6 @@ ResultsManager.prototype.run = function(type) {
 			}
 
 			if (data.error) {
-				//$("#results-modal-content").html("ERROR: <br><br>" + data.error);
 				$("#progress-status").html("ERROR: <br><br>" + data.error);
 				clearInterval(interval);
 		  	}
@@ -41,7 +37,6 @@ ResultsManager.prototype.run_stringdb = function() {
 	var feature_weights = [];
 	
 	$('input[name="feature_weights"]:checked').each(function() {
-		console.log($(this));
 		feature_weights.push($(this).val());
 	});
 	$('#stringdb_input').val(feature_weights.join("\n"));
