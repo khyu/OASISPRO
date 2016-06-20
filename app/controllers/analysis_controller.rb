@@ -48,6 +48,10 @@ class AnalysisController < ApplicationController
 				session_id: '*'
 			}
 
+			if params[:partition] == 'kfold'
+				params[:random_seed] = params[:num_folds]
+			end
+
 			if params[:partition] == 'batch'
 				params[:random_seed] = "batch.txt"
 				Dir.mkdir("public/sessions") unless File.exists?("public/sessions")
