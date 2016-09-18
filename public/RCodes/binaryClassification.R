@@ -54,23 +54,6 @@ sessionID<-sysargs[9]
 
 AUCs<-rep(0,12)
 
-# tumorType<-"chol" 
-# dataType<-"rnaseq" 
-# predictionTarget<-"pathologic_stage" 
-# partitionType<-"random" 
-# if (partitionType == "random") {
-#   partitionSeed<-1 
-#   trainingPercentage<-0.7 
-#   nRandGroups<-1
-# } else {
-#   partitionSeed<-(-1)
-#   selectedBatchesFile<-read.table(sysargs[5], sep="")
-#   selectedBatches<-selectedBatchesFile[,1]
-#   trainingPercentage<-(-1)
-#   nRandGroups<-1
-# } 
-# featureSelectionMethod<-"infog"
-# numFeatures<-20
 
 print (featureSelectionMethod)
 print (numFeatures)
@@ -113,13 +96,28 @@ uniqueValues<-unique(as.factor(YFile))
 YFile[substr(YFile,1,2)=="[N"]<-NA
 YFile[substr(YFile,nchar(YFile),nchar(YFile))=="X"]<-NA
 
-threshold<-median(as.numeric(as.factor(YFile)),na.rm=T)
+
+#threshold<-median(as.numeric(as.factor(YFile)),na.rm=T)
+#Y<-YFile[!is.na(YFile)]
+#Y<-(as.numeric(as.factor(Y))>threshold)
+#Y<-ifelse(Y=="TRUE", 1, 0)
+#Y<-as.factor(Y)
+Ygroup1<-read.table(paste("public/sessions/",sessionID,"/outcomeLabel1.txt",sep=""),sep="\n",stringsAsFactors=F)
+Ygroup2<-read.table(paste("public/sessions/",sessionID,"/outcomeLabel2.txt",sep=""),sep="\n",stringsAsFactors=F)
+
 Y<-YFile[!is.na(YFile)]
-Y<-(as.numeric(as.factor(Y))>threshold)
-Y<-ifelse(Y=="TRUE", 1, 0)
+useIndex<-which((Y %in% Ygroup1[,1]) | (Y %in% Ygroup2[,1]))
+Y[Y %in% Ygroup1[,1]]<-0
+Y[Y %in% Ygroup2[,1]]<-1
+
+Y<-Y[useIndex]
 Y<-as.factor(Y)
 Xall<-omics[!is.na(YFile),]
+Xall<-Xall[useIndex,]
 iDs<-intersectIDs[!is.na(YFile)]
+iDs<-iDs[useIndex]
+
+
 
 percentageFinish<-5
 print(paste("Finished building clinical matrix",percentageFinish,sep=","))
@@ -167,6 +165,13 @@ for (i in 1:nFolds) {
   ## feature selection
   YTrain<-Y[trainingSet]
   XTune<-cbind(Xall[trainingSet,],YTrain)
+  
+  
+  if (table(YTrain)[1]<5){
+    stop("Too few observations in Group 1")
+  } else if (table(YTrain)[2]<5){
+    stop("Too few observations in Group 2")
+  }
   if (featureSelectionMethod == "infog"){ # information gain
     weights <- information.gain(YTrain~., XTune)
     weightsOutput<-cbind(omicsNameFile,weights)

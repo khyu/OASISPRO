@@ -3,8 +3,8 @@
 	<table class="noborder">
 		<tr>
 			<td colspan="2">
-				<input type="radio" name="partition" value="batch" CHECKED>Batch Partition
-				<input type="radio" name="partition" value="random">Random Partition
+				<input type="radio" name="partition" value="random" CHECKED>Random Partition
+				<input type="radio" name="partition" value="batch">Batch Partition
 				<input type="radio" name="partition" value="kfold">K-fold
 				<input type="radio" name="partition" value="LOOCV">LOOCV
 			</td>
@@ -12,6 +12,7 @@
 		<tr class="batch-partition-params" style="display:none; height:52px;">
 			<td colspan="2">
 				<div style="height:390px;overflow:auto">
+				<h5>Select training batches (unselected batches will be used for testing):</h5>
 				<table style="border: 1px solid #000;" id="batch-options-table">
 				<% SiteConstants::MEDICAL_CENTERS.each do |medical_center| %>
 					<tr id="<%='batch-' + medical_center[:id] %>">

@@ -23,12 +23,18 @@ class OmicsController < ApplicationController
 		end
 	end
 
+	def filter_word_in(word,array)
+    	array.delete_if { |data| data.match(/[0-9][0-9][0-9][0-9]/) }
+    	return array
+	end
+
 	def get_gene_names
 		tumor_type = params[:tumor_type]
 		data_source = params[:data_source]
 		if SiteConstants::TUMOR_TYPES[tumor_type.to_sym] && SiteConstants::DATA_TYPES[data_source.to_sym]
 			gene_names = File.open("../data/#{tumor_type}_#{data_source}_elemid.txt", "r").read
 			gene_names = gene_names.split(',')
+			gene_names = filter_word_in("100130426", gene_names)
 			render json: gene_names
 		end
 	end

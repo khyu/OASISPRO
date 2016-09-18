@@ -36,12 +36,11 @@ module SiteConstants
 	}
 
 	DATA_TYPES = {
-		maseq: 		'Gene Expression (RNA-seq)',
+		rnaseq: 		'Gene Expression (RNA-seq)',
 		proteomics: 'Proteomics',
-		meth27: 	'DNA Methylation (Illumina Infinium Human DNA Methylation 27)',
-		meth450: 	'DNA Methylation (Illumina Infinium Human DNA Methylation 450)',
-		mirnaga: 	'microRNA (Illumina GA platform)',
-		mirnahiseq: 'microRNA (Illumina HiSeq platform)'
+		methylation27: 	'DNA Methylation (Illumina Infinium Human DNA Methylation 27)',
+		#methylation450: 	'DNA Methylation (Illumina Infinium Human DNA Methylation 450)',
+		microrna: 	'microRNA'
 	}
 
 	PREDICTION_TARGTS = {
@@ -59,7 +58,7 @@ module SiteConstants
 		_features: 	'Custom' # Prepend SESSION_ID and append TXT when submitting this
 	}
 
-	PARTITION_TYPES = ['batch', 'random']
+	PARTITION_TYPES = ['random', 'batch']
 
 	MEDICAL_CENTERS = []
 	medical_center_lines = File.read("public/notes/tissueSourceSite.txt").split("\n")[1..-1]
