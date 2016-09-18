@@ -16,10 +16,6 @@ class ResultsController < ApplicationController
 		end
 
 		error_file = "" if !(error_file.include?('Execution halted') || error_file.include?('Rscript: command not found'))
-	
-		if error_file != ""
-			done = true
-		end
 
 		if File.exists?("public/sessions/#{params[:session_id]}/milestones.txt")
 			milestones = File.open("public/sessions/#{params[:session_id]}/milestones.txt", "r").read.split("\n")
