@@ -315,7 +315,7 @@ write.table(coefFitOutput,paste("public/sessions/",sessionID,"/featureWeights.tx
 source("public/RCodes/ggsurv.R")
 
 png(filename=paste("public/sessions/",sessionID,"/survivalOutput.png", sep=""), width=1000, height=500)
-ggsurv(plotTest.surv) + 
+suppressMessages(ggsurv(plotTest.surv) + 
   guides(linetype = F) + 
   xlab("Months") + ggtitle("Kaplan-Meier Curve") +
   theme(plot.title = element_text(size=24,face="bold"),
@@ -324,7 +324,7 @@ ggsurv(plotTest.surv) +
     axis.text=element_text(size=18),
     axis.title=element_text(size=24,face="bold")) +
   scale_colour_discrete(name = 'Survival Groups', labels=c('Good Prognostic Group', 'Poor Prognostic Group'))
-
+)
 # Close and save the PNG file.
 dev.off()
 
