@@ -28,7 +28,6 @@
 	});	
 
 	$(document).on('click', '#data-table-toggle', function() {
-		console.log('here');
 		var tumor_type = $('select[name="tumor_type"]').val();
 		var clinical_variable = $('select[name="clinical_variable"]').val();
 		if (tumor_type != '' && clinical_variable != '') {
@@ -55,17 +54,6 @@
 			};
 		};
 	});
-
-	/*function init_data_table(tumor_type, clinical_variable) {
-		 $.get('/clinical/chart_data', {tumor_type: tumor_type, clinical_variable: clinical_variable}, function(result) {
-			if (result["chart_type"] == 'd' || result["chart_type"] == 'c') {
-				$('#data-table-toggle').show();
-				$('#data-table-toggle').on('click', data_table_toggle);
-			} else {
-				$('#data-table-toggle').hide();
-			};	
-		}); 
-	};	*/
 </script>
 
 <b id="data-set-overview"></b>
@@ -78,6 +66,3 @@ View Chart:
 <span class="span-like-link" style="float:right;" id="data-table-toggle">View as data table</span>
 
 <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto; overflow-y:auto;"></div>
-<script>
-	//get_data(1);
-</script>
