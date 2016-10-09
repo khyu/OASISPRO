@@ -14,11 +14,7 @@ ResultsManager.prototype.run = function(type) {
 			$("#progressbar").progressbar({ value: data.percent });
 			if (data.done) {
 				clearInterval(interval);
-				if (type == 'stage') {
-					location.href = "/analysis/stage?done=1&session_id=" + self.session_id + "#results";
-				} else if (type == 'survival') {
-					location.href = "/analysis/survival?done=1&session_id=" + self.session_id + "#results";
-				}
+				location.href = "/analysis/" + type + "?done=1&session_id=" + self.session_id + "#results";
 			}
 
 			if (data.status) {
@@ -26,7 +22,7 @@ ResultsManager.prototype.run = function(type) {
 			}
 
 			if (data.error) {
-				$("#progress-status").html("ERROR: <br><br>" + data.error);
+				$("#progressbar-status").html('<div class="text-error">ERROR: <br><br>' + data.error);
 				clearInterval(interval);
 		  	}
 		});
