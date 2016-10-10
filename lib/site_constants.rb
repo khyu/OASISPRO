@@ -9,7 +9,7 @@ module SiteConstants
 		chol: 'Cholangiocarcinoma',
 		coad: 'Colon adenocarcinoma',
 		esca: 'Esophageal carcinoma',
-		gbm:  'Glioblastoma multiforme',
+		#gbm:  'Glioblastoma multiforme',
 		hnsc: 'Head and Neck squamous cell carcinoma',
 		kich: 'Kidney Chromophobe',
 		kirc: 'Kidney renal clear cell carcinoma',

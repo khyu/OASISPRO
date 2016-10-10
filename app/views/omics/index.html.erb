@@ -25,17 +25,21 @@
 		});
 	});
 
-	$(document).on('change', 'select[name="data_source"]', function() {
+	$(document).on('change', 'select[name="tumor_type"], select[name="data_source"]', function() {
 		var tumor_type = $('select[name="tumor_type"]').val();
 		var data_source = $('select[name="data_source"]').val();
 
-		$.get('/omics/get_gene_names', {tumor_type: tumor_type, data_source: data_source}, function(data) {
-			var html = "";
-			data.forEach(function(gene_name) {
-				html += '<option>' + gene_name + '</option>';
+		if (tumor_type && data_source) {
+			$.get('/omics/get_gene_names', {tumor_type: tumor_type, data_source: data_source}, function(data) {
+				var html = "";
+				data.forEach(function(gene_name) {
+					html += '<option>' + gene_name + '</option>';
+				});
+				$('select[name="gene_name"]').html(html);
 			});
-			$('select[name="gene_name"]').html(html);
-		});
+		} else {
+			$('select[name="gene_name"]').html('');
+		}
 	});
 
 </script>
