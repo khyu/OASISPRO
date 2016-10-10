@@ -313,11 +313,9 @@
 	<% end %>
 
 	$('#generate_binary_analysis_form').submit(function(e) {
-		
-		if ($('#tumor_type').val() == "" || $('#data_source').val() == "" || $('#pt_group1').val() == "" || $('#pt_group2').val() == "") {
+		if (!$('#tumor_type').val() || !$('#data_source').val() || !$('select[name="prediction_target_group1[]"] option').text() || !$('select[name="prediction_target_group2[]"] option').text()) {
 			$('#form_error_message_field').html("Must select both a tumor type, a data source, a group1 prediction target, and a group2 prediction target.");
 			return false;
-		} else {
 		}
 	});
 </script>
