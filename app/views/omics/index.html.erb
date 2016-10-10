@@ -1,6 +1,18 @@
 <script>
 	$(document).on('change', 'select[name="tumor_type"]', function(){
 		var tumor_type = $('select[name="tumor_type"]').val();
+
+		$.get('/clinical/get_data_sources', {tumor_type: tumor_type}, function (data) {
+			var data_keys = Object.keys(data);
+
+			var html = '';
+			data_keys.forEach(function(data_key) {
+				html += '<option value="' + data_key + '">' + data[data_key] + '</option>';
+			});
+			$('select[name="data_source"]').html(html);
+			console.log(html);
+		});
+
 		$.get('/clinical/get_clinical_variables', {tumor_type: tumor_type}, function (data) {
 			data = data["vars"];
 			var html = '<option value="NULL">No Clinical Variable</option>';
@@ -40,7 +52,7 @@
 	<div style="float:left;width:325px;margin-left:10px;">
 		<h4>Choose the Data Source</h4>
 		<div class="well">
-			<%= select_tag "data_source", options_for_select({'Choose Data Source' => ''}.merge(SiteConstants::DATA_TYPES.invert)) %>
+			<%= select_tag "data_source" %>
 		</div>
 	</div>
 	<div style="float:left;width:325px;margin-left:10px;">
