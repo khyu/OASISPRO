@@ -43,6 +43,32 @@ module SiteConstants
 		microrna: 	'microRNA'
 	}
 
+	TUMOR_TYPES_MSSING_DATA_TYPES = {
+		laml: ['proteomics', 'microrna'],
+		acc: ['methylation27'],
+		blca: ['methylation27'],
+		cesc: ['methylation27'],
+		chol: ['methylation27'],
+		dlbc: ['methylation27'],
+		esca: ['methylation27'],
+		hnsc: ['methylation27'],
+		kich: ['methylation27'],
+		lcml: ['methylation27'],
+		lgg: ['methylation27'],
+		lihc: ['methylation27'],
+		meso: ['methylation27'],
+		paad: ['methylation27'],
+		pcpg: ['methylation27'],
+		prad: ['methylation27'],
+		sarc: ['methylation27'],
+		skcm: ['methylation27'],
+		tgct: ['methylation27'],
+		thca: ['methylation27'],
+		thym: ['methylation27'],
+		ucs: ['methylation27'],
+		uvm: ['methylation27']
+	}
+
 	PREDICTION_TARGTS = {
 		stage: 		'Tumor stage (TNM)',
 		stage_t: 	'T stage',

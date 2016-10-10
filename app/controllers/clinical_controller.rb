@@ -13,6 +13,18 @@ class ClinicalController < ApplicationController
 		render json: {"tumor_type" => SiteConstants::TUMOR_TYPES[params[:tumor_type].to_sym], "num_records" => num_records, "vars" => data}
 	end
 
+	def get_data_sources
+		data = {'' => 'Choose Data Source'}.merge(SiteConstants::DATA_TYPES)
+		missing_data_sources = SiteConstants::TUMOR_TYPES_MSSING_DATA_TYPES[params[:tumor_type].to_sym]
+		if missing_data_sources
+			missing_data_sources.each do |data_source|
+				data.delete(data_source.to_sym)
+			end
+		end
+
+		render json: data
+	end
+
 	def chart_data
 		data = get_data(params[:clinical_variable], params[:tumor_type])
 
