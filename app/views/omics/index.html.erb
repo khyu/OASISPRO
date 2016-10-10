@@ -30,7 +30,7 @@
 
 <b><%= @command %></b>
 
-<form method="post" action="#results">
+<form id="omics-visual-form" method="post" action="#results">
 	<div style="float:left;width:325px;">
 		<h4>Choose the Tumor Type</h4>
 		<div class="well">
@@ -64,6 +64,7 @@
 
 	<div style="text-align: center">
 		<input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>"></input>
+		<div id="form_error_message_field" style="color:red; margin-bottom:5px;"></div>
 		<input type="submit" value="Submit" name="generate" class="btn btn-primary" style="height:50px;font-size:16pt;">
 	</div>
 </form>
@@ -85,3 +86,13 @@
 <% end %>
 
 <br style="clear:both;">
+
+<script>
+	
+	$('#omics-visual-form').submit(function(e) {
+		if (!$('select[name="tumor_type"]').val() || !$('select[name="data_source"]').val() || !$('select[name="gene_name"]').val()) {
+			$('#form_error_message_field').html("Must select both a tumor type, a data source, and a gene name.");
+			return false;
+		}
+	});
+</script>
