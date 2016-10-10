@@ -90,7 +90,7 @@
 <script>
 	
 	$('#omics-visual-form').submit(function(e) {
-		if (!$('select[name="tumor_type"]').val() || !$('select[name="data_source"]').val() || !$('select[name="gene_name"]').text()) {
+		if (!$('select[name="tumor_type"]').val() || !$('select[name="data_source"]').val() || !$('select[name="gene_name"]').val()) {
 			$('#form_error_message_field').html("Must select both a tumor type, a data source, and a gene name.");
 			return false;
 		}
