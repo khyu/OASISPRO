@@ -48,10 +48,10 @@
 				});
 				$('select[name="prediction_target"]').html(html);
 
+				get_prediction_target_groups();
 				$(document).on('change', 'select[name="prediction_target"]', function() {
 					get_prediction_target_groups();
 				});
-
 			});
 		}
 	}
