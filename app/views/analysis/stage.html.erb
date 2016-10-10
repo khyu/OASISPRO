@@ -12,7 +12,7 @@
 			html += '<div style="width:40%;float:left">';
 				html += '<input type="button" value="Add to Group 1" onClick="addToPredictionTargetGroup(1)">';
 				html += 'Group 1<br>';
-				html += '<select style="width:100%" name="prediction_target_group1[]" size="5" multiple>';
+				html += '<select style="width:100%" name="prediction_target_group1[]" id="pt_group1" size="5" multiple>';
 				html += '</select>';
 			html += '</div>';
 			html += '<div style="width:20%;float:left;padding-top:50px;">';
@@ -24,7 +24,7 @@
 			html += '<div style="width:40%;float:left">';
 				html += '<input type="button" value="Add to Group 2" onClick="addToPredictionTargetGroup(2)">';
 				html += 'Group 2<br>';
-				html += '<select style="width:100%" name="prediction_target_group2[]" size="5" multiple>';
+				html += '<select style="width:100%" name="prediction_target_group2[]" id="pt_group2" size="5" multiple>';
 				html += '</select>';
 			html += '</div>';
 			html += '<br style="clear:both;"><input type="button" value="Reset" onClick="reset_prediction_target_groups()">';
@@ -171,7 +171,7 @@
 <% if @valid_command %>
 	<b>(For testing) Command: <%= @command %></b>
 <% end %>
-<form method="post" action="/analysis/stage#progressbar">
+<form id="generate_binary_analysis_form" method="post" action="/analysis/stage#progressbar">
 	<div style="float:left;width:300px;">
 		<h4>Choose the Tumor Type</h4>
 		<div class="well">
@@ -213,6 +213,7 @@
 	<div style="text-align: center">
 		<input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>"></input>
 		<input type="hidden" name="session_id" value="<%= rand.to_s.sub("0.", "") %>">
+		<div id="form_error_message_field" style="color:red; margin-bottom:5px;"></div>
 		<input type="submit" onClick="submitForm(); return true" value="Generate Analysis" name="generate" class="btn btn-primary" style="height:50px;font-size:16pt;" id="generate-analysis-button">
 	</div>
 	<div id="progressbar" style="width:90%; margin-left:auto; margin-right:auto; margin-top:10px;"></div>
@@ -310,4 +311,13 @@
 	<% if params[:generate] %>
 		resultsManager.run('stage');
 	<% end %>
+
+	$('#generate_binary_analysis_form').submit(function(e) {
+		
+		if ($('#tumor_type').val() == "" || $('#data_source').val() == "" || $('#pt_group1').val() == "" || $('#pt_group2').val() == "") {
+			$('#form_error_message_field').html("Must select both a tumor type, a data source, a group1 prediction target, and a group2 prediction target.");
+			return false;
+		} else {
+		}
+	});
 </script>
