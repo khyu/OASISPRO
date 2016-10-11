@@ -3,7 +3,31 @@ class AnalysisController < ApplicationController
 
 	def stage
 		if params[:done]
+			@tumor_type = "#{params[:tumor_type]}"
+			@data_source = "#{params[:data_source]}"
+			@prediction_target = "#{params[:prediction_target]}"
+			@partition = "#{params[:partition]}"
+			@var1 = "#{params[:var1]}"
+			@var2 = "#{params[:var2]}"
+			@var3 = "#{params[:var3]}"
+			@var4 = "#{params[:var4]}"
 			@sessionID = "#{params[:session_id]}"
+
+			# group 1
+			@pred_group1 = Array.new
+			f = File.open("public/sessions/#{params[:session_id]}/outcomeLabel1.txt", "r")
+			f.each_line do |line|
+				@pred_group1 << line
+			end
+			f.close
+
+			# group 2
+			@pred_group2 = Array.new
+			f = File.open("public/sessions/#{params[:session_id]}/outcomeLabel2.txt", "r")
+			f.each_line do |line|
+				@pred_group2 << line
+			end
+			f.close
 
 			# area under curve
 			@area_under_curve = Array.new
@@ -30,6 +54,7 @@ class AnalysisController < ApplicationController
 			end
 			f.close
 
+			# feature weights
 			@feature_weights = get_feature_weights(params[:session_id])
 		end
 
@@ -90,6 +115,13 @@ class AnalysisController < ApplicationController
 
 	def survival
 		if params[:done]
+			@tumor_type = "#{params[:tumor_type]}"
+			@data_source = "#{params[:data_source]}"
+			@partition = "#{params[:partition]}"
+			@var1 = "#{params[:var1]}"
+			@var2 = "#{params[:var2]}"
+			@var3 = "#{params[:var3]}"
+			@var4 = "#{params[:var4]}"
 			@sessionID = "#{params[:session_id]}"
 			# p value
 			@pTest = Array.new

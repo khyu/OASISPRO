@@ -169,23 +169,32 @@
 
 <h2>Classification of Clinical Phenotypes</h2>
 <% if @valid_command %>
-	<b>(For testing) Command: <%= @command %></b>
+	<!-- <b>(For testing) Command: <%= @command %></b> -->
 <% end %>
+<div style="float:left;width:95%;" class="well">
+This module performs binary clinical phenotype classification on The Cancer Genome Atlas (TCGA) cancer cohorts using their omics data. The TCGA data set will be divided into training and test sets and multiple machine learning model will be generated using the training set and evaluated on the test set. Below are the steps for model generation and evaluation.
+<br><b>Step 1:</b> Choose the tumor type of interest. All tumor types investigated by TCGA consortiums are available for selection.
+<br><b>Step 2:</b> Choose the omics type of interest. All available omics types for the chosen tumor are shown.
+<br><b>Step 3:</b> Choose the prediction target. All publicly available clinical variables are shown. Once selected, all possible values of that phenotype in the data set will be populated. Please include at least one value for each phenotypical group (group 1 and group 2) for binary classification. Patients with phenotypes not included in either group will be omitted from analysis.
+<br><b>Step 4:</b> Choose the method to partition the data set into distinct training and test sets. The classification models are generated and fine-tuned using the training data, while the test data are reserved to evaluate the performance of the model.
+<br><b>Step 5:</b> Choose the method for feature selection. Each gene / protein / microRNA / methylation site is regarded as a feature. Feature selection methods will identify the features indicative of the prediction target, and remove less relevant features to avoid model overfitting.
+<br><b>Step 6:</b> Click "Run!" to generate the analysis. The progress of model generation and evaluation will be shown on this page, and the evaluation results on the test set will be presented once available. Typically proteomics or microRNA data take less than a minute, while RNA-sequencing or methylation data can take significantly longer.
+</div>
 <form id="generate_binary_analysis_form" method="post" action="/analysis/stage#progressbar">
 	<div style="float:left;width:300px;">
-		<h4>Choose the Tumor Type</h4>
+		<h4>Step 1: Choose the Tumor Type</h4>
 		<div class="well">
 			<%= select_tag "tumor_type", options_for_select({'Choose Tumor Type' => ''}.merge(SiteConstants::TUMOR_TYPES.invert)) %>
 		</div>
 	</div>
 	<div style="float:left;width:300px;margin-left:10px;">
-		<h4>Choose the Data Source</h4>
+		<h4>Step 2: Choose the Data Source</h4>
 		<div class="well">
 			<%= select_tag "data_source", options_for_select({'Choose Data Source' => ''}.merge(SiteConstants::DATA_TYPES.invert)) %>
 		</div>
 	</div>
 	<div style="float:left;width:375px;margin-left:10px;">
-		<h4>Choose the Prediction Target</h4>
+		<h4>Step 3: Choose the Prediction Target</h4>
 		<div class="well">
 			<%= select_tag "prediction_target" %>
 			<div id="prediction_target_groups"></div>
@@ -197,16 +206,10 @@
 		<%= render partial: 'batch' %>
 	</div>
 	<div style="float:left;width:490px; margin-left: 10px">
-		<h4>Choose the Feature Selection Method</h4>
+		<h4>Step 5: Choose the Feature Selection Method</h4>
 		<div class="well">
 			<%= select_tag "feature_selection_method", options_for_select(SiteConstants::FEATURE_SELECTION_METHOD.invert) %>
-			<div id="features" style="overflow:auto;height:200px;width:300px;margin-top:5px;border:2px solid #000;"></div>
-			<br><div id="go_link"><input type="button" class="btn" onClick="go_analysis()" value="Run GO analysis on feature set"></div>
-		</div>
-
-		<div class="well">
-			Use top <input type="text" name="num_top_features" value="10" style="width:30px;"> features for building the machine learning models.
-			Click the links to visit the relevant GeneCard page.
+			<br>Use the top <input type="text" name="num_top_features" value="10" style="width:30px;"> features for building the machine learning models.
 		</div>
 	</div>
 	<br style="clear:both;">
@@ -214,7 +217,7 @@
 		<input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>"></input>
 		<input type="hidden" name="session_id" value="<%= rand.to_s.sub("0.", "") %>">
 		<div id="form_error_message_field" style="color:red; margin-bottom:5px;"></div>
-		<input type="submit" onClick="submitForm(); return true" value="Generate Analysis" name="generate" class="btn btn-primary" style="height:50px;font-size:16pt;" id="generate-analysis-button">
+		<h4>Step 6: Generate the analysis</h4><input type="submit" onClick="submitForm(); return true" value="Run!" name="generate" class="btn btn-primary" style="height:50px;font-size:16pt;" id="generate-analysis-button">
 	</div>
 	<div id="progressbar" style="width:90%; margin-left:auto; margin-right:auto; margin-top:10px;"></div>
 	<div id="progressbar-status" style="width:90%; margin-left:auto; margin-right:auto;"></div>
@@ -224,13 +227,39 @@
 
 <% if params[:done] %>
 	<h2 id="results">Results</h2>
+	<b>Input variables:</b>
+	<div class="well" style="width:600px">
+		<b>Tumor type:</b> <%= @tumor_type %>
+		<br>
+		<b>Data source:</b> <%= @data_source %>
+		<br>
+		<b>Prediction target:</b> <%= @prediction_target %>
+		<br>
+		<b>Training / test set partition method:</b> <%= @partition %>
+		<br>
+		<b>Feature selection method:</b> <%= @var1 %>
+		<br>
+		<b>Number of top features:</b> <%= @var2 %>
+		<br>
+		<b>Group 1:</b> 
+		<% @pred_group1.each do |group1| %>
+			<%= group1 %>
+		<% end %>
+		<br>
+		<b>Group 2:</b>
+		<% @pred_group2.each do |group2| %>
+			<%= group2 %>
+		<% end %>
+		<br>
+	</div>
+	<b>Receiver operating characteristic (ROC) curves for machine learning models:</b>
 	<div class="well" style="width:600px">
 		<a href="/sessions/<%= @sessionID%>/roc.png" target="_blank">
 			<img src="/sessions/<%= @sessionID%>/roc.png">
 		</a>
 	</div>
-	<b>Area Under Curve for machine learning models:</b>
-	<div class="well">
+	<b>Area under the ROC curves (AUCs):</b>
+	<div class="well" style="width:600px">
 		<table>
 			<tr>
 				<th>Model</th>
@@ -244,13 +273,14 @@
 		<% end %>
 		</table>
 	</div>
-	<b>Decision Tree</b>
+	<b>Decision tree visualization:</b>
 	<div class="well" style="width:600px">
 		<a href="/sessions/<%= @sessionID%>/decisionTree.png" target="_blank">
 			<img src="/sessions/<%= @sessionID%>/decisionTree.png">
 		</a>
 	</div>
-
+	<b>Feature weights (the importance of each gene/protein in the prediction model):</b>
+	<br>Click the links to visit the relevant GeneCard page.
 	<table>
 		<tr>
 			<th colspan="2">Feature</th>
@@ -307,7 +337,7 @@
 
 <script>
 	render_list();
-	var resultsManager = new ResultsManager("<%= params[:session_id] %>");
+	var resultsManager = new ResultsManager("<%= params[:tumor_type] %>", "<%= params[:data_source] %>", "<%= params[:prediction_target] %>", "<%= params[:partition] %>", "<%= params[:feature_selection_method] %>", "<%= params[:num_top_features] %>", "0", "0", "<%= params[:session_id] %>");
 	<% if params[:generate] %>
 		resultsManager.run('stage');
 	<% end %>

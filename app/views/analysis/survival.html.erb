@@ -46,18 +46,27 @@
 
 <h2>Survival Analysis</h2>
 <% if @valid_command %>
-	<b>(For testing) Command: <%= @command %></b>
+	<!-- <b>(For testing) Command: <%= @command %></b> -->
 <% end %>
-
+<div style="float:left;width:95%;" class="well">
+This module performs survival analysis on The Cancer Genome Atlas (TCGA) cancer cohorts using their omics data. The TCGA data set will be divided into training and test sets and an elastic-net Cox proportional hazards model will be generated using the training set and evaluated on the test set. Below are the steps for model generation and evaluation.
+<br><b>Step 1:</b> Choose the tumor type of interest. All tumor types investigated by TCGA consortiums are available for selection.
+<br><b>Step 2:</b> Choose the omics type of interest. All available omics types for the chosen tumor are shown.
+<br><b>Step 3:</b> (Optional) Choose clinical variables to be included in the survival model.
+<br><b>Step 4:</b> Choose the method to partition the data set into distinct training and test sets. The survival model is generated and fine-tuned using the training data, while the test data are reserved to evaluate the performance of the model.
+<br><b>Step 5:</b> Select the ranges of regularization parameters. The alpha variable controls the relative weights of L1 and L2 regularization, and lambda variable balances the coefficient and deviation.
+<br><b>Step 6:</b> Click "Run" to generate the analysis. The progress of model generation and evaluation will be shown on this page, and the evaluation results on the test set will be presented once available. Typically proteomics or microRNA data take less than a minute, while RNA-sequencing and methylation data can take significantly longer.
+</div>
+<br>
 <form id="generate_survival_analysis_form" method="post" action="/analysis/survival#progressbar">
 	<div style="float:left;width:400px;">
-		<h4>Choose the Tumor Type</h4>
+		<h4>Step 1: Choose the Tumor Type</h4>
 		<div class="well">
 			<%= select_tag "tumor_type", options_for_select({'Choose Tumor Type' => ''}.merge(SiteConstants::TUMOR_TYPES.invert)) %>
 		</div>
 	</div>
 	<div style="float:left;width:400px;margin-left:10px;">
-		<h4>Choose the Data Source</h4>
+		<h4>Step 2: Choose the Omics Type</h4>
 		<div class="well">
 			<%= select_tag "data_source", options_for_select({'Choose Data Source' => ''}.merge(SiteConstants::DATA_TYPES.invert)) %>
 		</div>
@@ -65,10 +74,16 @@
 	<br style="clear:both;">
 	
 	<div style="float:left;width:320px;">
-		<%= render partial: 'batch' %>
+		<h4>Step 3: Add Clinical Variables (optional)</h4>
+		<div class="well">
+			<div id="clinical_variables" style="height:400px;overflow-y:auto"></div>
+		</div>
 	</div>
 	<div style="float:left;width:320px;margin-left:10px">
-		<h4>Alpha / Lambda</h4>
+		<%= render partial: 'batch' %>
+	</div>
+	<div style="float:left;width:300px;margin-left:10px">
+		<h4>Step 5: Select the ranges of regularization parameters (alpha / lambda) </h4>
 		<div class="well">
 			<table class="noborder">
 				<tr>
@@ -76,8 +91,8 @@
 					<td style="width:50%;"><input type="radio" name="set_alpha_lambda" value="user_enters">Choose alpha and lambda ranges</input></td>
 				</tr>
 				<tr class="user-enters-params" style="display:none;">
-					<td>Alpha lower bound<input type="number" class="alpha-bound form-control" style="width: 50px;" name="alpha_lower_bound" min="0" max="100" required></input></td>
-					<td>Alpha upper bound<input type="number" class="alpha-bound form-control" style="width: 50px;" name="alpha_upper_bound" min="0" max="100" required></input></td>
+					<td>Alpha lower bound<input type="number" class="alpha-bound form-control" style="width: 50px;" name="alpha_lower_bound" min="0" max="1" required></input></td>
+					<td>Alpha upper bound<input type="number" class="alpha-bound form-control" style="width: 50px;" name="alpha_upper_bound" min="0" max="1" required></input></td>
 				</tr>
 				<tr class="user-enters-params" style="display:none;">
 					<td colspan="2">
@@ -98,19 +113,14 @@
 			</table>
 		</div>
 	</div>
-	<div style="float:left;width:300px;margin-left:10px">
-		<h4>Add Clinical Variables</h4>
-		<div class="well">
-			<div id="clinical_variables" style="height:400px;overflow-y:auto"></div>
-		</div>
-	</div>
+	
 
 	<br style="clear:both;">
 	<div style="text-align: center">
 		<input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>"></input>
 		<input type="hidden" name="session_id" value="<%= rand.to_s.sub("0.", "") %>">
 		<div id="form_error_message_field" style="color:red; margin-bottom:5px;"></div>
-		<input type="submit" value="Generate Analysis" name="generate" class="btn btn-primary" style="height:50px;font-size:16pt;">
+		<h4>Step 6: Generate the analysis</h4><input type="submit" value="Run!" name="generate" class="btn btn-primary" style="height:50px;font-size:16pt;">
 	</div>
 </form>
 
@@ -120,16 +130,36 @@
 
 <% if params[:done] %>
 	<h2 id="results">Results</h2>
+	<b>Input variables:</b>
+	<div class="well" style="width:600px">
+		<b>Tumor type:</b> <%= @tumor_type %>
+		<br>
+		<b>Data source:</b> <%= @data_source %>
+		<br>
+		<b>Training / test set partition method:</b> <%= @partition %>
+		<br>
+		<b>Lower bound of alpha:</b> <%= @var1 %>
+		<br>
+		<b>Upper bound of alpha:</b> <%= @var2 %>
+		<br>
+		<b>Lower bound of lambda:</b> <%= @var3 %>
+		<br>
+		<b>Upper bound of lambda:</b> <%= @var4 %>
+		<br>
+	</div>
+	<b>Kaplan-Meier curves:</b>
 	<div class="well" style="width:600px">
 		<a href="/sessions/<%= @sessionID%>/survivalOutput.png" target="_blank">
 			<img src="/sessions/<%= @sessionID%>/survivalOutput.png">
 		</a>
 	</div>
-	<b>Log Rank P Value in the Test Set</b>
+	<b>Log rank test P value in the test set</b>
 	<div class="well">
 		<p><%= @pTest[0][0].to_f.round(4) %></p>
 	</div>
 
+	<b>Feature weights (the importance of each gene/protein in the prediction model):</b>
+	<br>Click the links to visit the relevant GeneCard page.
 	<table>
 		<tr>
 			<th colspan="2">Feature</th>
@@ -168,7 +198,9 @@
 
 <br style="clear:both;">
 <script>
-	var resultsManager = new ResultsManager("<%= params[:session_id] %>");
+	var resultsManager = new ResultsManager("<%= params[:tumor_type] %>", "<%= params[:data_source] %>", "survival", 
+		"<%= params[:partition] %>", "<%= params[:alpha_lower_bound] %>", "<%= params[:alpha_upper_bound] %>",
+		"<%= params[:lambda_lower_bound] %>", "<%= params[:lambda_upper_bound] %>", "<%= params[:session_id] %>");
 	<% if params[:generate] %>
 		resultsManager.run('survival');
 	<% end %>
