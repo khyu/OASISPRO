@@ -182,19 +182,19 @@ This module performs binary clinical phenotype classification on The Cancer Geno
 </div>
 <form id="generate_binary_analysis_form" method="post" action="/analysis/stage#progressbar">
 	<div style="float:left;width:300px;">
-		<h4>Step 1: Choose the Tumor Type</h4>
+		<h4>Step 1: Choose the Tumor Type<font color="red">*</font></h4>
 		<div class="well">
 			<%= select_tag "tumor_type", options_for_select({'Choose Tumor Type' => ''}.merge(SiteConstants::TUMOR_TYPES.invert)) %>
 		</div>
 	</div>
 	<div style="float:left;width:300px;margin-left:10px;">
-		<h4>Step 2: Choose the Data Source</h4>
+		<h4>Step 2: Choose the Data Source<font color="red">*</font></h4>
 		<div class="well">
 			<%= select_tag "data_source", options_for_select({'Choose Data Source' => ''}.merge(SiteConstants::DATA_TYPES.invert)) %>
 		</div>
 	</div>
 	<div style="float:left;width:375px;margin-left:10px;">
-		<h4>Step 3: Choose the Prediction Target</h4>
+		<h4>Step 3: Choose the Prediction Target<font color="red">*</font></h4>
 		<div class="well">
 			<%= select_tag "prediction_target" %>
 			<div id="prediction_target_groups"></div>
@@ -206,7 +206,7 @@ This module performs binary clinical phenotype classification on The Cancer Geno
 		<%= render partial: 'batch' %>
 	</div>
 	<div style="float:left;width:490px; margin-left: 10px">
-		<h4>Step 5: Choose the Feature Selection Method</h4>
+		<h4>Step 5: Choose the Feature Selection Method<font color="red">*</font></h4>
 		<div class="well">
 			<%= select_tag "feature_selection_method", options_for_select(SiteConstants::FEATURE_SELECTION_METHOD.invert) %>
 			<br>Use the top <input type="text" name="num_top_features" value="10" style="width:30px;"> features for building the machine learning models.
@@ -217,8 +217,9 @@ This module performs binary clinical phenotype classification on The Cancer Geno
 		<input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>"></input>
 		<input type="hidden" name="session_id" value="<%= rand.to_s.sub("0.", "") %>">
 		<div id="form_error_message_field" style="color:red; margin-bottom:5px;"></div>
-		<h4>Step 6: Generate the analysis</h4><input type="submit" onClick="submitForm(); return true" value="Run!" name="generate" class="btn btn-primary" style="height:50px;font-size:16pt;" id="generate-analysis-button">
+		<h4>Step 6: Generate the analysis<font color="red">*</font></h4><input type="submit" onClick="submitForm(); return true" value="Run!" name="generate" class="btn btn-primary" style="height:50px;font-size:16pt;" id="generate-analysis-button">
 	</div>
+	<br><font color="red">* = required</font>
 	<div id="progressbar" style="width:90%; margin-left:auto; margin-right:auto; margin-top:10px;"></div>
 	<div id="progressbar-status" style="width:90%; margin-left:auto; margin-right:auto;"></div>
 </form>

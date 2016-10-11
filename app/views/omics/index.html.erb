@@ -44,23 +44,32 @@
 
 </script>
 
-<b><%= @command %></b>
+<!-- <b><%= @command %></b> -->
+<h2>Omics Visualization</h2>
+<div style="float:left;width:95%;" class="well">
+This module visualizes the omics data from The Cancer Genome Atlas (TCGA) cancer cohorts. Below are the steps for omics visualization and comparison between different clinical groups.
+<br><b>Step 1:</b> Choose the tumor type of interest. All tumor types investigated by TCGA consortiums are available for selection.
+<br><b>Step 2:</b> Choose the omics type of interest. All available omics types for the chosen tumor are shown.
+<br><b>Step 3:</b> Choose the gene, protein, microRNA, or methylation sites to visualize. All available items are shown.
+<br><b>Step 4:</b> (Optional) Choose the clinical variable to stratify patients into groups. If selected, the omics profile of patients in different clinical groups will be plotted and compared (Wilcoxon signed rank test for two-group and analysis of variance (ANOVA) for multi-group comparison). Otherwise, the omics profile of the whole cohort will be plotted.
+<br><b>Step 5:</b> Click "Run!" to generate the analysis. The results are presented on this page once available. Proteomics or microRNA results are generated instantaneously, while RNA-sequencing or methylation data can take up to 2 minutes.
+</div>
 
 <form id="omics-visual-form" method="post" action="#results">
 	<div style="float:left;width:325px;">
-		<h4>Choose the Tumor Type</h4>
+		<h4>Step 1: Choose the Tumor Type<font color="red">*</font></h4>
 		<div class="well">
 			<%= select_tag "tumor_type", options_for_select({'Choose Tumor Type' => ''}.merge(SiteConstants::TUMOR_TYPES.invert)) %>
 		</div>
 	</div>
 	<div style="float:left;width:325px;margin-left:10px;">
-		<h4>Choose the Data Source</h4>
+		<h4>Step 2: Choose the Data Source<font color="red">*</font></h4>
 		<div class="well">
 			<%= select_tag "data_source" %>
 		</div>
 	</div>
 	<div style="float:left;width:325px;margin-left:10px;">
-		<h4>Choose the Gene Name</h4>
+		<h4>Step 3: Choose the Gene / Protein / MicroRNA / Methylation Site to Visualize<font color="red">*</font></h4>
 		<div class="well">
 			<%= select_tag "gene_name" %>
 		</div>
@@ -69,7 +78,7 @@
 	<br style="clear:both;">
 
 	<div style="float:left;width:325px;margin-left:10px;">
-		<h4>Choose the Clinical Variable (optional)</h4>
+		<h4>Step 4: Choose the Clinical Variable (optional)</h4>
 		<div class="well">
 			<%= select_tag "clinical_variable" %>
 		</div>
@@ -81,8 +90,11 @@
 	<div style="text-align: center">
 		<input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>"></input>
 		<div id="form_error_message_field" style="color:red; margin-bottom:5px;"></div>
-		<input type="submit" value="Submit" name="generate" class="btn btn-primary" style="height:50px;font-size:16pt;">
+		<h4>Step 5: Generate the analysis<font color="red">*</font></h4>
+		<input type="submit" value="Run!" name="generate" class="btn btn-primary" style="height:50px;font-size:16pt;">
+
 	</div>
+	<br><font color="red">* = required</font>
 </form>
 
 <% if params[:generate] %>

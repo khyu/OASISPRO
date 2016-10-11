@@ -56,13 +56,28 @@
 	});
 </script>
 
-<b id="data-set-overview"></b>
-<br><br>
-View Chart:
-<%= select_tag "tumor_type", options_for_select({'Choose Tumor Type' => ''}.merge(SiteConstants::TUMOR_TYPES.invert)) %>
+<h2>Clinical Variable Visualization</h2>
+<div style="float:left;width:95%;" class="well">
+This module visualizes the clinical data from The Cancer Genome Atlas (TCGA) cancer cohorts. Below are the steps for clinical data visualization.
+<br><b>Step 1:</b> Choose the tumor type of interest. All tumor types investigated by TCGA consortiums are available for selection.
+<br><b>Step 2:</b> Choose the clinical variable of interest. All available clinical variables for the chosen tumor are shown. The results are generated and presented on this page instantaneously.
+</div>
 
-<%= select_tag "clinical_variable" %>
+<div style="float:left;width:325px;">
+	<h4>Step 1: Choose the Tumor Type<font color="red">*</font></h4>
+	<div class="well">
+		<%= select_tag "tumor_type", options_for_select({'Choose Tumor Type' => ''}.merge(SiteConstants::TUMOR_TYPES.invert)) %>
+	</div>
+</div>
+<div style="float:left;width:325px;margin-left:10px;">
+	<h4>Step 2: Choose the Clinical Variable<font color="red">*</font></h4>
+	<div class="well">
+		<%= select_tag "clinical_variable" %>
+	</div>
+</div>
+<br style="clear:both;"><font color="red">* = required</font>
 
+<br><b id="data-set-overview"></b>
 <span class="span-like-link" style="float:right;" id="data-table-toggle">View as data table</span>
 
 <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto; overflow-y:auto;"></div>
