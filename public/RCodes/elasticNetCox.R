@@ -133,7 +133,7 @@ if (sysargs[10] == "-1") {
   X<-cbind(omics, clinical[,clinicalVarColNums])
 }
 
-survivedDays<-ifelse(substr(survivedDays,1,2)=="[N", -1, survivedDays)
+survivedDays<-ifelse(substr(survivedDays,1,1)=="[", -1, survivedDays)
 survivedDays<-as.numeric(survivedDays)
 event<-ifelse(event=="Alive", 0, 1)
 X<-X[survivedDays>=0,]
