@@ -136,10 +136,10 @@ if (sysargs[10] == "-1") {
 survivedDays<-ifelse(substr(survivedDays,1,2)=="[N", -1, survivedDays)
 survivedDays<-as.numeric(survivedDays)
 event<-ifelse(event=="Alive", 0, 1)
-X<-X[survivedDays!=-1,]
-event<-event[survivedDays!=-1]
-iDs<-intersectIDs[survivedDays!=-1]
-survivedDays<-survivedDays[survivedDays!=-1]
+X<-X[survivedDays>=0,]
+event<-event[survivedDays>=0]
+iDs<-intersectIDs[survivedDays>=0]
+survivedDays<-survivedDays[survivedDays>=0]
 
 Ymatrix<-Surv(survivedDays,event)
 Ymatrix[,1]<-Ymatrix[,1]+1
