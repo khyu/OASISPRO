@@ -42,7 +42,7 @@ class AnalysisController < ApplicationController
 				'SVMs with Linear Kernel',
 				'SVMs with Polynomial Kernel',
 				'SVMs with Sigmoid Kernel',
-				'Decision Trees',
+				'Shallow Decision Trees',
 				'Random Forest',
 				'Naive Bayes',
 				'Naive Bayes with Laplace Smoothing'
@@ -107,7 +107,7 @@ class AnalysisController < ApplicationController
 			@valid_command = result[:valid_command]
 		
 			if @valid_command
-				@command = "Rscript public/RCodes/binaryClassification.R#{result[:command]} 2>public/sessions/#{params[:session_id]}/error.txt &"
+				@command = "Rscript --max-ppsize=500000 public/RCodes/binaryClassification.R#{result[:command]} 2>public/sessions/#{params[:session_id]}/error.txt &"
 				system(@command)
 			end
 		end
@@ -157,6 +157,9 @@ class AnalysisController < ApplicationController
 				Dir.mkdir("public/sessions/#{params[:session_id]}") unless File.exists?("public/sessions/#{params[:session_id]}")
 				File.write("public/sessions/#{params[:session_id]}/" + params[:random_seed], (params[:medical_centers] || []).join("\n") + "\n")
 			else
+				if params[:partition] == 'kfold'
+					params[:random_seed] = params[:num_folds]
+				end
 				if params[:random_seed].blank?
 					params[:random_seed] = -1
 				end
@@ -187,7 +190,7 @@ class AnalysisController < ApplicationController
 			result = build_command(validators, params)
 			@valid_command = result[:valid_command]
 
-			@command = "Rscript public/RCodes/elasticNetCox.R#{result[:command]} 2>public/sessions/#{params[:session_id]}/error.txt &"
+			@command = "Rscript --max-ppsize=500000 public/RCodes/elasticNetCox.R#{result[:command]} 2>public/sessions/#{params[:session_id]}/error.txt &"
 			system(@command)
 			
 			@sessionID = "#{params[:session_id]}"

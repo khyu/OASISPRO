@@ -184,13 +184,13 @@ This module performs binary clinical phenotype classification on The Cancer Geno
 	<div style="float:left;width:300px;">
 		<h4>Step 1: Choose the Tumor Type<font color="red">*</font></h4>
 		<div class="well">
-			<%= select_tag "tumor_type", options_for_select({'Choose Tumor Type' => ''}.merge(SiteConstants::TUMOR_TYPES.invert)) %>
+			<%= select_tag "tumor_type", options_for_select({'Choose the Tumor Type' => ''}.merge(SiteConstants::TUMOR_TYPES.invert)) %>
 		</div>
 	</div>
 	<div style="float:left;width:300px;margin-left:10px;">
-		<h4>Step 2: Choose the Data Source<font color="red">*</font></h4>
+		<h4>Step 2: Choose the Omics Type<font color="red">*</font></h4>
 		<div class="well">
-			<%= select_tag "data_source", options_for_select({'Choose Data Source' => ''}.merge(SiteConstants::DATA_TYPES.invert)) %>
+			<%= select_tag "data_source", options_for_select({'Choose the Omics Type' => ''}.merge(SiteConstants::DATA_TYPES.invert)) %>
 		</div>
 	</div>
 	<div style="float:left;width:375px;margin-left:10px;">
@@ -232,7 +232,7 @@ This module performs binary clinical phenotype classification on The Cancer Geno
 	<div class="well" style="width:600px">
 		<b>Tumor type:</b> <%= @tumor_type %>
 		<br>
-		<b>Data source:</b> <%= @data_source %>
+		<b>Omics type:</b> <%= @data_source %>
 		<br>
 		<b>Prediction target:</b> <%= @prediction_target %>
 		<br>
@@ -281,7 +281,7 @@ This module performs binary clinical phenotype classification on The Cancer Geno
 		</a>
 	</div>
 	<b>Feature weights (the importance of each gene/protein in the prediction model):</b>
-	<br>Click the links to visit the relevant GeneCard page.
+	<br>Click on the gene/protein name to visit the relevant GeneCards page.
 	<table>
 		<tr>
 			<th colspan="2">Feature</th>
@@ -345,7 +345,7 @@ This module performs binary clinical phenotype classification on The Cancer Geno
 
 	$('#generate_binary_analysis_form').submit(function(e) {
 		if (!$('#tumor_type').val() || !$('#data_source').val() || !$('select[name="prediction_target_group1[]"] option').text() || !$('select[name="prediction_target_group2[]"] option').text()) {
-			$('#form_error_message_field').html("Must select both a tumor type, a data source, a group1 prediction target, and a group2 prediction target.");
+			$('#form_error_message_field').html("Must select both a tumor type, a omics type, a group1 prediction target, and a group2 prediction target.");
 			return false;
 		}
 	});

@@ -88,7 +88,13 @@ write(paste("Initializing...",percentageFinish,sep=","),milestonesFileName)
 
 
 # read files
-omicsFile<-read.table(paste("../data/", tumorType, "_", dataType, ".txt", sep=""), stringsAsFactors=F, sep=",")
+omicsFileName<-paste("../data/", tumorType, "_", dataType, ".txt", sep="")
+if (file.exists(omicsFileName)){
+  omicsFile<-read.table(omicsFileName, stringsAsFactors=F, sep=",")
+} else {
+  stop ("Omics type not available for this tumor. Please reselect.")
+}
+
 omicsNameFile<-t(read.table(paste("../data/", tumorType, "_", dataType, "_elemid.txt", sep=""), stringsAsFactors=F, sep=","))
 percentageFinish<-2
 print(paste("Finished reading omics file",percentageFinish,sep=","))
@@ -149,7 +155,7 @@ if (partitionType == "random"){ #random
   nFolds<-1
 } else if (partitionType == "kfold"){ # k fold
   folds<-cvFolds(length(survivedDays), K=nFolds)
-} else if (partitionType == "loocv"){ # LOOCV
+} else if (partitionType == "LOOCV"){ # LOOCV
   nFolds<-length(survivedDays)
   folds<-cvFolds(length(survivedDays), K=length(survivedDays))
 } else { #batch

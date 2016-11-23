@@ -62,13 +62,13 @@ This module performs survival analysis on The Cancer Genome Atlas (TCGA) cancer 
 	<div style="float:left;width:400px;">
 		<h4>Step 1: Choose the Tumor Type<font color="red">*</font></h4>
 		<div class="well">
-			<%= select_tag "tumor_type", options_for_select({'Choose Tumor Type' => ''}.merge(SiteConstants::TUMOR_TYPES.invert)) %>
+			<%= select_tag "tumor_type", options_for_select({'Choose the Tumor Type' => ''}.merge(SiteConstants::TUMOR_TYPES.invert)) %>
 		</div>
 	</div>
 	<div style="float:left;width:400px;margin-left:10px;">
 		<h4>Step 2: Choose the Omics Type<font color="red">*</font></h4>
 		<div class="well">
-			<%= select_tag "data_source", options_for_select({'Choose Data Source' => ''}.merge(SiteConstants::DATA_TYPES.invert)) %>
+			<%= select_tag "data_source", options_for_select({'Choose the Omics Type' => ''}.merge(SiteConstants::DATA_TYPES.invert)) %>
 		</div>
 	</div>
 	<br style="clear:both;">
@@ -136,7 +136,7 @@ This module performs survival analysis on The Cancer Genome Atlas (TCGA) cancer 
 	<div class="well" style="width:600px">
 		<b>Tumor type:</b> <%= @tumor_type %>
 		<br>
-		<b>Data source:</b> <%= @data_source %>
+		<b>Omics type:</b> <%= @data_source %>
 		<br>
 		<b>Training / test set partition method:</b> <%= @partition %>
 		<br>
@@ -161,7 +161,7 @@ This module performs survival analysis on The Cancer Genome Atlas (TCGA) cancer 
 	</div>
 
 	<b>Feature weights (the importance of each gene/protein in the prediction model):</b>
-	<br>Click the links to visit the relevant GeneCard page.
+	<br>Click on the gene/protein name to visit the relevant GeneCards page.
 	<table>
 		<tr>
 			<th colspan="2">Feature</th>
@@ -209,7 +209,7 @@ This module performs survival analysis on The Cancer Genome Atlas (TCGA) cancer 
 
 	$('#generate_survival_analysis_form').submit(function(e) {
 		if (!$('#tumor_type').val() || !$('#data_source').val()) {
-			$('#form_error_message_field').html("Must select both a tumor type and a data source.");
+			$('#form_error_message_field').html("Must select both a tumor type and a omics type.");
 			return false;
 		}
 	});

@@ -64,7 +64,13 @@ write(paste("Initializing...",percentageFinish,sep=","),milestonesFileName)
 
 
 # read files
-omicsFile<-read.table(paste("../data/", tumorType, "_", dataType, ".txt", sep=""), stringsAsFactors=F, sep=",")
+omicsFileName<-paste("../data/", tumorType, "_", dataType, ".txt", sep="")
+if (file.exists(omicsFileName)){
+  omicsFile<-read.table(omicsFileName, stringsAsFactors=F, sep=",")
+} else {
+  stop ("Omics type not available for this tumor. Please reselect.")
+}
+
 
 percentageFinish<-2
 print(paste("Finished reading omics file",percentageFinish,sep=","))
@@ -131,7 +137,7 @@ if (partitionType == "random"){ # random
   nFolds<-1
 } else if (partitionType == "kfold"){ # k fold
   folds<-cvFolds(length(Y), K=nFolds)
-} else if (partitionType == "loocv"){ # LOOCV
+} else if (partitionType == "LOOCV"){ # LOOCV
   nFolds<-length(Y)
   folds<-cvFolds(length(Y), K=length(Y))
 } else { # batch
@@ -168,9 +174,9 @@ for (i in 1:nFolds) {
   
   
   if (table(YTrain)[1]<5){
-    stop("Too few observations in Group 1")
+    stop("Too few observations in Group 1. Please reselect.")
   } else if (table(YTrain)[2]<5){
-    stop("Too few observations in Group 2")
+    stop("Too few observations in Group 2. Please reselect.")
   }
   if (featureSelectionMethod == "infog"){ # information gain
     weights <- information.gain(YTrain~., XTune)
@@ -290,7 +296,7 @@ for (i in 1:nFolds) {
   x.svm.s.prob[testSet,] <- x.svm.s.prob.tmp
   colnames(x.svm.s.prob) <- colnames(x.svm.s.prob.tmp)
 
-  # fit decision tree
+  # shallow decision tree
   dep=10
   x.dt<-rpart(Y[trainingSet]~.,X[trainingSet,], control=rpart.control(minsplit=0, minbucket=0,cp=-1, maxcompete=0, maxsurrogate=0, usesurrogate=0, xval=0,maxdepth=dep))
   x.dt.prob[testSet,] <- predict(x.dt, type="prob", newdata=X[testSet,], probability = TRUE)
@@ -321,6 +327,11 @@ for (i in 1:nFolds) {
 if (nFolds>1){ # kfold, LOOCV
   testSet=1:length(Y)
 }
+
+if (length(testSet)<5){
+  stop("Too few observations in the test set. Please reselect training / test partition.")
+}
+
 # rpart
 x.rp.prob.rocr <- prediction(x.rp.prob[testSet,2], Y[testSet])
 x.rp.perf <- performance(x.rp.prob.rocr, "tpr","fpr")
@@ -377,12 +388,12 @@ performance(x.svm.s.prob.rocr,"auc")@y.values
 AUCs[8]<-unlist(performance(x.svm.s.prob.rocr,"auc")@y.values)
 d8 <- data.frame(x1=x.svm.s.perf@x.values[[1]], y1=x.svm.s.perf@y.values[[1]], Methods="SVMs with Sigmoid Kernel")
 
-# decision trees
+# shallow decision trees
 x.dt.prob.rocr <- prediction(x.dt.prob[testSet,2], Y[testSet])
 x.dt.perf <- performance(x.dt.prob.rocr, "tpr","fpr")
 performance(x.dt.prob.rocr,"auc")@y.values
 AUCs[9]<-unlist(performance(x.dt.prob.rocr,"auc")@y.values)
-d9 <- data.frame(x1=x.dt.perf@x.values[[1]], y1=x.dt.perf@y.values[[1]], Methods="Decision Trees")
+d9 <- data.frame(x1=x.dt.perf@x.values[[1]], y1=x.dt.perf@y.values[[1]], Methods="Shallow Decision Trees")
 
 # random forest
 x.rf.prob.rocr <- prediction(x.rf.prob[testSet,2], Y[testSet])
@@ -414,8 +425,12 @@ write(paste("Finished model evaluation",round(percentageFinish,0),sep=","),miles
 ## output decision tree
 figureFileName<-paste("public/sessions/",sessionID,"/decisionTree.png",sep="")
 png(filename=figureFileName, width=1000, height=500)
-plot(x.rp, uniform=TRUE)
-text(x.rp, use.n=TRUE, all=TRUE, cex=.8)
+if (dim(x.rp$frame)[1]>1) {
+  plot(x.rp, uniform=TRUE)
+  text(x.rp, use.n=TRUE, all=TRUE, cex=.8)
+} else {
+  plot(0,type='n',axes=FALSE,xlab="The decision tree is just a root.",ylab="")
+}
 dev.off()
 
 ## output ROC curves
