@@ -90,7 +90,10 @@ write(paste("Initializing...",percentageFinish,sep=","),milestonesFileName)
 # read files
 omicsFileName<-paste("../data/", tumorType, "_", dataType, ".txt", sep="")
 if (file.exists(omicsFileName)){
-  omicsFile<-read.table(omicsFileName, stringsAsFactors=F, sep=",")
+  try(omicsFile<-read.table(omicsFileName, stringsAsFactors=F, sep=","), TRUE)
+  if (!exists("omicsFile")) {
+    stop ("Omics type not available for this tumor. Please reselect.")
+  }
 } else {
   stop ("Omics type not available for this tumor. Please reselect.")
 }
