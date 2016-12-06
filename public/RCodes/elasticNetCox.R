@@ -306,7 +306,7 @@ write(paste("Finished building survival groups",percentageFinish,sep=","),milest
 # output feature weights
 coefFit<-as.data.frame(as.matrix(coef(cv.tr, s=lambdaFit)))
 coefFit<-cbind(0,coefFit)
-rownames(coefFit)<-omicsNameFile
+rownames(coefFit)<-make.names(omicsNameFile, unique=T)
 coefFitNonZero<-coefFit[coefFit[,2]!=0,]
 coefFitNonZero<-coefFitNonZero[order(-coefFitNonZero[,2]),]
 coefFitOutput<-rbind(coefFitNonZero,coefFit[coefFit[,2]==0,])
