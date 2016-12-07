@@ -68,7 +68,6 @@ percentageFinish<-1
 print(paste("Reading omics files...",percentageFinish,sep=","))
 write(paste("Reading omics files...",percentageFinish,sep=","),milestonesFileName)
 
-
 omicsFileName<-paste("../data/", tumorType, "_", dataType, ".txt", sep="")
 if (file.exists(omicsFileName)) {
   try(omicsFile<-read.table(omicsFileName, stringsAsFactors=F, sep=","), TRUE)
