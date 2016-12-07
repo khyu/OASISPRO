@@ -181,52 +181,54 @@ for (i in 1:nFolds) {
   } else if (table(YTrain)[2]<5){
     stop("Too few observations in Group 2. Please reselect.")
   }
-  if (featureSelectionMethod == "infog"){ # information gain
-    weights <- information.gain(YTrain~., XTune)
-    weightsOutput<-cbind(omicsNameFile,weights)
-    weightsOutput<-weightsOutput[order(weightsOutput[,2],decreasing=T),]
-    subsetFeatures<-cutoff.k(weights, numFeatures)
-    X<-Xall[,subsetFeatures]
-  } else if (featureSelectionMethod == "gainr"){ # gain ratio
-    weights <- gain.ratio(YTrain~., XTune)
-    weightsOutput<-cbind(omicsNameFile,weights)
-    weightsOutput<-weightsOutput[order(weightsOutput[,2],decreasing=T),]
-    subsetFeatures<-cutoff.k(weights, numFeatures)
-    X<-Xall[,subsetFeatures]
-  } else if (featureSelectionMethod == "symu"){ # symmetrical uncertainty
-    weights <- symmetrical.uncertainty(YTrain~., XTune)
-    weightsOutput<-cbind(omicsNameFile,weights)
-    weightsOutput<-weightsOutput[order(weightsOutput[,2],decreasing=T),]
-    subsetFeatures<-cutoff.k(weights, numFeatures)
-    X<-Xall[,subsetFeatures]
-  } else if (FALSE){ # consistency
-    weights <- consistency(YTrain~., XTune)
-    X<-Xall[,weights]
-
-    # chi-squared
-    weights <- chi.squared(YTrain~., XTune)
-    subsetFeatures<-cutoff.k(weights, numFeatures)
-    X<-X[,subsetFeatures]
-  } else if (FALSE){ # cfs
-    weights <- cfs(YTrain~., XTune)
-    subsetFeatures<-cutoff.k(weights, numFeatures)
-    X<-Xall[,weights]
-  } else if (featureSelectionMethod == "randf"){ # random forest importance
-    weights <- random.forest.importance(YTrain~., XTune, importance.type = 1)
-    weightsOutput<-cbind(omicsNameFile,weights)
-    weightsOutput<-weightsOutput[order(weightsOutput[,2],decreasing=T),]
-    subsetFeatures<-cutoff.k(weights, numFeatures)
-    X<-Xall[,subsetFeatures]
-  } else { # custom
+  
+  if (featureSelectionMethod == "custom") { # custom
     customFile<-read.table(featureSelectionMethod, sep="")
     subsetFeatures<-customFile[,1]
     X<-Xall[,subsetFeatures]
+  } else {
+    weights<-matrix(data=0, nrow=dim(XTune)[2]-1, ncol=1)
+    rownames(weights)<-paste("V",1:(dim(XTune)[2]-1),sep="")
+    featureSelectionStep<-2000
+    nFeatureSelectionParts<-length(seq(1,dim(XTune)[2]-1,featureSelectionStep))
+    
+    for (featureStart in seq(1,dim(XTune)[2]-1,featureSelectionStep)){
+      featureEnd<-min((featureStart+featureSelectionStep-1),dim(XTune)[2]-1)
+      XTunePart<-XTune[,featureStart:featureEnd]
+      print(featureEnd)
+      
+      if (featureSelectionMethod == "infog"){ # information gain
+        weightsPart <- information.gain(YTrain~., XTunePart)
+      } else if (featureSelectionMethod == "gainr"){ # gain ratio
+        weightsPart <- gain.ratio(YTrain~., XTunePart)
+      } else if (featureSelectionMethod == "symu"){ # symmetrical uncertainty
+        weightsPart <- symmetrical.uncertainty(YTrain~., XTunePart)
+      } else if (featureSelectionMethod == "randf"){ # random forest importance
+        weightsPart <- random.forest.importance(YTrain~., XTunePart, importance.type = 1)
+      }
+      weights[featureStart:featureEnd,1]<-weightsPart[1:dim(weightsPart)[1],1]
+      
+      
+      
+      percentageFinish<-percentageFinish+((percentageStep/2)/nFeatureSelectionParts)
+      if (nFolds>1){
+        print(paste(paste("Fold ",i,": Running feature selection",sep=""),round(percentageFinish,0),sep=","))
+        write(paste(paste("Fold ",i,": Running feature selection",sep=""),round(percentageFinish,0),sep=","),milestonesFileName,append=T)
+      } else {
+        print(paste("Running feature selection",round(percentageFinish,0),sep=","))
+        write(paste("Running feature selection",round(percentageFinish,0),sep=","),milestonesFileName,append=T)
+      }
+    }
+    
+    weightOrder<-order(weights,decreasing=T)
+    weightsOutput<-cbind(omicsNameFile[weightOrder,1],weights[weightOrder,1])
+    subsetFeatures<-cutoff.k(weights, numFeatures)
+    X<-Xall[,subsetFeatures]
   }
-
+  
   write.table(weightsOutput,paste("public/sessions/",sessionID,"/featureWeights.txt",sep=""),quote=F, sep=",",row.names=F, col.names=F)
 
 
-  percentageFinish<-percentageFinish+(percentageStep/2)
   if (nFolds>1){
     print(paste(paste("Fold ",i,": Finished feature selection",sep=""),round(percentageFinish,0),sep=","))
     write(paste(paste("Fold ",i,": Finished feature selection",sep=""),round(percentageFinish,0),sep=","),milestonesFileName,append=T)
