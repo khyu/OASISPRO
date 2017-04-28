@@ -13,6 +13,14 @@ class AnalysisController < ApplicationController
 			@var4 = "#{params[:var4]}"
 			@sessionID = "#{params[:session_id]}"
 
+			# number of samples
+			@nSamples = Array.new
+			f = File.open("public/sessions/#{params[:session_id]}/nSamples.txt", "r")
+			f.each_line do |line|
+				@nSamples << line
+			end
+			f.close
+
 			# group 1
 			@pred_group1 = Array.new
 			f = File.open("public/sessions/#{params[:session_id]}/outcomeLabel1.txt", "r")
@@ -30,29 +38,7 @@ class AnalysisController < ApplicationController
 			f.close
 
 			# area under curve
-			@area_under_curve = Array.new
-			f = File.open("public/sessions/#{params[:session_id]}/AUCs.txt", "r")
-			
-			auc_labels = [
-				'Recursive Partitioning Trees',
-				'Conditional Inference Trees (CITs)', 
-				'Random Forest with CITs', 
-				'Bagging',
-				'SVMs with Gaussian Kernel',
-				'SVMs with Linear Kernel',
-				'SVMs with Polynomial Kernel',
-				'SVMs with Sigmoid Kernel',
-				'Shallow Decision Trees',
-				'Random Forest',
-				'Naive Bayes',
-				'Naive Bayes with Laplace Smoothing'
-			]
-			x = 0
-			f.each_line do |line|
-				@area_under_curve << [line, auc_labels[x]]
-				x += 1
-			end
-			f.close
+			@aucs = get_aucs(params[:session_id])
 
 			# feature weights
 			@feature_weights = get_feature_weights(params[:session_id])
@@ -326,6 +312,15 @@ class AnalysisController < ApplicationController
 		end
 
 		{command: command, valid_command: valid_command}
+	end
+
+	def get_aucs(session_id)
+		aucs = File.open("public/sessions/#{session_id}/AUCs.txt", "r").read.split("\n")
+		aucs.each_with_index do |auc, index|
+			tmp = auc.split(",")
+			aucs[index] = {name: tmp[0], value: tmp[1]}
+		end
+		return aucs
 	end
 
 	def get_feature_weights(session_id)

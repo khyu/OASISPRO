@@ -42,8 +42,13 @@ write("Finished reading omics file",milestonesFileName)
 
 
 omicsIDFile<-read.table(paste("../data/", tumorType, "_", dataType, "_ids.txt", sep=""), stringsAsFactors=F, sep="")
-omicsFile<-omicsFile[substr(omicsIDFile[,1],14,15)=="01",]
-omicsIDFile<-omicsIDFile[substr(omicsIDFile[,1],14,15)=="01",]
+if (tumorType=="laml"){
+  tumorPartID="03"
+} else {
+  tumorPartID="01"
+}
+omicsFile<-omicsFile[substr(omicsIDFile[,1],14,15)==tumorPartID,]
+omicsIDFile<-omicsIDFile[substr(omicsIDFile[,1],14,15)==tumorPartID,]
 omicsID<-substr(omicsIDFile, 1, 12)
 
 if (clinicalCat!="NULL"){
@@ -58,7 +63,7 @@ if (clinicalCat!="NULL"){
 
   clinical<-clinicalFile[4:dim(clinicalFile)[1],]
   colnames(clinical)<-clinicalFile[2,]
-  clinicalID<-clinical[,2]
+  clinicalID<-clinical[,"bcr_patient_barcode"]
 
   IDintersection<-intersect(omicsID, clinicalID)
   omics<-omicsFile[(omicsID %in% IDintersection),]
@@ -70,14 +75,16 @@ if (clinicalCat!="NULL"){
   intersectIDs<-omicsID
 }
 
-omicsColNum<-which(omicsName[1,]==geneName)
+omicsColNum<-which(omicsName[1,]==geneName)[1]
 ## plot boxplots
 figureFileName<-paste("public/sessions/",sessionID,"/boxplot.png",sep="")
 png(filename=figureFileName, width=1000, height=500)
 if (clinicalCat!="NULL"){
   if (clinicalDataType=="c") {
     clinicalNArow<-substr(clinical[,clinicalCat],1,1)=="["
-    clinical[clinicalNArow,clinicalCat]<-NA
+    if (length(clinicalNArow)>0){
+      clinical[clinicalNArow,clinicalCat]<-NA
+    }
     clinical[,clinicalCat]<-as.numeric(clinical[,clinicalCat])
     clinicalSplitGroup<-cut(clinical[,clinicalCat], nContinuousSplit)
     qplot(clinicalSplitGroup,omics[,omicsColNum], geom = "boxplot", xlab=geneName, ylab="Value")

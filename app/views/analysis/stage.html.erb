@@ -171,6 +171,34 @@
 <% if @valid_command %>
 	<!-- <b>(For testing) Command: <%= @command %></b> -->
 <% end %>
+<style type="text/css" media="screen">
+div#tips a  {
+	text-decoration:none;
+	border-bottom:2px solid green;
+	color: #0000FF;
+}
+
+div#tips a:hover {
+	color: #666666;
+	background: #FFFFCC;
+	text-decoration: none;
+}
+div#tips a span {display: none;}
+div#tips a:hover span {
+	display: block;
+	position: absolute;
+	padding: 5px;
+	margin: 10px;
+	z-index: 100;
+	color: #0000CC;
+	background: #FFFFCC;
+	font: 10px Verdana, Arial, Helvetica, sans-serif;
+	text-align: center;
+	border: 1px solid #666666;
+	text-decoration: none;
+}
+div#tips p {position:relative}
+</style>
 <div style="float:left;width:95%;" class="well">
 This module performs binary clinical phenotype classification on The Cancer Genome Atlas (TCGA) cancer cohorts using their omics data. The TCGA data set will be divided into training and test sets and multiple machine learning model will be generated using the training set and evaluated on the test set. Below are the steps for model generation and evaluation.
 <br><b>Step 1:</b> Choose the tumor type of interest. All tumor types investigated by TCGA consortiums are available for selection.
@@ -206,10 +234,11 @@ This module performs binary clinical phenotype classification on The Cancer Geno
 		<%= render partial: 'batch' %>
 	</div>
 	<div style="float:left;width:490px; margin-left: 10px">
-		<h4>Step 5: Choose the Feature Selection Method<font color="red">*</font></h4>
+		<h4>Step 5: Choose the Feature Selection Method<font color="red">*</font></h4><div id="tips"><h5><a href="#"><strong>Tips</strong><span>The following methods calculate the strength of association for each gene/protein in predicting the prediction target.</span></a></h5></div>
 		<div class="well">
 			<%= select_tag "feature_selection_method", options_for_select(SiteConstants::FEATURE_SELECTION_METHOD.invert) %>
 			<br>Use the top <input type="text" name="num_top_features" value="10" style="width:30px;"> features for building the machine learning models.
+			<div id="tips"><a href="#"> <strong>Tips</strong><span>Using 1/10 (rule of ten) to 1/20 (rule of twenty) of the number of samples usually results in reasonable machine-learning models.</span></a></div>
 		</div>
 	</div>
 	<br style="clear:both;">
@@ -242,42 +271,44 @@ This module performs binary clinical phenotype classification on The Cancer Geno
 		<br>
 		<b>Number of top features:</b> <%= @var2 %>
 		<br>
-		<b>Group 1:</b> 
+		<b>Group 1 ( n = <%= @nSamples[0] %>):</b> 
 		<% @pred_group1.each do |group1| %>
 			<%= group1 %>
 		<% end %>
 		<br>
-		<b>Group 2:</b>
+		<b>Group 2 ( n = <%= @nSamples[1] %>):</b>
 		<% @pred_group2.each do |group2| %>
 			<%= group2 %>
 		<% end %>
-		<br>
 	</div>
 	<b>Receiver operating characteristic (ROC) curves for machine learning models:</b>
 	<div class="well" style="width:600px">
 		<a href="/sessions/<%= @sessionID%>/roc.png" target="_blank">
 			<img src="/sessions/<%= @sessionID%>/roc.png">
+			<p align="center">Download ROC curves</p>
 		</a>
 	</div>
 	<b>Area under the ROC curves (AUCs):</b>
 	<div class="well" style="width:600px">
-		<table>
+		<table align="center">
 			<tr>
-				<th>Model</th>
-				<th>AUC</th>
+				<td align="center"><b>Model</b></td>
+				<td align="center"><b>AUC</b></td>
 			</tr>
-		<% @area_under_curve.each do |auc| %>
+		<% @aucs.each do |aucs| %>
 			<tr>
-				<td><%= auc[1] %></td>
-				<td><%= auc[0].to_f.round(4) %></td>
+				<td><%= aucs[:name] %></a></td>
+				<td><%= aucs[:value].to_f.round(4) %></td>
 			</tr>
 		<% end %>
 		</table>
+		<p align="center"><a href="/sessions/<%= @sessionID%>/AUCs.txt" target="_blank">Download AUCs</a></p>
 	</div>
 	<b>Decision tree visualization:</b>
 	<div class="well" style="width:600px">
 		<a href="/sessions/<%= @sessionID%>/decisionTree.png" target="_blank">
 			<img src="/sessions/<%= @sessionID%>/decisionTree.png">
+			<p align="center">Download decision tree</p>
 		</a>
 	</div>
 	<b>Feature weights (the importance of each gene/protein in the prediction model):</b>
@@ -295,7 +326,7 @@ This module performs binary clinical phenotype classification on The Cancer Geno
 		</tr>
 	<% end %>
 	</table>
-	<input type="button" class="btn" onClick="resultsManager.run_stringdb()" value="Search String DB">
+	<input type="button" class="btn" onClick="resultsManager.run_stringdb()" value="Search String DB"> <a href="/sessions/<%= @sessionID%>/featureWeights.txt" target="_blank">Download feature weights</a>
 
 	<div style="visibility:hidden">
 		<form method="post" action="http://string-db.org/newstring_cgi/show_network_section.pl" target="_blank" enctype="multipart/form-data" id="stringdb_form">

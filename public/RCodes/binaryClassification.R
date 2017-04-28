@@ -130,7 +130,7 @@ Xall<-Xall[useIndex,]
 iDs<-intersectIDs[!is.na(YFile)]
 iDs<-iDs[useIndex]
 
-
+write.table(c(sum(Y==0),sum(Y==1)),paste("public/sessions/",sessionID,"/nSamples.txt",sep=""),quote=F, sep="\t",row.names=F, col.names=F)
 
 percentageFinish<-5
 print(paste("Finished building clinical matrix",percentageFinish,sep=","))
@@ -468,7 +468,8 @@ ggplot() +
 dev.off()
 
 # output AUC
-write.table(AUCs,paste("public/sessions/",sessionID,"/AUCs.txt",sep=""),quote=F, sep="\t",row.names=F, col.names=F)
+write.table(cbind(c('Recursive Partitioning Trees','Conditional Inference Trees (CITs)','Random Forest with CITs','Bagging','SVMs with Gaussian Kernel','SVMs with Linear Kernel','SVMs with Polynomial Kernel','SVMs with Sigmoid Kernel','Shallow Decision Trees','Random Forest','Naive Bayes','Naive Bayes with Laplace Smoothing'),AUCs),paste("public/sessions/",sessionID,"/AUCs.txt",sep=""),quote=F, sep=",",row.names=F, col.names=F)
+
 
 percentageFinish<-100
 print(paste("Completed!",percentageFinish,sep=","))
