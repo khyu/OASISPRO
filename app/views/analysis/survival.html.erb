@@ -43,11 +43,47 @@
 		$('select[name="tumor_type"]').change(get_clinical_variables);
 	});
 </script>
+<script language="JavaScript">
+	function toggle(source) {
+	  checkboxes = document.getElementsByName('feature_weights');
+	  for(var i=0, n=checkboxes.length;i<n;i++) {
+	    checkboxes[i].checked = source.checked;
+	  }
+	}
+</script>
 
 <h2>Survival Analysis</h2>
 <% if @valid_command %>
 	<!-- <b>(For testing) Command: <%= @command %></b> -->
 <% end %>
+<style type="text/css" media="screen">
+	div#tips a  {
+		text-decoration:none;
+		border-bottom:2px solid green;
+		color: #0000FF;
+	}
+
+	div#tips a:hover {
+		color: #666666;
+		background: #FFFFCC;
+		text-decoration: none;
+	}
+	div#tips a span {display: none;}
+	div#tips a:hover span {
+		display: block;
+		position: absolute;
+		padding: 5px;
+		margin: 10px;
+		z-index: 100;
+		color: #0000CC;
+		background: #FFFFCC;
+		font: 10px Verdana, Arial, Helvetica, sans-serif;
+		text-align: center;
+		border: 1px solid #666666;
+		text-decoration: none;
+	}
+	div#tips p {position:relative}
+</style>
 <div style="float:left;width:95%;" class="well">
 This module performs survival analysis on The Cancer Genome Atlas (TCGA) cancer cohorts using their omics data. The TCGA data set will be divided into training and test sets and an elastic-net Cox proportional hazards model will be generated using the training set and evaluated on the test set. Below are the steps for model generation and evaluation.
 <br><b>Step 1:</b> Choose the tumor type of interest. All tumor types investigated by TCGA consortiums are available for selection.
@@ -88,7 +124,7 @@ This module performs survival analysis on The Cancer Genome Atlas (TCGA) cancer 
 			<table class="noborder">
 				<tr>
 					<td style="width:50%;"><input type="radio" name="set_alpha_lambda" value="cross_validation" CHECKED>Find the optimal alpha and lambda through cross-validation on the training set</input></td>
-					<td style="width:50%;"><input type="radio" name="set_alpha_lambda" value="user_enters">Choose alpha and lambda ranges</input></td>
+					<td style="width:50%;"><input type="radio" name="set_alpha_lambda" value="user_enters">Choose alpha and lambda ranges manually</input></td>
 				</tr>
 				<tr class="user-enters-params" style="display:none;">
 					<td>Alpha lower bound<input type="number" class="alpha-bound form-control" style="width: 50px;" name="alpha_lower_bound" min="0" max="1" required></input></td>
@@ -140,6 +176,10 @@ This module performs survival analysis on The Cancer Genome Atlas (TCGA) cancer 
 		<br>
 		<b>Training / test set partition method:</b> <%= @partition %>
 		<br>
+		<b>Number of patients in the training set:</b> <%= @nSamples[0] %>
+		<br>
+		<b>Number of patients in the test set:</b> <%= @nSamples[1] %>
+		<br>
 		<b>Lower bound of alpha:</b> <%= @var1 %>
 		<br>
 		<b>Upper bound of alpha:</b> <%= @var2 %>
@@ -164,8 +204,9 @@ This module performs survival analysis on The Cancer Genome Atlas (TCGA) cancer 
 	<br>Click on the gene/protein name to visit the relevant GeneCards page.
 	<table>
 		<tr>
-			<th colspan="2">Feature</th>
-			<th>Weight</th>
+			<th><input type="checkbox" onClick="toggle(this)"></th>
+			<th>Features</th>
+			<th>Weights</th>
 		</tr>
 	<% @feature_weights.each do |feature_weight| %>
 		<tr>

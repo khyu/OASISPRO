@@ -13,11 +13,19 @@ class AnalysisController < ApplicationController
 			@var4 = "#{params[:var4]}"
 			@sessionID = "#{params[:session_id]}"
 
-			# number of samples
-			@nSamples = Array.new
-			f = File.open("public/sessions/#{params[:session_id]}/nSamples.txt", "r")
+			# number of samples in the training set
+			@nSamplesTraining = Array.new
+			f = File.open("public/sessions/#{params[:session_id]}/nSamplesTraining.txt", "r")
 			f.each_line do |line|
-				@nSamples << line
+				@nSamplesTraining << line
+			end
+			f.close
+
+			# number of samples in the test set
+			@nSamplesTest = Array.new
+			f = File.open("public/sessions/#{params[:session_id]}/nSamplesTest.txt", "r")
+			f.each_line do |line|
+				@nSamplesTest << line
 			end
 			f.close
 
@@ -109,10 +117,19 @@ class AnalysisController < ApplicationController
 			@var3 = "#{params[:var3]}"
 			@var4 = "#{params[:var4]}"
 			@sessionID = "#{params[:session_id]}"
+			
+
+			# number of samples
+			@nSamples = Array.new
+			f = File.open("public/sessions/#{params[:session_id]}/nSamples.txt", "r")
+			f.each_line do |line|
+				@nSamples << line
+			end
+			f.close
+
 			# p value
 			@pTest = Array.new
 			f = File.open("public/sessions/#{params[:session_id]}/pTest.txt", "r")
-	
 			x = 0
 			f.each_line do |line|
 				@pTest << [line]

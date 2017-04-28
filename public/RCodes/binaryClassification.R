@@ -89,9 +89,8 @@ omicsFile<-omicsFile[substr(omicsIDFile[,1],14,15)=="01",]
 omicsIDFile<-omicsIDFile[substr(omicsIDFile[,1],14,15)=="01",]
 omicsID<-substr(omicsIDFile, 1, 12)
 
-
 omicsNameFile<-t(read.table(paste("../data/", tumorType, "_", dataType, "_elemid.txt", sep=""), stringsAsFactors=F, sep=","))
-
+colnames(omicsFile)<-paste(omicsNameFile,"_",colnames(omicsFile),sep="")
 
 
 clinicalFile<-read.table(paste("../data/", "nationwidechildrens.org_clinical_patient_", tumorType, ".txt", sep=""), stringsAsFactors = F, sep="\t", quote="")
@@ -130,7 +129,6 @@ Xall<-Xall[useIndex,]
 iDs<-intersectIDs[!is.na(YFile)]
 iDs<-iDs[useIndex]
 
-write.table(c(sum(Y==0),sum(Y==1)),paste("public/sessions/",sessionID,"/nSamples.txt",sep=""),quote=F, sep="\t",row.names=F, col.names=F)
 
 percentageFinish<-5
 print(paste("Finished building clinical matrix",percentageFinish,sep=","))
@@ -153,6 +151,8 @@ if (partitionType == "random"){ # random
   nFolds<-1
 }
 
+write.table(c(sum(Y[trainingSet]==0),sum(Y[trainingSet]==1)),paste("public/sessions/",sessionID,"/nSamplesTraining.txt",sep=""),quote=F, sep="\t",row.names=F, col.names=F)
+write.table(c(sum(Y[testSet]==0),sum(Y[testSet]==1)),paste("public/sessions/",sessionID,"/nSamplesTest.txt",sep=""),quote=F, sep="\t",row.names=F, col.names=F)
 
 percentageStep<-90/nFolds
 x.rp.prob<-as.data.frame(matrix(ncol=2, nrow=length(Y)))
@@ -192,7 +192,7 @@ for (i in 1:nFolds) {
     X<-Xall[,subsetFeatures]
   } else {
     weights<-matrix(data=0, nrow=dim(XTune)[2]-1, ncol=1)
-    rownames(weights)<-paste("V",1:(dim(XTune)[2]-1),sep="")
+    rownames(weights)<-colnames(XTune)[1:(dim(XTune)[2]-1)]
     featureSelectionStep<-2000
     nFeatureSelectionParts<-length(seq(1,dim(XTune)[2]-1,featureSelectionStep))
     

@@ -171,6 +171,8 @@ if (partitionType == "random"){ #random
   nFolds<-1
 }
 
+write.table(c(length(trainingSet),length(testSet)),paste("public/sessions/",sessionID,"/nSamples.txt",sep=""),quote=F, sep="\t",row.names=F, col.names=F)
+
 # cox
 #Find optimal alpha
 if (minAlpha == -1) {
@@ -330,7 +332,7 @@ source("public/RCodes/ggsurv.R")
 png(filename=paste("public/sessions/",sessionID,"/survivalOutput.png", sep=""), width=1000, height=500)
 suppressMessages(ggsurv(plotTest.surv) + 
   guides(linetype = F) + 
-  xlab("Months") + ggtitle("Kaplan-Meier Curve") +
+  xlab("Months") + ylab("Probability of Survival") + ggtitle("Kaplan-Meier Curves") +
   theme(plot.title = element_text(size=24,face="bold"),
     legend.text=element_text(size=24),
     legend.title=element_text(size=24),
