@@ -249,12 +249,21 @@ This module performs binary clinical phenotype classification on The Cancer Geno
 			<div id="tips"><a href="#"> <strong>Tips</strong><span>Using 1/10 (rule of ten) to 1/20 (rule of twenty) of the number of patients usually results in reasonable machine-learning models.</span></a></div>
 		</div>
 	</div>
+
+	<br style="clear:both;">
+	<div style="float:left;width:375px;margin-left:10px;">
+		<h4>Step 6: Get Notified when the Analysis Completes (optional)</h4><div id="tips"><a href="#"> <strong>Tips</strong><span>To receive an e-mail when the analysis completes (optional). Suggested for k-fold, LOOCV, and analysis involving RNA-seq and DNA methylation data.</span></a></div>
+		<div class="well">
+			E-mail: <input type="text" name="email" value="" style="width:300px;">
+		</div>
+	</div>
+
 	<br style="clear:both;">
 	<div style="text-align: center">
 		<input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>"></input>
 		<input type="hidden" name="session_id" value="<%= rand.to_s.sub("0.", "") %>">
 		<div id="form_error_message_field" style="color:red; margin-bottom:5px;"></div>
-		<h4>Step 6: Generate the analysis<font color="red">*</font></h4><input type="submit" onClick="submitForm(); return true" value="Run!" name="generate" class="btn btn-primary" style="height:50px;font-size:16pt;" id="generate-analysis-button">
+		<h4>Step 7: Generate the Analysis<font color="red">*</font></h4><input type="submit" onClick="submitForm(); return true" value="Run!" name="generate" class="btn btn-primary" style="height:50px;font-size:16pt;" id="generate-analysis-button">
 	</div>
 	<br><font color="red">* = required</font>
 	<div id="progressbar" style="width:90%; margin-left:auto; margin-right:auto; margin-top:10px;"></div>
@@ -388,7 +397,7 @@ This module performs binary clinical phenotype classification on The Cancer Geno
 
 <script>
 	render_list();
-	var resultsManager = new ResultsManager("<%= params[:tumor_type] %>", "<%= params[:data_source] %>", "<%= params[:prediction_target] %>", "<%= params[:partition] %>", "<%= params[:feature_selection_method] %>", "<%= params[:num_top_features] %>", "0", "0", "<%= params[:session_id] %>");
+	var resultsManager = new ResultsManager("<%= params[:tumor_type] %>", "<%= params[:data_source] %>", "<%= params[:prediction_target] %>", "<%= params[:partition] %>", "<%= params[:feature_selection_method] %>", "<%= params[:num_top_features] %>", "<%= params[:email] %>", "0", "<%= params[:session_id] %>");
 	<% if params[:generate] %>
 		resultsManager.run('stage');
 	<% end %>

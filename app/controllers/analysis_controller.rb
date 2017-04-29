@@ -1,5 +1,6 @@
 class AnalysisController < ApplicationController
 	require 'site_constants.rb'
+	require 'mail'
 
 	def stage
 		if params[:done]
@@ -50,6 +51,21 @@ class AnalysisController < ApplicationController
 
 			# feature weights
 			@feature_weights = get_feature_weights(params[:session_id])
+
+			# send e-mail
+			unless @var3 == ''
+				email = @var3
+				emailBody = "Your requested analysis is complete. Please visit http://localhost:3000/analysis/stage?done=1&tumor_type=#{params[:tumor_type]}&data_source=#{params[:data_source]}&prediction_target=#{params[:prediction_target]}&partition=#{params[:partition]}&var1=#{params[:var1]}&var2=#{params[:var2]}&var3=#{params[:var3]}&var4=#{params[:var4]}&session_id=#{params[:session_id]}#results to see the detailed results."
+				mail = Mail.new do
+	  				from    'oasispro.developers@gmail.com'
+	  				to      email
+	  				subject 'Your OASISPRO Analysis is Complete'
+	  				body    emailBody
+				end
+				
+				mail.delivery_method :sendmail
+				mail.deliver
+			end
 		end
 
 		if params[:generate]
