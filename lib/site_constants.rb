@@ -1,23 +1,23 @@
 module SiteConstants
 	TUMOR_TYPES = {
 		acc:  'Adrenocortical carcinoma',
-		blca: 'Bladder Urothelial Carcinoma',
-		lgg:  'Brain Lower Grade Glioma',
+		blca: 'Bladder urothelial carcinoma',
+		lgg:  'Brain lower grade glioma',
 		brca: 'Breast invasive carcinoma',
 		cesc: 'Cervical squamous cell carcinoma and endocervical adenocarcinoma',
 		chol: 'Cholangiocarcinoma',
 		coad: 'Colon adenocarcinoma',
 		esca: 'Esophageal carcinoma',
 		#gbm:  'Glioblastoma multiforme',
-		hnsc: 'Head and Neck squamous cell carcinoma',
-		kich: 'Kidney Chromophobe',
+		hnsc: 'Head and neck squamous cell carcinoma',
+		kich: 'Kidney chromophobe',
 		kirc: 'Kidney renal clear cell carcinoma',
 		kirp: 'Kidney renal papillary cell carcinoma',
 		lihc: 'Liver hepatocellular carcinoma',
 		luad: 'Lung adenocarcinoma',
 		lusc: 'Lung squamous cell carcinoma',
-		laml: 'Lymphoblastic Acute Myeloid Leukemia',
-		dlbc: 'Lymphoid Neoplasm Diffuse Large B-cell Lymphoma',
+		laml: 'Lymphoblastic acute myeloid leukemia',
+		dlbc: 'Lymphoid neoplasm diffuse large B-cell lymphoma',
 		meso: 'Mesothelioma',
 		ov:   'Ovarian serous cystadenocarcinoma', 
 		paad: 'Pancreatic adenocarcinoma', 
@@ -25,20 +25,20 @@ module SiteConstants
 		prad: 'Prostate adenocarcinoma', 
 		read: 'Rectum adenocarcinoma',
 		sarc: 'Sarcoma',
-		skcm: 'Skin Cutaneous Melanoma',
+		skcm: 'Skin cutaneous melanoma',
 		stad: 'Stomach adenocarcinoma',
-		tgct: 'Testicular Germ Cell Tumors',
+		tgct: 'Testicular germ cell tumors',
 		thym: 'Thymoma',
 		thca: 'Thyroid carcinoma',
-		ucs:  'Uterine Carcinosarcoma',
-		ucec: 'Uterine Corpus Endometrial Carcinoma',
-		uvm:  'Uveal Melanoma' 
+		ucs:  'Uterine carcinosarcoma',
+		ucec: 'Uterine corpus endometrial carcinoma',
+		uvm:  'Uveal melanoma' 
 	}
 
 	DATA_TYPES = {
-		rnaseq: 		'Gene Expression (RNA-seq)',
+		rnaseq: 		'Gene expression (RNA-seq)',
 		proteomics: 'Proteomics',
-		methylation27: 	'DNA Methylation (Illumina Infinium Human DNA Methylation 27)',
+		methylation27: 	'DNA methylation (Illumina Infinium Human DNA Methylation 27)',
 		#methylation450: 	'DNA Methylation (Illumina Infinium Human DNA Methylation 450)',
 		microrna: 	'microRNA'
 	}
@@ -77,10 +77,10 @@ module SiteConstants
 	}
 
 	FEATURE_SELECTION_METHOD = {
-		infog: 		'Information Gain',
-		gainr: 		'Gain Ratio',
-		symu: 		'Symmetrical Uncertainty',
-		randf: 		'Random Forest Importance',
+		infog: 		'Information gain',
+		gainr: 		'Gain tatio',
+		symu: 		'Symmetrical uncertainty',
+		randf: 		'Random forest importance',
 		_features: 	'Custom' # Prepend SESSION_ID and append TXT when submitting this
 	}
 

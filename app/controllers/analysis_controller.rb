@@ -270,9 +270,10 @@ class AnalysisController < ApplicationController
 			end
 		end
 
+		data = data.sort_by!{ |var| var.upcase }
 		# Always place "gender" first, as it is a good introductory example.
-		data.delete("gender")
-		data.unshift("gender")
+		#data.delete("gender")
+		#data.unshift("gender")
 
 		render json: data
 	end
@@ -314,7 +315,7 @@ class AnalysisController < ApplicationController
 				i += 1
 			end
 		end
-
+		data = data.sort_by!{ |var| var.upcase }
 		render json: data.uniq
 	end
 
