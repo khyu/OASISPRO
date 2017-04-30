@@ -148,6 +148,11 @@ This module performs survival analysis on The Cancer Genome Atlas (TCGA) cancer 
 				</tr>
 			</table>
 		</div>
+		<br style="clear:both;">
+		<h4>Step 6: Get Notified when the Analysis Completes (optional)</h4><div id="tips"><a href="#"> <strong>Tips</strong><span>To receive an e-mail when the analysis completes (optional). Suggested for k-fold, LOOCV, and analysis involving RNA-seq and DNA methylation data.</span></a></div>
+		<div class="well">
+			E-mail: <input type="text" name="email" value="" style="width:200px;">
+		</div>
 	</div>
 	
 
@@ -156,7 +161,7 @@ This module performs survival analysis on The Cancer Genome Atlas (TCGA) cancer 
 		<input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>"></input>
 		<input type="hidden" name="session_id" value="<%= rand.to_s.sub("0.", "") %>">
 		<div id="form_error_message_field" style="color:red; margin-bottom:5px;"></div>
-		<h4>Step 6: Generate the analysis<font color="red">*</font></h4>
+		<h4>Step 7: Generate the analysis<font color="red">*</font></h4>
 		<input type="submit" value="Run!" name="generate" class="btn btn-primary" style="height:50px;font-size:16pt;">
 	</div>
 	<br><font color="red">* = required</font>
@@ -193,6 +198,7 @@ This module performs survival analysis on The Cancer Genome Atlas (TCGA) cancer 
 	<div class="well" style="width:600px">
 		<a href="/sessions/<%= @sessionID%>/survivalOutput.png" target="_blank">
 			<img src="/sessions/<%= @sessionID%>/survivalOutput.png">
+			<p align="center">Download Kaplan-Meier curves</p>
 		</a>
 	</div>
 	<b>Log rank test P value in the test set</b>
@@ -216,8 +222,8 @@ This module performs survival analysis on The Cancer Genome Atlas (TCGA) cancer 
 		</tr>
 	<% end %>
 	</table>
-
 	<input type="button" class="btn" onClick="resultsManager.run_stringdb()" value="Search String DB">
+	<a href="/sessions/<%= @sessionID%>/featureWeights.txt" target="_blank">Download feature weights</a>
 
 	<div style="visibility:hidden">
 		<form method="post" action="http://string-db.org/newstring_cgi/show_network_section.pl" target="_blank" enctype="multipart/form-data" id="stringdb_form">

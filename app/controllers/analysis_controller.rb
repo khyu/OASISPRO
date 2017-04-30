@@ -51,21 +51,6 @@ class AnalysisController < ApplicationController
 
 			# feature weights
 			@feature_weights = get_feature_weights(params[:session_id])
-
-			# send e-mail
-			unless @var3 == ''
-				email = @var3
-				emailBody = "Your requested analysis is complete. Please visit http://localhost:3000/analysis/stage?done=1&tumor_type=#{params[:tumor_type]}&data_source=#{params[:data_source]}&prediction_target=#{params[:prediction_target]}&partition=#{params[:partition]}&var1=#{params[:var1]}&var2=#{params[:var2]}&var3=#{params[:var3]}&var4=#{params[:var4]}&session_id=#{params[:session_id]}#results to see the detailed results."
-				mail = Mail.new do
-	  				from    'oasispro.developers@gmail.com'
-	  				to      email
-	  				subject 'Your OASISPRO Analysis is Complete'
-	  				body    emailBody
-				end
-				
-				mail.delivery_method :sendmail
-				mail.deliver
-			end
 		end
 
 		if params[:generate]
@@ -80,7 +65,8 @@ class AnalysisController < ApplicationController
 				training_percentage: 'FLOAT',
 				feature_selection_method: SiteConstants::FEATURE_SELECTION_METHOD.keys.map { |x| x.to_s },
 				num_top_features: 'INTEGER',
-				session_id: '*'
+				session_id: '*',
+				email: '*'
 			}
 
 			if params[:partition] == 'kfold'
@@ -132,6 +118,7 @@ class AnalysisController < ApplicationController
 			@var2 = "#{params[:var2]}"
 			@var3 = "#{params[:var3]}"
 			@var4 = "#{params[:var4]}"
+			@email = "#{params[:email]}"
 			@sessionID = "#{params[:session_id]}"
 			
 
@@ -167,7 +154,8 @@ class AnalysisController < ApplicationController
 				lambda_lower_bound: 'FLOAT',
 				lambda_upper_bound: 'FLOAT',
 				clinical_variable_file: '*',
-				session_id: '*'
+				session_id: '*',
+				email: '*'
 			}
 
 			if params[:partition] == 'batch'

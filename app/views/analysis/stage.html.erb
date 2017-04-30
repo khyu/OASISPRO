@@ -397,7 +397,7 @@ This module performs binary clinical phenotype classification on The Cancer Geno
 
 <script>
 	render_list();
-	var resultsManager = new ResultsManager("<%= params[:tumor_type] %>", "<%= params[:data_source] %>", "<%= params[:prediction_target] %>", "<%= params[:partition] %>", "<%= params[:feature_selection_method] %>", "<%= params[:num_top_features] %>", "<%= params[:email] %>", "0", "<%= params[:session_id] %>");
+	var resultsManager = new ResultsManager("<%= params[:tumor_type] %>", "<%= params[:data_source] %>", "<%= params[:prediction_target] %>", "<%= params[:partition] %>", "<%= params[:feature_selection_method] %>", "<%= params[:num_top_features] %>", "0", "0", "<%= params[:session_id] %>");
 	<% if params[:generate] %>
 		resultsManager.run('stage');
 	<% end %>

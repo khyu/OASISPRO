@@ -12,6 +12,7 @@
 # param 7: feature selection method
 # param 8: number of features
 # param 9: session ID
+# param 10: user's e-mail
 #
 # Kun-Hsing Yu
 # April 15, 2016
@@ -27,7 +28,7 @@ suppressMessages(library(e1071))
 suppressMessages(library(randomForest))
 suppressMessages(library(ROCR))
 suppressMessages(library(ggplot2))
-#setwd("public/dropbox/analysis/StageOverall/")
+ipAddress<-"localhost"
 
 sysargs<-commandArgs(trailingOnly=TRUE)
 print (sysargs)
@@ -51,6 +52,10 @@ if (partitionType == "random") { # random
 featureSelectionMethod<-sysargs[7]
 numFeatures<-as.numeric(sysargs[8])
 sessionID<-sysargs[9]
+userEmail<-sysargs[10]
+if (is.na(userEmail)){
+  userEmail<-""
+}
 
 AUCs<-rep(0,12)
 
@@ -476,7 +481,23 @@ print(paste("Completed!",percentageFinish,sep=","))
 write(paste("Completed!",percentageFinish,sep=","),milestonesFileName,append=T)
 
 
+# send notification e-mail
+emailBody<-paste("Your requested analysis is complete. Please visit http://",ipAddress,
+                 ":3000/analysis/stage?done=1&tumor_type=",tumorType,
+                 "&data_source=",dataType,
+                 "&prediction_target=",predictionTarget,
+                 "&partition=",partitionType,
+                 "&var1=",featureSelectionMethod,
+                 "&var2=",numFeatures,
+                 "&var3=",userEmail,
+                 "&var4=0&session_id=",sessionID,
+                 "#results to see the detailed results.",sep="")
+emailBodyFileName<-paste("public/sessions/",sessionID,"/emailBody.txt",sep="")
+write(emailBody,emailBodyFileName)
 
+if (userEmail!=""){
+  system(paste("cat ",emailBodyFileName," | mail -s 'Your OASISPRO Analysis is Complete' ",userEmail,sep=""))
+}
 
 
 

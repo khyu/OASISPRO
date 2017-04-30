@@ -1,6 +1,5 @@
 module SiteConstants
 	TUMOR_TYPES = {
-		laml: 'Acute Myeloid Leukemia',
 		acc:  'Adrenocortical carcinoma',
 		blca: 'Bladder Urothelial Carcinoma',
 		lgg:  'Brain Lower Grade Glioma',
@@ -17,6 +16,7 @@ module SiteConstants
 		lihc: 'Liver hepatocellular carcinoma',
 		luad: 'Lung adenocarcinoma',
 		lusc: 'Lung squamous cell carcinoma',
+		laml: 'Lymphoblastic Acute Myeloid Leukemia',
 		dlbc: 'Lymphoid Neoplasm Diffuse Large B-cell Lymphoma',
 		meso: 'Mesothelioma',
 		ov:   'Ovarian serous cystadenocarcinoma', 

@@ -14,6 +14,7 @@
 # param 9: upper bound of lambda
 # param 10: hand-picked clinical variables (file)
 # param 11: session ID
+# param 12: user's e-mail
 #
 # Kun-Hsing Yu
 # March 28, 2016
@@ -27,7 +28,7 @@ suppressMessages(library(rms))
 suppressMessages(library(GGally))
 suppressMessages(library(dplyr))
 suppressMessages(library(cvTools))
-#setwd("public/dropbox/analysis/StageOverall/")
+ipAddress<-"localhost"
 
 sysargs<-commandArgs(trailingOnly=TRUE)
 print (sysargs)
@@ -55,6 +56,11 @@ if (sysargs[10] != "-1") {
   clinicalVariablesFile<-read.table(paste("public/sessions/",sessionID,"/",sysargs[10],sep=""), sep="")
   clinicalVariables<-clinicalVariablesFile[,1]
 }
+userEmail<-sysargs[12]
+if (is.na(userEmail)){
+  userEmail<-""
+}
+
 
 #tumorTypesFile<-read.table("../../data/tumorTypes.txt", stringsAsFactors = F)
 #tumorTypes<-tumorTypesFile[,1]
@@ -346,3 +352,27 @@ dev.off()
 percentageFinish<-100
 print(paste("Completed!",percentageFinish,sep=","))
 write(paste("Completed!",percentageFinish,sep=","),milestonesFileName,append=T)
+
+
+
+
+# send notification e-mail
+emailBody<-paste("Your requested analysis is complete. Please visit http://",ipAddress,
+                 ":3000/analysis/survival?done=1&tumor_type=",tumorType,
+                 "&data_source=",dataType,
+                 "&prediction_target=survival",
+                 "&partition=",partitionType,
+                 "&var1=",minAlpha,
+                 "&var2=",maxAlpha,
+                 "&var3=",minLambda,
+                 "&var4=",maxLambda,
+                 "&session_id=",sessionID,
+                 "#results to see the detailed results.",sep="")
+emailBodyFileName<-paste("public/sessions/",sessionID,"/emailBody.txt",sep="")
+write(emailBody,emailBodyFileName)
+
+if (userEmail!=""){
+  system(paste("cat ",emailBodyFileName," | mail -s 'Your OASISPRO Analysis is Complete' ",userEmail,sep=""))
+}
+
+
