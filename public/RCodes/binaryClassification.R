@@ -56,9 +56,11 @@ userEmail<-sysargs[10]
 if (is.na(userEmail)){
   userEmail<-""
 }
+argsFileName<-paste("public/sessions/",sessionID,"/args.txt",sep="")
+write(sysargs,argsFileName)
+
 
 AUCs<-rep(0,12)
-
 
 print (featureSelectionMethod)
 print (numFeatures)

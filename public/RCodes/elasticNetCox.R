@@ -60,6 +60,8 @@ userEmail<-sysargs[12]
 if (is.na(userEmail)){
   userEmail<-""
 }
+argsFileName<-paste("public/sessions/",sessionID,"/args.txt",sep="")
+write(sysargs,argsFileName)
 
 
 #tumorTypesFile<-read.table("../../data/tumorTypes.txt", stringsAsFactors = F)

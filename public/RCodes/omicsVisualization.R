@@ -22,6 +22,8 @@ dataType<-sysargs[2]
 geneName<-sysargs[3]
 clinicalCat<-sysargs[4]
 sessionID<-sysargs[5]
+argsFileName<-paste("public/sessions/",sessionID,"/args.txt",sep="")
+write(sysargs,argsFileName)
 
 nContinuousSplit<-5
 #tumorType<-"acc"
