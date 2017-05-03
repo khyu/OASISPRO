@@ -29,12 +29,6 @@ suppressMessages(library(GGally))
 suppressMessages(library(dplyr))
 suppressMessages(library(cvTools))
 
-osType<-system("uname -a", intern=T)
-if (substr(osType,1,5) == "Linux"){ ## google cloud, get ip address
-  ipAddress<-system("curl -H 'Metadata-Flavor: Google' http://169.254.169.254/computeMetadata/v1/instance/network-interfaces/0/access-configs/0/external-ip", intern=T)
-} else { ## apple, test on local host
-  ipAddress<-"localhost:3000"
-}
 
 sysargs<-commandArgs(trailingOnly=TRUE)
 print (sysargs)
@@ -66,6 +60,13 @@ userEmail<-sysargs[12]
 if (is.na(userEmail)){
   userEmail<-""
 }
+osType<-system("uname -a", intern=T)
+if (substr(osType,1,5) == "Linux"){ ## google cloud, get ip address
+  ipAddress<-system(paste("curl -H 'Metadata-Flavor: Google' http://169.254.169.254/computeMetadata/v1/instance/network-interfaces/0/access-configs/0/external-ip 2>public/sessions/",sessionID,"/ipOutput.txt",sep=""), intern=T)
+} else { ## apple, test on local host
+  ipAddress<-"localhost:3000"
+}
+
 argsFileName<-paste("public/sessions/",sessionID,"/args.txt",sep="")
 write(sysargs,argsFileName)
 
