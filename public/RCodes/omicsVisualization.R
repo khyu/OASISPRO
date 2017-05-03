@@ -37,7 +37,8 @@ milestonesFileName<-paste("public/sessions/",sessionID,"/milestones.txt",sep="")
 
 
 # read files
-omicsFile<-read.table(paste("../data/", tumorType, "_", dataType, ".txt", sep=""), stringsAsFactors=F, sep=",")
+#omicsFile<-read.table(paste("../data/", tumorType, "_", dataType, ".txt", sep=""), stringsAsFactors=F, sep=",")
+load(paste("../data/", tumorType, "_", dataType, ".RData", sep=""))
 omicsName<-read.table(paste("../data/", tumorType, "_", dataType, "_elemid.txt", sep=""), stringsAsFactors=F, sep=",")
 print("Finished reading omics file")
 write("Finished reading omics file",milestonesFileName)

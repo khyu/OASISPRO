@@ -28,7 +28,13 @@ suppressMessages(library(rms))
 suppressMessages(library(GGally))
 suppressMessages(library(dplyr))
 suppressMessages(library(cvTools))
-ipAddress<-"localhost"
+
+osType<-system("uname -a", intern=T)
+if (substr(osType,1,5) == "Linux"){ ## google cloud, get ip address
+  ipAddress<-system("curl -H 'Metadata-Flavor: Google' http://169.254.169.254/computeMetadata/v1/instance/network-interfaces/0/access-configs/0/external-ip", intern=T)
+} else { ## apple, test on local host
+  ipAddress<-"localhost:3000"
+}
 
 sysargs<-commandArgs(trailingOnly=TRUE)
 print (sysargs)
@@ -63,29 +69,6 @@ if (is.na(userEmail)){
 argsFileName<-paste("public/sessions/",sessionID,"/args.txt",sep="")
 write(sysargs,argsFileName)
 
-
-#tumorTypesFile<-read.table("../../data/tumorTypes.txt", stringsAsFactors = F)
-#tumorTypes<-tumorTypesFile[,1]
-
-#for (i in 4:length(tumorTypes)) {
-  
-#tumorType<-tumorTypes[5]
-#dataType<-"proteomics"
-#partitionType<-"random"
-#if (partitionType == "random") {
-#  partitionSeed<-1
-#  trainingPercentage<-0.7
-#} else {
-#  partitionSeed<-(-1)
-#  selectedBatchesFile<-read.table(sysargs[4], sep="")
-#  selectedBatches<-selectedBatchesFile[,1]
-#  trainingPercentage<-(-1)
-#} 
-#minAlpha<--1
-#maxAlpha<--1
-#minLambda<--1
-#maxLambda<--1
-
 print (maxAlpha)
 print (tumorType)
 #print (clinicalVariables)
@@ -100,9 +83,10 @@ percentageFinish<-1
 print(paste("Reading omics files...",percentageFinish,sep=","))
 write(paste("Reading omics files...",percentageFinish,sep=","),milestonesFileName)
 
-omicsFileName<-paste("../data/", tumorType, "_", dataType, ".txt", sep="")
+omicsFileName<-paste("../data/", tumorType, "_", dataType, ".RData", sep="")
 if (file.exists(omicsFileName)){
-  try(omicsFile<-read.table(omicsFileName, stringsAsFactors=F, sep=","), TRUE)
+  #try(omicsFile<-read.table(omicsFileName, stringsAsFactors=F, sep=","), TRUE)
+  try(load(omicsFileName), TRUE)
   if (!exists("omicsFile")) {
     stop ("Omics type not available for this tumor. Please reselect.")
   }

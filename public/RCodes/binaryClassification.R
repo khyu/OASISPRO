@@ -28,7 +28,13 @@ suppressMessages(library(e1071))
 suppressMessages(library(randomForest))
 suppressMessages(library(ROCR))
 suppressMessages(library(ggplot2))
-ipAddress<-"localhost"
+
+osType<-system("uname -a", intern=T)
+if (substr(osType,1,5) == "Linux"){ ## google cloud, get ip address
+  ipAddress<-system("curl -H 'Metadata-Flavor: Google' http://169.254.169.254/computeMetadata/v1/instance/network-interfaces/0/access-configs/0/external-ip", intern=T)
+} else { ## apple, test on local host
+  ipAddress<-"localhost:3000"
+}
 
 sysargs<-commandArgs(trailingOnly=TRUE)
 print (sysargs)
@@ -75,9 +81,10 @@ percentageFinish<-1
 print(paste("Reading omics files...",percentageFinish,sep=","))
 write(paste("Reading omics files...",percentageFinish,sep=","),milestonesFileName)
 
-omicsFileName<-paste("../data/", tumorType, "_", dataType, ".txt", sep="")
+omicsFileName<-paste("../data/", tumorType, "_", dataType, ".RData", sep="")
 if (file.exists(omicsFileName)) {
-  try(omicsFile<-read.table(omicsFileName, stringsAsFactors=F, sep=","), TRUE)
+  #try(omicsFile<-read.table(omicsFileName, stringsAsFactors=F, sep=","), TRUE)
+  try(load(omicsFileName), TRUE)
   if (!exists("omicsFile")) {
     stop ("Omics type not available for this tumor. Please reselect.")
   }
@@ -485,7 +492,7 @@ write(paste("Completed!",percentageFinish,sep=","),milestonesFileName,append=T)
 
 # send notification e-mail
 emailBody<-paste("Your requested analysis is complete. Please visit http://",ipAddress,
-                 ":3000/analysis/stage?done=1&tumor_type=",tumorType,
+                 "/analysis/stage?done=1&tumor_type=",tumorType,
                  "&data_source=",dataType,
                  "&prediction_target=",predictionTarget,
                  "&partition=",partitionType,
