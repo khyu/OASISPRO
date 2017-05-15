@@ -26,7 +26,7 @@ var _ = function (input, o) {
 		autoFirst: false,
 		data: _.DATA,
 		filter: _.FILTER_CONTAINS,
-		sort: o.sort === false ? false : _.SORT_BYLENGTH,
+		sort: false,
 		item: _.ITEM,
 		replace: _.REPLACE
 	}, o);
