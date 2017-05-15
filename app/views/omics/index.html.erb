@@ -10,7 +10,6 @@
 				html += '<option value="' + data_key + '">' + data[data_key] + '</option>';
 			});
 			$('select[name="data_source"]').html(html);
-			console.log(html);
 		});
 
 		$.get('/clinical/get_clinical_variables', {tumor_type: tumor_type}, function (data) {
@@ -25,17 +24,32 @@
 		});
 	});
 
+	var gene_autocomplete;
+	$(document).ready(function() {
+		gene_autocomplete = new Awesomplete('input[name="gene_name"]', {minChars: 1, maxItems: Infinity});
+
+		Awesomplete.$('.dropdown-btn').addEventListener("click", function() {
+			if (gene_autocomplete.ul.childNodes.length === 0) {
+				gene_autocomplete.minChars = 0;
+				gene_autocomplete.evaluate();
+			}
+			else if (gene_autocomplete.ul.hasAttribute('hidden')) {
+				gene_autocomplete.open();
+			}
+			else {
+				gene_autocomplete.close();
+			}
+		});
+	});
+
 	$(document).on('change', 'select[name="tumor_type"], select[name="data_source"]', function() {
 		var tumor_type = $('select[name="tumor_type"]').val();
 		var data_source = $('select[name="data_source"]').val();
 
 		if (tumor_type && data_source) {
 			$.get('/omics/get_gene_names', {tumor_type: tumor_type, data_source: data_source}, function(data) {
-				var html = "";
-				data.forEach(function(gene_name) {
-					html += '<option>' + gene_name + '</option>';
-				});
-				$('select[name="gene_name"]').html(html);
+				gene_autocomplete.list = data;
+				$('input[name="gene_name"]').val('');
 			});
 		} else {
 			$('select[name="gene_name"]').html('');
@@ -73,6 +87,21 @@
 		text-decoration: none;
 	}
 	div#tips p {position:relative}
+
+	.awesomplete ul {
+		text-align: left;
+		overflow: auto;
+		max-height: 200px;
+	}
+	
+	.dropdown-btn {
+		margin-top: -10px;
+		height: 28px;
+	}
+
+	.dropdown-btn .caret {
+		margin-top: 10px;
+	}
 </style>
 <div style="float:left;width:95%;" class="well">
 This module visualizes the omics data from The Cancer Genome Atlas (TCGA) cancer cohorts. Below are the steps for omics visualization and comparison between different clinical groups.
@@ -104,12 +133,14 @@ This module visualizes the omics data from The Cancer Genome Atlas (TCGA) cancer
 		<h4>Step 3: Choose the Gene / Protein / MicroRNA / Methylation Site to Visualize<font color="red">*</font></h4>
 		<div id="tips"><h5><a href="#"><strong>Tips</strong><span>To jump directly to the gene/protein/microRNA of interest, select the dropdown list and type the gene/protein/microRNA name.</span></a></h5></div>
 		<div class="well">
-			<%= select_tag "gene_name" %>
+			<%= text_field_tag "gene_name" %>
+			<button class="dropdown-btn" type="button"><span class="caret"></span></button>
 		</div>
 	</div>
 	<div style="float:left;width:475px;margin-left:10px;" align="center">
 		<h4>Step 4: Choose the Clinical Variable (optional)</h4>
 		<div id="tips"><h5><a href="#"><strong>Tips</strong><span>Default view plot the distribution over all patients with the selected tumor type. Choose clinical variables to strafity patients accordingly to their clinical phenotypes.</span></a></h5></div>
+		<br>
 		<div class="well">
 			<%= select_tag "clinical_variable" %>
 		</div>
@@ -152,7 +183,7 @@ This module visualizes the omics data from The Cancer Genome Atlas (TCGA) cancer
 <script>
 	
 	$('#omics-visual-form').submit(function(e) {
-		if (!$('select[name="tumor_type"]').val() || !$('select[name="data_source"]').val() || !$('select[name="gene_name"]').val()) {
+		if (!$('select[name="tumor_type"]').val() || !$('select[name="data_source"]').val() || !$('input[name="gene_name"]').val()) {
 			$('#form_error_message_field').html("Must select both a tumor type, a data source, and a gene name.");
 			return false;
 		}
