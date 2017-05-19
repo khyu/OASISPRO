@@ -194,10 +194,10 @@ for (i in 1:nFolds) {
   XTune<-cbind(Xall[trainingSet,],YTrain)
   
   
-  if (table(YTrain)[1]<5){
-    stop("Too few observations in Group 1. Please reselect.")
-  } else if (table(YTrain)[2]<5){
-    stop("Too few observations in Group 2. Please reselect.")
+  if (sum(YTrain==0)<5){
+    stop("Too few observations in Group 1 (n < 5). Please reselect.")
+  } else if (sum(YTrain==1)<5){
+    stop("Too few observations in Group 2 (n < 5). Please reselect.")
   }
   
   if (featureSelectionMethod == "custom") { # custom
