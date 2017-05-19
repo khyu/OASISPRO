@@ -231,6 +231,7 @@ This module performs binary clinical phenotype classification on The Cancer Geno
 	</div>
 	<div style="float:left;width:375px;margin-left:10px;">
 		<h4>Step 3: Choose the Prediction Target<font color="red">*</font></h4>
+		<div id="tips"><a href="#"> <strong>Tips</strong><span>Please choose one of the targeted phenotypes from the drop-down list and include one or more values to Group 1 and Group 2. The system will build machine learning models that distinguish patients in the Group 1 from those in the Group 2 using the chosen omics type. Machine learning methods work better when there are more than 10 samples in each classification group.</span></a></div>
 		<div class="well">
 			<%= select_tag "prediction_target" %>
 			<div id="prediction_target_groups"></div>
@@ -242,7 +243,7 @@ This module performs binary clinical phenotype classification on The Cancer Geno
 		<%= render partial: 'batch' %>
 	</div>
 	<div style="float:left;width:490px; margin-left: 10px">
-		<h4>Step 5: Choose the Feature Selection Method<font color="red">*</font></h4><div id="tips"><h5><a href="#"><strong>Tips</strong><span>The following methods calculate the strength of association for each gene/protein in predicting the prediction target.</span></a></h5></div>
+		<h4>Step 5: Choose the Feature Selection Method<font color="red">*</font></h4><div id="tips"><h5><a href="#"><strong>Tips</strong><span>Please choose one of the methods from the drop-down list to calculate the strength of association for each gene/protein in predicting the prediction target.</span></a></h5></div>
 		<div class="well">
 			<%= select_tag "feature_selection_method", options_for_select(SiteConstants::FEATURE_SELECTION_METHOD.invert) %>
 			<br>Use the top <input type="text" name="num_top_features" value="10" style="width:30px;"> features for building the machine learning models.
@@ -252,7 +253,8 @@ This module performs binary clinical phenotype classification on The Cancer Geno
 
 	<br style="clear:both;">
 	<div style="float:left;width:375px;margin-left:10px;">
-		<h4>Step 6: Get Notified when the Analysis Completes (optional)</h4><div id="tips"><a href="#"> <strong>Tips</strong><span>To receive an e-mail when the analysis completes (optional). Suggested for k-fold, LOOCV, and analysis involving RNA-seq and DNA methylation data.</span></a></div>
+		<h4>Step 6: Get Notified when the Analysis Completes (optional)</h4>
+		<div id="tips"><a href="#"> <strong>Tips</strong><span>To receive an e-mail when the analysis completes (optional). Suggested for k-fold, LOOCV, or analysis involving RNA-seq or DNA methylation data.</span></a></div>
 		<div class="well">
 			E-mail: <input type="text" name="email" value="" style="width:300px;">
 		</div>
