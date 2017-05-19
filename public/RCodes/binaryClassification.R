@@ -156,9 +156,13 @@ if (partitionType == "random"){ # random
   nFolds<-1
 } else if (partitionType == "kfold"){ # k fold
   folds<-cvFolds(length(Y), K=nFolds)
+  trainingSet<-1:length(Y)
+  testSet<-1:length(Y)
 } else if (partitionType == "LOOCV"){ # LOOCV
   nFolds<-length(Y)
   folds<-cvFolds(length(Y), K=length(Y))
+  trainingSet<-1:length(Y)
+  testSet<-1:length(Y)
 } else { # batch
   trainingSet<-which(substr(iDs, 6, 7) %in% selectedBatches)
   testSet<-which(!(1:length(Y) %in% trainingSet))

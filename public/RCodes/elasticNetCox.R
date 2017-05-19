@@ -158,9 +158,13 @@ if (partitionType == "random"){ #random
   nFolds<-1
 } else if (partitionType == "kfold"){ # k fold
   folds<-cvFolds(length(survivedDays), K=nFolds)
+  trainingSet<-1:dim(Ymatrix)[1]
+  testSet<-1:dim(Ymatrix)[1]
 } else if (partitionType == "LOOCV"){ # LOOCV
   nFolds<-length(survivedDays)
   folds<-cvFolds(length(survivedDays), K=length(survivedDays))
+  trainingSet<-1:dim(Ymatrix)[1]
+  testSet<-1:dim(Ymatrix)[1]
 } else { #batch
   trainingSet<-which(substr(iDs, 6, 7) %in% selectedBatches)
   testSet<-which(!(1:length(survivedDays) %in% trainingSet))
