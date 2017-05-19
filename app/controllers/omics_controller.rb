@@ -13,7 +13,7 @@ class OmicsController < ApplicationController
 			Dir.mkdir("public/sessions") unless File.exists?("public/sessions")
 			Dir.mkdir("public/sessions/#{@session_id}") unless File.exists?("public/sessions/#{@session_id}")
 
-			@command = "Rscript public/RCodes/omicsVisualization.R #{tumor_type} #{data_source} #{gene_name} #{clinical_variable} #{@session_id}"
+			@command = "Rscript public/RCodes/omicsVisualization.R #{tumor_type} #{data_source} '#{gene_name}' #{clinical_variable} #{@session_id}"
 			system(@command)
 			@tumor_type = tumor_type
 			@data_source = data_source
