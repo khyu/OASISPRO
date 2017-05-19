@@ -49,6 +49,7 @@
 		if (tumor_type && data_source) {
 			$.get('/omics/get_gene_names', {tumor_type: tumor_type, data_source: data_source}, function(data) {
 				gene_autocomplete.list = data;
+				gene_autocomplete.evaluate();
 				$('input[name="gene_name"]').val('');
 			});
 		} else {
