@@ -104,6 +104,8 @@ omicsIDFile<-read.table(paste("../data/", tumorType, "_", dataType, "_ids.txt", 
 omics<-omicsFile[substr(omicsIDFile[,1],14,15)=="01",]
 omicsName<-omicsIDFile[substr(omicsIDFile[,1],14,15)=="01",]
 omicsID<-substr(omicsName, 1, 12)
+omics<-omics[!duplicated(omicsID),]
+omicsID<-omicsID[!duplicated(omicsID)]
 
 clinicalFile<-read.table(paste("../data/nationwidechildrens.org_clinical_patient_", tumorType, ".txt", sep=""), stringsAsFactors = F, quote="", sep="\t")
 clinical<-clinicalFile[4:dim(clinicalFile)[1],]
@@ -128,9 +130,10 @@ event<-event[(clinicalID %in% IDintersection)]
 if (sysargs[10] == "-1") {
   X<-omics
 } else {
-  #X<-cbind(rnaSeq,clinical[,c(7,8,13,15,17,18,19,20,26,27,28,29,30,44,45,52)])
-  clinicalVarColNums<-which(colnames(clinical) %in% clinicalVariables)
-  X<-cbind(omics, clinical[,clinicalVarColNums])
+  clinicalFactors<-clinical[,(clinicalVariables+1)]
+  clinicalFactors[]<-lapply(clinicalFactors, as.factor)
+  clinicalFactors[]<-sapply(clinicalFactors, as.numeric)
+  X<-cbind(omics, clinicalFactors)
 }
 
 survivedDays<-ifelse(substr(survivedDays,1,1)=="[", -1, survivedDays)
@@ -308,11 +311,11 @@ write(paste("Finished building survival groups",percentageFinish,sep=","),milest
 # output feature weights
 coefFit<-as.data.frame(as.matrix(coef(cv.tr, s=lambdaFit)))
 coefFit<-cbind(0,coefFit)
-rownames(coefFit)<-make.names(omicsNameFile, unique=T)
+coefFit[,1]<-rownames(coefFit)
+coefFit[1:length(omicsNameFile),1]<-omicsNameFile[,1]
 coefFitNonZero<-coefFit[coefFit[,2]!=0,]
 coefFitNonZero<-coefFitNonZero[order(-coefFitNonZero[,2]),]
 coefFitOutput<-rbind(coefFitNonZero,coefFit[coefFit[,2]==0,])
-coefFitOutput[,1]<-rownames(coefFitOutput)
 
 write.table(coefFitOutput,paste("public/sessions/",sessionID,"/featureWeights.txt",sep=""),quote=F, sep=",",row.names=F, col.names=F)
 

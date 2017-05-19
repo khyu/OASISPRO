@@ -91,7 +91,7 @@ This module performs survival analysis on The Cancer Genome Atlas (TCGA) cancer 
 <br><b>Step 3:</b> (Optional) Choose clinical variables to be included in the survival model.
 <br><b>Step 4:</b> Choose the method to partition the data set into distinct training and test sets. The survival model is generated and fine-tuned using the training data, while the test data are reserved to evaluate the performance of the model.
 <br><b>Step 5:</b> Select the ranges of regularization parameters. The alpha variable controls the relative weights of L1 and L2 regularization, and lambda variable balances the coefficient and deviation.
-<br><b>Step 6:</b> Click "Run" to generate the analysis. The progress of model generation and evaluation will be shown on this page, and the evaluation results on the test set will be presented once available. Typically proteomics or microRNA data take less than a minute, while RNA-sequencing and methylation data can take significantly longer.
+<br><b>Step 6:</b> Click "Run" to generate the analysis. The progress of model generation and evaluation will be shown on this page, and the evaluation results on the test set will be presented once available. Typically proteomics or microRNA data take less than a minute, while RNA-sequencing data can take significantly longer.
 </div>
 <br>
 <form id="generate_survival_analysis_form" method="post" action="/analysis/survival#progressbar">
