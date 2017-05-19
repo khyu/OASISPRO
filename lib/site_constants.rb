@@ -170,7 +170,7 @@ module SiteConstants
 		'days_to_birth' => 'c',
 		'days_to_death' => 'c',
 		'days_to_initial_pathologic_diagnosis' => 'c',
-		'days_to_last_followup' => 'd',
+		'days_to_last_followup' => 'c',
 		'diffuse_architecture' => 'd',
 		'disease_code' => 'd',
 		'extranodal_involvement' => 'd',
