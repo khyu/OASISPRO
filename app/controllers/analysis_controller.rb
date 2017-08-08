@@ -89,6 +89,11 @@ class AnalysisController < ApplicationController
 			File.write("public/sessions/#{params[:session_id]}/outcomeLabel1.txt", params[:prediction_target_group1].join("\n") + "\n")
 			File.write("public/sessions/#{params[:session_id]}/outcomeLabel2.txt", params[:prediction_target_group2].join("\n") + "\n")
 
+			
+			File.write("public/sessions/#{params[:session_id]}/mlparameters.txt", (params[:ml_methods1] || "off") + "\n" + (params[:ml_methods2] || "off") + "\n" + (params[:ml_methods3] || "off") + "\n" + (params[:ml_methods4] || "off") + "\n" + (params[:ml_methods5] || "off") + "\n" + (params[:ml_methods6] || "off") + "\n" + (params[:ml_methods7] || "off") + "\n" + (params[:ml_methods8] || "off") + "\n" + (params[:ml_methods9] || "off") + "\n" + (params[:ml_methods10] || "off") + "\n")
+			File.write("public/sessions/#{params[:session_id]}/mlparameters.txt", params[:ml1laplace] + "\n" + params[:ml2treedep] + "\n" + params[:ml2cp] + "\n" + params[:ml3treedep] + "\n" + params[:ml4bs] + "\n" + params[:ml5ntrees] + "\n" + params[:ml6ntrees] + "\n" + params[:ml7costmin] + "\n" + params[:ml7costmax] + "\n" + params[:ml8costmin] + "\n" + params[:ml8costmax] + "\n" + params[:ml9costmin] + "\n" + params[:ml9costmax] + "\n" + params[:ml10costmin] + "\n" + params[:ml10costmax] + "\n", mode: 'a')
+
+
 			if params[:training_percentage].present?
 				params[:training_percentage] = Float(params[:training_percentage])/100
 			else

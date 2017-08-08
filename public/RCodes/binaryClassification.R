@@ -65,8 +65,9 @@ if (substr(osType,1,5) == "Linux"){ ## google cloud, get ip address
 argsFileName<-paste("public/sessions/",sessionID,"/args.txt",sep="")
 write(sysargs,argsFileName)
 
+mlParameters<-read.table(paste("public/sessions/",sessionID,"/mlparameters.txt",sep=""), stringsAsFactors=F)
 
-AUCs<-rep(0,12)
+AUCs<-rep(0,10)
 
 print (featureSelectionMethod)
 print (numFeatures)
@@ -247,8 +248,10 @@ for (i in 1:nFolds) {
     subsetFeatures<-cutoff.k(weights, numFeatures)
     X<-Xall[,subsetFeatures]
   }
-  
-  write.table(weightsOutput,paste("public/sessions/",sessionID,"/featureWeights.txt",sep=""),quote=F, sep=",",row.names=F, col.names=F)
+  if (nFolds>1){
+    write.table(c(paste("Fold: ",i,sep="")),paste("public/sessions/",sessionID,"/featureWeightsAll.txt",sep=""),quote=F, sep=",",row.names=F, col.names=F,append=T)
+  }
+  write.table(weightsOutput,paste("public/sessions/",sessionID,"/featureWeightsAll.txt",sep=""),quote=F, sep=",",row.names=F, col.names=F,append=T)
 
 
   if (nFolds>1){
@@ -259,87 +262,98 @@ for (i in 1:nFolds) {
     write(paste("Finished feature selection",round(percentageFinish,0),sep=","),milestonesFileName,append=T)
   }
   
-
+  # fit naive Bayes with/without laplace smoothing
+  if (mlParameters[1,1]=="on"){
+    x.nb<-naiveBayes(X[trainingSet,],Y[trainingSet], laplace = as.numeric(mlParameters[11,1]))
+    x.nb.prob[testSet,] <- predict(x.nb, type="raw", newdata=X[testSet,], probability = TRUE)
+  }
+  
   # fit recursive partitioning tree
-  x.rp <- rpart(Y[trainingSet]~., data=X[trainingSet,])
-  x.rp.pred <- predict(x.rp, X[testSet,], type="class")
-  x.rp.prob[testSet,] <- predict(x.rp, X[testSet,], type="prob")
+  if (mlParameters[2,1]=="on"){
+    x.rp <- rpart(Y[trainingSet]~., data=X[trainingSet,], control=rpart.control(maxdepth=as.numeric(mlParameters[12,1]), cp=as.numeric(mlParameters[13,1])))
+    x.rp.pred <- predict(x.rp, X[testSet,], type="class")
+    x.rp.prob[testSet,] <- predict(x.rp, X[testSet,], type="prob")
+  }
   
   # fit conditional inference trees
-  x.ct <- ctree(Y[trainingSet]~., data=X[trainingSet,])
-  x.ct.pred <- predict(x.ct, X[testSet,])
-  x.ct.prob[testSet,] <- 1- unlist(treeresponse(x.ct, X[testSet,]), use.names=F)[seq(1,nrow(X[testSet,])*2,2)]
+  if (mlParameters[3,1]=="on"){
+    x.ct <- ctree(Y[trainingSet]~., data=X[trainingSet,], control=ctree_control(maxdepth=as.numeric(mlParameters[14,1])))
+    x.ct.pred <- predict(x.ct, X[testSet,])
+    x.ct.prob[testSet,] <- 1- unlist(treeresponse(x.ct, X[testSet,]), use.names=F)[seq(1,nrow(X[testSet,])*2,2)]
+  }
+  
+  # fit bagging (bootstrap aggregating)
+  if (mlParameters[4,1]=="on"){
+    x.ip <- bagging(Y[trainingSet]~., data=X[trainingSet,], nbagg=as.numeric(mlParameters[15,1]))
+    x.ip.prob[testSet,] <- predict(x.ip, type="prob", newdata=X[testSet,])
+  }
+  
+  # fit random forest
+  if (mlParameters[5,1]=="on"){
+    x.rf<-randomForest(X[trainingSet,],Y[trainingSet],ntree=as.numeric(mlParameters[16,1]))
+    x.rf.prob[testSet,] <- predict(x.rf, type="prob", newdata=X[testSet,], probability = TRUE)
+  }
   
   # fit random forest with conditional inference trees
-  x.cf <- cforest(Y[trainingSet]~., data=X[trainingSet,], control = cforest_unbiased(mtry = ncol(X)-2))
-  x.cf.pred <- predict(x.cf, newdata=X[testSet,])
-  x.cf.prob[testSet,] <- 1- unlist(treeresponse(x.cf, X[testSet,]), use.names=F)[seq(1,nrow(X[testSet,])*2,2)]
-
-  # fit bagging (bootstrap aggregating)
-  x.ip <- bagging(Y[trainingSet]~., data=X[trainingSet,])
-  x.ip.prob[testSet,] <- predict(x.ip, type="prob", newdata=X[testSet,])
-
+  if (mlParameters[6,1]=="on"){
+    x.cf <- cforest(Y[trainingSet]~., data=X[trainingSet,], control = cforest_unbiased(ntree=as.numeric(mlParameters[17,1])))
+    x.cf.pred <- predict(x.cf, newdata=X[testSet,])
+    x.cf.prob[testSet,] <- 1- unlist(treeresponse(x.cf, X[testSet,]), use.names=F)[seq(1,nrow(X[testSet,])*2,2)]
+  }
+  
   # fit svm (support vector machine), radial
-  XTune<-cbind(X,Y)
-  x.svm.tune <- tune(svm, Y~., data = XTune[trainingSet,],
-                     ranges = list(gamma = 2^(-8:1), cost = 2^(0:4)),
-                     tunecontrol = tune.control(sampling = "fix"))
-  x.svm.tune
-  x.svm <- svm(Y[trainingSet]~., data = X[trainingSet,], cost=x.svm.tune$best.parameters[2], gamma=x.svm.tune$best.parameters[1], probability = TRUE)
-  x.svm.prob.tmp <- attr(predict(x.svm, type="prob", newdata=X[testSet,], probability = TRUE), "probabilities")
-  x.svm.prob[testSet,] <- x.svm.prob.tmp
-  colnames(x.svm.prob) <- colnames(x.svm.prob.tmp)
-
+  if (mlParameters[7,1]=="on"){
+    XTune<-cbind(X,Y)
+    x.svm.tune <- tune(svm, Y~., data = XTune[trainingSet,],
+                      ranges = list(gamma = 2^(-8:1), cost = 2^(as.numeric(mlParameters[18,1]):as.numeric(mlParameters[19,1]))),
+                      tunecontrol = tune.control(sampling = "fix"))
+    #x.svm.tune
+    x.svm <- svm(Y[trainingSet]~., data = X[trainingSet,], cost=x.svm.tune$best.parameters[2], gamma=x.svm.tune$best.parameters[1], probability = TRUE)
+    x.svm.prob.tmp <- attr(predict(x.svm, type="prob", newdata=X[testSet,], probability = TRUE), "probabilities")
+    x.svm.prob[testSet,] <- x.svm.prob.tmp
+    colnames(x.svm.prob) <- colnames(x.svm.prob.tmp)
+  }
+  
   # fit svm (support vector machine), linear
-  XTune<-cbind(X,Y)
-  x.svm.tune <- tune(svm, Y~., data = XTune[trainingSet,],
-                     ranges = list(gamma = 2^(-8:1), cost = 2^(0:4)),
-                     tunecontrol = tune.control(sampling = "fix"), kernel = "linear")
-  x.svm.tune
-  x.svm.l <- svm(Y[trainingSet]~., data = X[trainingSet,], kernel = "linear", cost=x.svm.tune$best.parameters[2], gamma=x.svm.tune$best.parameters[1], probability = TRUE)
-  x.svm.l.prob.tmp <- attr(predict(x.svm.l, type="prob", newdata=X[testSet,], probability = TRUE), "probabilities")
-  x.svm.l.prob[testSet,] <- x.svm.l.prob.tmp
-  colnames(x.svm.l.prob) <- colnames(x.svm.l.prob.tmp)
-
+  if (mlParameters[8,1]=="on"){
+    XTune<-cbind(X,Y)
+    x.svm.tune <- tune(svm, Y~., data = XTune[trainingSet,],
+                      ranges = list(gamma = 2^(-8:1), cost = 2^(as.numeric(mlParameters[20,1]):as.numeric(mlParameters[21,1]))),
+                      tunecontrol = tune.control(sampling = "fix"), kernel = "linear")
+    #x.svm.tune
+    x.svm.l <- svm(Y[trainingSet]~., data = X[trainingSet,], kernel = "linear", cost=x.svm.tune$best.parameters[2], gamma=x.svm.tune$best.parameters[1], probability = TRUE)
+    x.svm.l.prob.tmp <- attr(predict(x.svm.l, type="prob", newdata=X[testSet,], probability = TRUE), "probabilities")
+    x.svm.l.prob[testSet,] <- x.svm.l.prob.tmp
+    colnames(x.svm.l.prob) <- colnames(x.svm.l.prob.tmp)
+  }
+  
   # fit svm (support vector machine), polynomial
-  XTune<-cbind(X,Y)
-  x.svm.tune <- tune(svm, Y~., data = XTune[trainingSet,],
-                     ranges = list(gamma = 2^(-8:1), cost = 2^(0:4)),
-                     tunecontrol = tune.control(sampling = "fix"), kernel = "polynomial")
-  x.svm.tune
-  x.svm.p <- svm(Y[trainingSet]~., data = X[trainingSet,], kernel = "polynomial", cost=x.svm.tune$best.parameters[2], gamma=x.svm.tune$best.parameters[1], probability = TRUE)
-  x.svm.p.prob.tmp <- attr(predict(x.svm.p, type="prob", newdata=X[testSet,], probability = TRUE), "probabilities")
-  x.svm.p.prob[testSet,] <- x.svm.p.prob.tmp
-  colnames(x.svm.p.prob) <- colnames(x.svm.p.prob.tmp)
-
+  if (mlParameters[9,1]=="on"){
+    XTune<-cbind(X,Y)
+    x.svm.tune <- tune(svm, Y~., data = XTune[trainingSet,],
+                       ranges = list(gamma = 2^(-8:1), cost = 2^(as.numeric(mlParameters[22,1]):as.numeric(mlParameters[23,1]))),
+                       tunecontrol = tune.control(sampling = "fix"), kernel = "polynomial")
+    #x.svm.tune
+    x.svm.p <- svm(Y[trainingSet]~., data = X[trainingSet,], kernel = "polynomial", cost=x.svm.tune$best.parameters[2], gamma=x.svm.tune$best.parameters[1], probability = TRUE)
+    x.svm.p.prob.tmp <- attr(predict(x.svm.p, type="prob", newdata=X[testSet,], probability = TRUE), "probabilities")
+    x.svm.p.prob[testSet,] <- x.svm.p.prob.tmp
+    colnames(x.svm.p.prob) <- colnames(x.svm.p.prob.tmp)
+  }
+  
   # fit svm (support vector machine), sigmoid
-  XTune<-cbind(X,Y)
-  x.svm.tune <- tune(svm, Y~., data = XTune[trainingSet,],
-                     ranges = list(gamma = 2^(-8:1), cost = 2^(0:4)),
-                     tunecontrol = tune.control(sampling = "fix"), kernel = "linear")
-  x.svm.tune
-  x.svm.s <- svm(Y[trainingSet]~., data = X[trainingSet,], kernel = "linear", cost=x.svm.tune$best.parameters[2], gamma=x.svm.tune$best.parameters[1], probability = TRUE)
-  x.svm.s.prob.tmp <- attr(predict(x.svm.l, type="prob", newdata=X[testSet,], probability = TRUE), "probabilities")
-  x.svm.s.prob[testSet,] <- x.svm.s.prob.tmp
-  colnames(x.svm.s.prob) <- colnames(x.svm.s.prob.tmp)
-
-  # shallow decision tree
-  dep=10
-  x.dt<-rpart(Y[trainingSet]~.,X[trainingSet,], control=rpart.control(minsplit=0, minbucket=0,cp=-1, maxcompete=0, maxsurrogate=0, usesurrogate=0, xval=0,maxdepth=dep))
-  x.dt.prob[testSet,] <- predict(x.dt, type="prob", newdata=X[testSet,], probability = TRUE)
-
-  # fit random forest
-  x.rf<-randomForest(X[trainingSet,],Y[trainingSet])
-  x.rf.prob[testSet,] <- predict(x.rf, type="prob", newdata=X[testSet,], probability = TRUE)
-
-  # fit naive Bayes
-  x.nb<-naiveBayes(X[trainingSet,],Y[trainingSet])
-  x.nb.prob[testSet,] <- predict(x.nb, type="raw", newdata=X[testSet,], probability = TRUE)
-
-  # fit naive Bayes with laplace smoothing
-  x.nb.l<-naiveBayes(X[trainingSet,],Y[trainingSet], laplace = 3)
-  x.nb.l.prob[testSet,] <- predict(x.nb.l, type="raw", newdata=X[testSet,], probability = TRUE)
-
+  if (mlParameters[10,1]=="on"){
+    XTune<-cbind(X,Y)
+    x.svm.tune <- tune(svm, Y~., data = XTune[trainingSet,],
+                       ranges = list(gamma = 2^(-8:1), cost = 2^(as.numeric(mlParameters[24,1]):as.numeric(mlParameters[25,1]))),
+                       tunecontrol = tune.control(sampling = "fix"), kernel = "linear")
+    #x.svm.tune
+    x.svm.s <- svm(Y[trainingSet]~., data = X[trainingSet,], kernel = "linear", cost=x.svm.tune$best.parameters[2], gamma=x.svm.tune$best.parameters[1], probability = TRUE)
+    x.svm.s.prob.tmp <- attr(predict(x.svm.l, type="prob", newdata=X[testSet,], probability = TRUE), "probabilities")
+    x.svm.s.prob[testSet,] <- x.svm.s.prob.tmp
+    colnames(x.svm.s.prob) <- colnames(x.svm.s.prob.tmp)
+  }
+  
+  
   percentageFinish<-percentageFinish+(percentageStep/2)
   if (nFolds>1){
     print(paste(paste("Fold ",i,": Finished prediction",sep=""),round(percentageFinish,0),sep=","))
@@ -350,6 +364,8 @@ for (i in 1:nFolds) {
   }
 }
 
+write.table(weightsOutput,paste("public/sessions/",sessionID,"/featureWeights.txt",sep=""),quote=F, sep=",",row.names=F, col.names=F)
+
 ## plot ROC curves
 if (nFolds>1){ # kfold, LOOCV
   testSet=1:length(Y)
@@ -359,89 +375,107 @@ if (length(testSet)<5){
   stop("Too few observations in the test set. Please reselect training / test partition.")
 }
 
+
+rocPlot<-ggplot()
+# naive Bayes
+if (mlParameters[1,1]=="on"){
+  x.nb.prob.rocr <- prediction(x.nb.prob[testSet,2], Y[testSet])
+  x.nb.perf <- performance(x.nb.prob.rocr, "tpr","fpr")
+  performance(x.nb.prob.rocr,"auc")@y.values
+  AUCs[1]<-unlist(performance(x.nb.prob.rocr,"auc")@y.values)
+  d1 <- data.frame(x1=x.nb.perf@x.values[[1]], y1=x.nb.perf@y.values[[1]], Methods="NB")
+  rocPlot<-rocPlot + geom_path(aes(x1, y1, colour=Methods), d1)
+}
+
 # rpart
-x.rp.prob.rocr <- prediction(x.rp.prob[testSet,2], Y[testSet])
-x.rp.perf <- performance(x.rp.prob.rocr, "tpr","fpr")
-performance(x.rp.prob.rocr,"auc")@y.values
-AUCs[1]<-unlist(performance(x.rp.prob.rocr,"auc")@y.values)
-d1 <- data.frame(x1=x.rp.perf@x.values[[1]], y1=x.rp.perf@y.values[[1]], Methods="Recursive Partitioning Trees")
+if (mlParameters[2,1]=="on"){
+  x.rp.prob.rocr <- prediction(x.rp.prob[testSet,2], Y[testSet])
+  x.rp.perf <- performance(x.rp.prob.rocr, "tpr","fpr")
+  performance(x.rp.prob.rocr,"auc")@y.values
+  AUCs[2]<-unlist(performance(x.rp.prob.rocr,"auc")@y.values)
+  d2 <- data.frame(x1=x.rp.perf@x.values[[1]], y1=x.rp.perf@y.values[[1]], Methods="Recursive Partitioning Trees")
+  rocPlot<-rocPlot + geom_path(aes(x1, y1, colour=Methods), d2)
+}
 
 # ctree
-x.ct.prob.rocr <- prediction(x.ct.prob[testSet,], Y[testSet])
-x.ct.perf <- performance(x.ct.prob.rocr, "tpr","fpr")
-performance(x.ct.prob.rocr,"auc")@y.values
-AUCs[2]<-unlist(performance(x.ct.prob.rocr,"auc")@y.values)
-d2 <- data.frame(x1=x.ct.perf@x.values[[1]], y1=x.ct.perf@y.values[[1]], Methods="CITs")
-
-# cforest
-x.cf.prob.rocr <- prediction(x.cf.prob[testSet,], Y[testSet])
-x.cf.perf <- performance(x.cf.prob.rocr, "tpr","fpr")
-performance(x.cf.prob.rocr,"auc")@y.values
-AUCs[3]<-unlist(performance(x.cf.prob.rocr,"auc")@y.values)
-d3 <- data.frame(x1=x.cf.perf@x.values[[1]], y1=x.cf.perf@y.values[[1]], Methods="Random Forest with CITs")
+if (mlParameters[3,1]=="on"){
+  x.ct.prob.rocr <- prediction(x.ct.prob[testSet,], Y[testSet])
+  x.ct.perf <- performance(x.ct.prob.rocr, "tpr","fpr")
+  performance(x.ct.prob.rocr,"auc")@y.values
+  AUCs[3]<-unlist(performance(x.ct.prob.rocr,"auc")@y.values)
+  d3 <- data.frame(x1=x.ct.perf@x.values[[1]], y1=x.ct.perf@y.values[[1]], Methods="CITs")
+  rocPlot<-rocPlot + geom_path(aes(x1, y1, colour=Methods), d3)
+}
 
 # bagging
-x.ip.prob.rocr <- prediction(x.ip.prob[testSet,2], Y[testSet])
-x.ip.perf <- performance(x.ip.prob.rocr, "tpr","fpr")
-performance(x.ip.prob.rocr,"auc")@y.values
-AUCs[4]<-unlist(performance(x.ip.prob.rocr,"auc")@y.values)
-d4 <- data.frame(x1=x.ip.perf@x.values[[1]], y1=x.ip.perf@y.values[[1]], Methods="Bagging")
-
-# svm
-x.svm.prob.rocr <- prediction(x.svm.prob[testSet,"1"], Y[testSet])
-x.svm.perf <- performance(x.svm.prob.rocr, "tpr","fpr")
-performance(x.svm.prob.rocr,"auc")@y.values
-AUCs[5]<-unlist(performance(x.svm.prob.rocr,"auc")@y.values)
-d5 <- data.frame(x1=x.svm.perf@x.values[[1]], y1=x.svm.perf@y.values[[1]], Methods="SVMs with Gaussian Kernel")
-
-# svm, linear
-x.svm.l.prob.rocr <- prediction(x.svm.l.prob[testSet,"1"], Y[testSet])
-x.svm.l.perf <- performance(x.svm.l.prob.rocr, "tpr","fpr")
-performance(x.svm.l.prob.rocr,"auc")@y.values
-AUCs[6]<-unlist(performance(x.svm.l.prob.rocr,"auc")@y.values)
-d6 <- data.frame(x1=x.svm.l.perf@x.values[[1]], y1=x.svm.l.perf@y.values[[1]], Methods="SVMs with Linear Kernel")
-
-# svm, polynomial
-x.svm.p.prob.rocr <- prediction(x.svm.p.prob[testSet,"1"], Y[testSet])
-x.svm.p.perf <- performance(x.svm.p.prob.rocr, "tpr","fpr")
-performance(x.svm.p.prob.rocr,"auc")@y.values
-AUCs[7]<-unlist(performance(x.svm.p.prob.rocr,"auc")@y.values)
-d7 <- data.frame(x1=x.svm.p.perf@x.values[[1]], y1=x.svm.p.perf@y.values[[1]], Methods="SVMs with Polynomial Kernel")
-
-# svm, sigmoid
-x.svm.s.prob.rocr <- prediction(x.svm.s.prob[testSet,"1"], Y[testSet])
-x.svm.s.perf <- performance(x.svm.s.prob.rocr, "tpr","fpr")
-performance(x.svm.s.prob.rocr,"auc")@y.values
-AUCs[8]<-unlist(performance(x.svm.s.prob.rocr,"auc")@y.values)
-d8 <- data.frame(x1=x.svm.s.perf@x.values[[1]], y1=x.svm.s.perf@y.values[[1]], Methods="SVMs with Sigmoid Kernel")
-
-# shallow decision trees
-x.dt.prob.rocr <- prediction(x.dt.prob[testSet,2], Y[testSet])
-x.dt.perf <- performance(x.dt.prob.rocr, "tpr","fpr")
-performance(x.dt.prob.rocr,"auc")@y.values
-AUCs[9]<-unlist(performance(x.dt.prob.rocr,"auc")@y.values)
-d9 <- data.frame(x1=x.dt.perf@x.values[[1]], y1=x.dt.perf@y.values[[1]], Methods="Shallow Decision Trees")
+if (mlParameters[4,1]=="on"){
+  x.ip.prob.rocr <- prediction(x.ip.prob[testSet,2], Y[testSet])
+  x.ip.perf <- performance(x.ip.prob.rocr, "tpr","fpr")
+  performance(x.ip.prob.rocr,"auc")@y.values
+  AUCs[4]<-unlist(performance(x.ip.prob.rocr,"auc")@y.values)
+  d4 <- data.frame(x1=x.ip.perf@x.values[[1]], y1=x.ip.perf@y.values[[1]], Methods="Bagging")
+  rocPlot<-rocPlot + geom_path(aes(x1, y1, colour=Methods), d4)
+}
 
 # random forest
-x.rf.prob.rocr <- prediction(x.rf.prob[testSet,2], Y[testSet])
-x.rf.perf <- performance(x.rf.prob.rocr, "tpr","fpr")
-performance(x.rf.prob.rocr,"auc")@y.values
-AUCs[10]<-unlist(performance(x.rf.prob.rocr,"auc")@y.values)
-d10 <- data.frame(x1=x.rf.perf@x.values[[1]], y1=x.rf.perf@y.values[[1]], Methods="Random Forest")
+if (mlParameters[5,1]=="on"){
+  x.rf.prob.rocr <- prediction(x.rf.prob[testSet,2], Y[testSet])
+  x.rf.perf <- performance(x.rf.prob.rocr, "tpr","fpr")
+  performance(x.rf.prob.rocr,"auc")@y.values
+  AUCs[5]<-unlist(performance(x.rf.prob.rocr,"auc")@y.values)
+  d5 <- data.frame(x1=x.rf.perf@x.values[[1]], y1=x.rf.perf@y.values[[1]], Methods="Random Forest")
+  rocPlot<-rocPlot + geom_path(aes(x1, y1, colour=Methods), d5)
+}
 
-# naive Bayes
-x.nb.prob.rocr <- prediction(x.nb.prob[testSet,2], Y[testSet])
-x.nb.perf <- performance(x.nb.prob.rocr, "tpr","fpr")
-performance(x.nb.prob.rocr,"auc")@y.values
-AUCs[11]<-unlist(performance(x.nb.prob.rocr,"auc")@y.values)
-d11 <- data.frame(x1=x.nb.perf@x.values[[1]], y1=x.nb.perf@y.values[[1]], Methods="NB")
+# cforest
+if (mlParameters[6,1]=="on"){
+  x.cf.prob.rocr <- prediction(x.cf.prob[testSet,], Y[testSet])
+  x.cf.perf <- performance(x.cf.prob.rocr, "tpr","fpr")
+  performance(x.cf.prob.rocr,"auc")@y.values
+  AUCs[6]<-unlist(performance(x.cf.prob.rocr,"auc")@y.values)
+  d6 <- data.frame(x1=x.cf.perf@x.values[[1]], y1=x.cf.perf@y.values[[1]], Methods="Random Forest with CITs")
+  rocPlot<-rocPlot + geom_path(aes(x1, y1, colour=Methods), d6)
+}
 
-# naive Bayes with Laplace smoothing
-x.nb.l.prob.rocr <- prediction(x.nb.l.prob[testSet,2], Y[testSet])
-x.nb.l.perf <- performance(x.nb.l.prob.rocr, "tpr","fpr")
-performance(x.nb.l.prob.rocr,"auc")@y.values
-AUCs[12]<-unlist(performance(x.nb.l.prob.rocr,"auc")@y.values)
-d12 <- data.frame(x1=x.nb.l.perf@x.values[[1]], y1=x.nb.l.perf@y.values[[1]], Methods="NB with Laplace Smoothing")
+# svm
+if (mlParameters[7,1]=="on"){
+  x.svm.prob.rocr <- prediction(x.svm.prob[testSet,"1"], Y[testSet])
+  x.svm.perf <- performance(x.svm.prob.rocr, "tpr","fpr")
+  performance(x.svm.prob.rocr,"auc")@y.values
+  AUCs[7]<-unlist(performance(x.svm.prob.rocr,"auc")@y.values)
+  d7 <- data.frame(x1=x.svm.perf@x.values[[1]], y1=x.svm.perf@y.values[[1]], Methods="SVMs with Gaussian Kernel")
+  rocPlot<-rocPlot + geom_path(aes(x1, y1, colour=Methods), d7)
+}
+
+# svm, linear
+if (mlParameters[8,1]=="on"){
+  x.svm.l.prob.rocr <- prediction(x.svm.l.prob[testSet,"1"], Y[testSet])
+  x.svm.l.perf <- performance(x.svm.l.prob.rocr, "tpr","fpr")
+  performance(x.svm.l.prob.rocr,"auc")@y.values
+  AUCs[8]<-unlist(performance(x.svm.l.prob.rocr,"auc")@y.values)
+  d8 <- data.frame(x1=x.svm.l.perf@x.values[[1]], y1=x.svm.l.perf@y.values[[1]], Methods="SVMs with Linear Kernel")
+  rocPlot<-rocPlot + geom_path(aes(x1, y1, colour=Methods), d8)
+}
+
+# svm, polynomial
+if (mlParameters[9,1]=="on"){
+  x.svm.p.prob.rocr <- prediction(x.svm.p.prob[testSet,"1"], Y[testSet])
+  x.svm.p.perf <- performance(x.svm.p.prob.rocr, "tpr","fpr")
+  performance(x.svm.p.prob.rocr,"auc")@y.values
+  AUCs[9]<-unlist(performance(x.svm.p.prob.rocr,"auc")@y.values)
+  d9 <- data.frame(x1=x.svm.p.perf@x.values[[1]], y1=x.svm.p.perf@y.values[[1]], Methods="SVMs with Polynomial Kernel")
+  rocPlot<-rocPlot + geom_path(aes(x1, y1, colour=Methods), d9)
+}
+
+# svm, sigmoid
+if (mlParameters[10,1]=="on"){
+  x.svm.s.prob.rocr <- prediction(x.svm.s.prob[testSet,"1"], Y[testSet])
+  x.svm.s.perf <- performance(x.svm.s.prob.rocr, "tpr","fpr")
+  performance(x.svm.s.prob.rocr,"auc")@y.values
+  AUCs[10]<-unlist(performance(x.svm.s.prob.rocr,"auc")@y.values)
+  d10 <- data.frame(x1=x.svm.s.perf@x.values[[1]], y1=x.svm.s.perf@y.values[[1]], Methods="SVMs with Sigmoid Kernel")
+  rocPlot<-rocPlot + geom_path(aes(x1, y1, colour=Methods), d10)
+}
 
 
 percentageFinish<-percentageFinish+2
@@ -460,33 +494,24 @@ if (dim(x.rp$frame)[1]>1) {
 }
 dev.off()
 
-## output ROC curves
-figureFileName<-paste("public/sessions/",sessionID,"/roc.png",sep="")
-png(filename=figureFileName, width=1000, height=500)
-ggplot() +
-  geom_path(aes(x1, y1, colour=Methods), d1) +
-  geom_path(aes(x1, y1, colour=Methods), d2) +
-  geom_line(aes(x1, y1, colour=Methods), d3) +
-  geom_line(aes(x1, y1, colour=Methods), d4) +
-  geom_line(aes(x1, y1, colour=Methods), d5) +
-  geom_line(aes(x1, y1, colour=Methods), d6) +
-  geom_line(aes(x1, y1, colour=Methods), d7) +
-  geom_line(aes(x1, y1, colour=Methods), d8) +
-  geom_line(aes(x1, y1, colour=Methods), d9) +
-  geom_line(aes(x1, y1, colour=Methods), d10) +
-  geom_line(aes(x1, y1, colour=Methods), d11) +
-  geom_line(aes(x1, y1, colour=Methods), d12) +
-  geom_line(aes(x1, x1), colour="#000000", d12) +
+rocPlot<-rocPlot + geom_abline(intercept=0, slope=1)
+
+rocPlot<-rocPlot + 
   theme(plot.title = element_text(size=24,face="bold"),legend.text=element_text(size=16), legend.title=element_blank(), axis.text=element_text(size=18), axis.title=element_text(size=24,face="bold")) +
   xlab("1 - Specificity") +
   ylab("Sensitivity") +
   ggtitle("ROC Curves for Machine Learning Models")
 
+
+## output ROC curves
+figureFileName<-paste("public/sessions/",sessionID,"/roc.png",sep="")
+png(filename=figureFileName, width=1000, height=500)
+print(rocPlot)
 # Close and save the PNG file.
 dev.off()
 
 # output AUC
-write.table(cbind(c('Recursive Partitioning Trees','Conditional Inference Trees (CITs)','Random Forest with CITs','Bagging','SVMs with Gaussian Kernel','SVMs with Linear Kernel','SVMs with Polynomial Kernel','SVMs with Sigmoid Kernel','Shallow Decision Trees','Random Forest','Naive Bayes','Naive Bayes with Laplace Smoothing'),AUCs),paste("public/sessions/",sessionID,"/AUCs.txt",sep=""),quote=F, sep=",",row.names=F, col.names=F)
+write.table(cbind(c("Naive Bayes","Recursive Partitioning Trees","Conditional Inference Trees (CITs)","Bagging","Breiman's Random Forest","Random Forest with CITs","SVMs with Gaussian Kernel","SVMs with Linear Kernel","SVMs with Polynomial Kernel","SVMs with Sigmoid Kernel"),AUCs),paste("public/sessions/",sessionID,"/AUCs.txt",sep=""),quote=F, sep=",",row.names=F, col.names=F)
 
 
 percentageFinish<-100

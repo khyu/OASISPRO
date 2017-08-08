@@ -168,10 +168,19 @@
 </script>
 <script language="JavaScript">
 	function toggle(source) {
-	  checkboxes = document.getElementsByName('feature_weights');
-	  for(var i=0, n=checkboxes.length;i<n;i++) {
-	    checkboxes[i].checked = source.checked;
-	  }
+		checkboxes = document.getElementsByName('feature_weights');
+		for(var i=0, n=checkboxes.length;i<n;i++) {
+			checkboxes[i].checked = source.checked;
+		}
+	}
+
+	function show_ml_parameters() {
+    	var x = document.getElementById('mlParameters');
+    	if (x.style.display === 'none') {
+        	x.style.display = 'block';
+    	} else {
+        	x.style.display = 'none';
+    	}
 	}
 </script>
 
@@ -252,8 +261,43 @@ This module performs binary clinical phenotype classification on The Cancer Geno
 	</div>
 
 	<br style="clear:both;">
+	<div style="float:left;width:600px;margin-left:10px;">
+		<h4>Step 6: Choose Machine Learning Methods and Parameters (optional)</h4>
+		<div id="tips"><a href="#"> <strong>Tips</strong><span>To select machine learning methods as well as the parameters to be used. Default parameters are displayed. Users can modify the parameters as needed.</span></a></div>
+		<div class="well">
+			<div style="width:300px;float:left;display:inline-block;">
+				<td style="width:50%;"><input type="checkbox" name="ml_methods1" CHECKED>Naive Bayes</input></td><p>
+					<td>Laplace smoothing: <input type="number" name="ml1laplace" value="0" style="width:50px;" min="0" max="1000000" required></td><p>
+				<td style="width:50%;"><input type="checkbox" name="ml_methods2" CHECKED>Recursive Partitioning Tree</input></td><p>
+					<td>Maximal tree depth: <input type="number" name="ml2treedep" value="10" style="width:50px;" min="1" max="1000000" required></td><p>
+					<td>Complexity parameter: <input type="number" name="ml2cp" value="0.01" style="width:50px;" min="0.00001" max="100" step="0.00001" required></td><p>
+				<td style="width:50%;"><input type="checkbox" name="ml_methods3" CHECKED>Conditional Inference Tree</input></td><p>
+					<td>Maximal tree depth: <input type="number" name="ml3treedep" value="10" style="width:50px;" min="1" max="1000000" required></td><p>
+				<td style="width:50%;"><input type="checkbox" name="ml_methods4" CHECKED>Bagging</input></td><p>
+					<td>Number of bootstrap replications: <input type="number" name="ml4bs" value="25" style="width:50px;" min="5" max="1000000" required></td><p>
+				<td style="width:50%;"><input type="checkbox" name="ml_methods5" CHECKED>Breiman's Random Forests</input></td><p>
+					<td>Number of trees: <input type="number" name="ml5ntrees" value="500" style="width:50px;" min="10" max="10000" required></td><p>
+				<td style="width:50%;"><input type="checkbox" name="ml_methods6" CHECKED>Random Forest with CITs</input></td><p>
+					<td>Number of trees: <input type="number" name="ml6ntrees" value="500" style="width:50px;" min="10" max="10000" required></td><p>
+			</div>
+			<div style="margin-left:315px;">
+				<td style="width:50%;"><input type="checkbox" name="ml_methods7" CHECKED>SVMs with Gaussian Kernel</input></td><p>
+					<td>log2(minimal cost in SVM tuning): <input type="number" name="ml7costmin" value="0" style="width:50px;" min="-10" max="100" required></td><p>
+					<td>log2(maximal cost in SVM tuning): <input type="number" name="ml7costmax" value="4" style="width:50px;" min="-10" max="100" required></td><p>
+				<td style="width:50%;"><input type="checkbox" name="ml_methods8" CHECKED>SVMs with Linear Kernel</input></td><p>
+					<td>log2(minimal cost in SVM tuning): <input type="number" name="ml8costmin" value="0" style="width:50px;" min="-10" max="100" required></td><p>
+					<td>log2(maximal cost in SVM tuning): <input type="number" name="ml8costmax" value="4" style="width:50px;" min="-10" max="100" required></td><p>
+				<td style="width:50%;"><input type="checkbox" name="ml_methods9" CHECKED>SVMs with Polynomial Kernel</input></td><p>
+					<td>log2(minimal cost in SVM tuning): <input type="number" name="ml9costmin" value="0" style="width:50px;" min="-10" max="100" required></td><p>
+					<td>log2(maximal cost in SVM tuning): <input type="number" name="ml9costmax" value="4" style="width:50px;" min="-10" max="100" required></td><p>
+				<td style="width:50%;"><input type="checkbox" name="ml_methods10" CHECKED>SVMs with Sigmoid Kernel</input></td><p>
+					<td>log2(minimal cost in SVM tuning): <input type="number" name="ml10costmin" value="0" style="width:50px;" min="-10" max="100" required></td><p>
+					<td>log2(maximal cost in SVM tuning): <input type="number" name="ml10costmax" value="4" style="width:50px;" min="-10" max="100" required></td><p>
+			</div>
+		</div>
+	</div>
 	<div style="float:left;width:375px;margin-left:10px;">
-		<h4>Step 6: Get Notified when the Analysis Completes (optional)</h4>
+		<h4>Step 7: Get Notified when the Analysis Completes (optional)</h4>
 		<div id="tips"><a href="#"> <strong>Tips</strong><span>To receive an e-mail when the analysis completes (optional). Suggested for k-fold, LOOCV, or analysis involving RNA-seq or DNA methylation data.</span></a></div>
 		<div class="well">
 			E-mail: <input type="text" name="email" value="" style="width:300px;">
@@ -265,7 +309,7 @@ This module performs binary clinical phenotype classification on The Cancer Geno
 		<input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>"></input>
 		<input type="hidden" name="session_id" value="<%= rand.to_s.sub("0.", "") %>">
 		<div id="form_error_message_field" style="color:red; margin-bottom:5px;"></div>
-		<h4>Step 7: Generate the Analysis<font color="red">*</font></h4><input type="submit" onClick="submitForm(); return true" value="Run!" name="generate" class="btn btn-primary" style="height:50px;font-size:16pt;" id="generate-analysis-button">
+		<h4>Step 8: Generate the Analysis<font color="red">*</font></h4><input type="submit" onClick="submitForm(); return true" value="Run!" name="generate" class="btn btn-primary" style="height:50px;font-size:16pt;" id="generate-analysis-button">
 	</div>
 	<br><font color="red">* = required</font>
 	<div id="progressbar" style="width:90%; margin-left:auto; margin-right:auto; margin-top:10px;"></div>
@@ -356,7 +400,7 @@ This module performs binary clinical phenotype classification on The Cancer Geno
 		</tr>
 	<% end %>
 	</table>
-	<input type="button" class="btn" onClick="resultsManager.run_stringdb()" value="Search String DB"> <a href="/sessions/<%= @sessionID%>/featureWeights.txt" target="_blank">Download feature weights</a>
+	<input type="button" class="btn" onClick="resultsManager.run_stringdb()" value="Search String DB"> <a href="/sessions/<%= @sessionID%>/featureWeightsAll.txt" target="_blank">Download feature weights</a>
 
 	<div style="visibility:hidden">
 		<form method="post" action="http://string-db.org/newstring_cgi/show_network_section.pl" target="_blank" enctype="multipart/form-data" id="stringdb_form">
