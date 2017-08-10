@@ -4,8 +4,8 @@ class AnalysisController < ApplicationController
 
 	def stage
 		if params[:done]
-			@tumor_type = "#{params[:tumor_type]}"
-			@data_source = "#{params[:data_source]}"
+			@tumor_type = SiteConstants::TUMOR_TYPES[params[:tumor_type].to_sym]
+			@data_source = SiteConstants::DATA_TYPES[params[:data_source].to_sym]
 			@prediction_target = "#{params[:prediction_target]}"
 			@partition = "#{params[:partition]}"
 			@var1 = "#{params[:var1]}"
@@ -66,6 +66,7 @@ class AnalysisController < ApplicationController
 				feature_selection_method: SiteConstants::FEATURE_SELECTION_METHOD.keys.map { |x| x.to_s },
 				num_top_features: 'INTEGER',
 				session_id: '*',
+				nCores: 'INTEGER',
 				email: '*'
 			}
 
@@ -116,8 +117,8 @@ class AnalysisController < ApplicationController
 
 	def survival
 		if params[:done]
-			@tumor_type = "#{params[:tumor_type]}"
-			@data_source = "#{params[:data_source]}"
+			@tumor_type = SiteConstants::TUMOR_TYPES[params[:tumor_type].to_sym]
+			@data_source = SiteConstants::DATA_TYPES[params[:data_source].to_sym]
 			@partition = "#{params[:partition]}"
 			@var1 = "#{params[:var1]}"
 			@var2 = "#{params[:var2]}"
@@ -160,6 +161,7 @@ class AnalysisController < ApplicationController
 				lambda_upper_bound: 'FLOAT',
 				clinical_variable_file: '*',
 				session_id: '*',
+				nCores: 'INTEGER',
 				email: '*'
 			}
 

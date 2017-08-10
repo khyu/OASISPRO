@@ -119,7 +119,7 @@ This module performs survival analysis on The Cancer Genome Atlas (TCGA) cancer 
 		<%= render partial: 'batch' %>
 	</div>
 	<div style="float:left;width:300px;margin-left:10px">
-		<h4>Step 5: Select the ranges of regularization parameters (alpha / lambda)<font color="red">*</font></h4>
+		<h4>Step 5: Select the Ranges of Machine Learning Parameters<font color="red">*</font></h4>
 		<div class="well">
 			<table class="noborder">
 				<tr>
@@ -145,6 +145,11 @@ This module performs survival analysis on The Cancer Genome Atlas (TCGA) cancer 
 						<input type="checkbox" name="optimal_lambda" value="true" style="margin: 0px">
 						Find the optimal lambda through cross-validation on the training set
 					</td>
+				</tr>
+			</table><p>
+			<table class="noborder">
+				<tr>
+					<td style="width:50%;"><b>Maximal number of CPU cores:</b> <input type="number" name="nCores" value="1" style="width:50px;" min="1" max="8" required></td>
 				</tr>
 			</table>
 		</div>
@@ -223,7 +228,7 @@ This module performs survival analysis on The Cancer Genome Atlas (TCGA) cancer 
 	<% end %>
 	</table>
 	<input type="button" class="btn" onClick="resultsManager.run_stringdb()" value="Search String DB">
-	<a href="/sessions/<%= @sessionID%>/featureWeights.txt" target="_blank">Download feature weights</a>
+	<a href="/sessions/<%= @sessionID%>/featureWeightsAll.txt" target="_blank">Download feature weights</a>
 
 	<div style="visibility:hidden">
 		<form method="post" action="http://string-db.org/newstring_cgi/show_network_section.pl" target="_blank" enctype="multipart/form-data" id="stringdb_form">

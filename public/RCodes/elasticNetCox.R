@@ -56,7 +56,8 @@ if (sysargs[10] != "-1") {
   clinicalVariablesFile<-read.table(paste("public/sessions/",sessionID,"/",sysargs[10],sep=""), sep="")
   clinicalVariables<-clinicalVariablesFile[,1]
 }
-userEmail<-sysargs[12]
+nCores<-as.numeric(sysargs[12])
+userEmail<-sysargs[13]
 if (is.na(userEmail)){
   userEmail<-""
 }
@@ -185,117 +186,84 @@ print("alphas done")
 
 percentageStep<-90/nFolds
 plotTest<-as.data.frame(cbind(0,survivedDays,event))
-for (fold in 1:nFolds) {
-  if (nFolds>1){ # kfold or loocv
-    trainingSet<-folds$subsets[,1][folds$which != fold]
-    testSet<-which(!(1:length(survivedDays) %in% trainingSet))
-    print(paste("Fold: ",fold,sep=""))
+
+
+if (nFolds==1 | nCores==1){
+  i=1
+  source("public/RCodes/parallelElasticNetCoxHelper.R")
+} else {
+  save.image(file=paste("public/sessions/",sessionID,"/parallelInput.RData",sep=""))
+  
+  pids<-NULL
+  for (i in 1:nFolds){
+    print (paste("UsedCores:",length(pids)))
+    print (pids)
+    while (length(pids)>=nCores) { # wait for some process to complete
+      for (processIndex in 1:length(pids)) {
+        if (processIndex>length(pids)) { # after removal of pid, the length(pids) in the for loop will not be updated
+          break
+        }
+        doneFlag<-system(paste("if [ $(ps -p ",pids[processIndex]," -o pid= | wc -l) -eq 0 ]; then echo 'done'; else echo 'not_done'; fi",sep=""),intern=T)
+        if (doneFlag=="done") {
+          print (paste("Done:",pids[processIndex]))
+          pids<-pids[-processIndex]
+        } else {
+          system("sleep 1")
+        }
+      }
+    }
+    system(paste("Rscript public/RCodes/parallelElasticNetCoxHelper.R ",nCores," ",sessionID," ",i,"& echo $! > ","public/sessions/",sessionID,"/parallelPS.txt",sep=""))
+    pid<-read.table(paste("public/sessions/",sessionID,"/parallelPS.txt",sep=""),stringsAsFactors=F)
+    pids<-c(pids,pid[1,1])
+    print (pids)
+    percentageFinish<-percentageFinish+(percentageStep/2)
+    print(paste(paste("Fold ",i,": Building machine learning models (parallel mode)",sep=""),round(percentageFinish,0),sep=","))
+    write(paste(paste("Fold ",i,": Building machine learning models (parallel mode)",sep=""),round(percentageFinish,0),sep=","),milestonesFileName,append=T)
   }
-
-  if (minLambda == -1) {
-    elasticnet<-lapply(alphas, function(alpha){cv.glmnet(as.matrix(X[trainingSet,]), Ymatrix[trainingSet,], alpha=alpha, family="cox")})
-  } else {
-    elasticnet<-lapply(alphas, function(alpha){cv.glmnet(as.matrix(X[trainingSet,]), Ymatrix[trainingSet,], lambda=seq(minLambda,maxLambda,0.0001), alpha=alpha, family="cox")})
-  }
-
-  percentageFinish<-percentageFinish+(percentageStep/2)
-  if (nFolds>1){
-    print(paste(paste("Fold ",fold,": Finished regularization",sep=""),round(percentageFinish,0),sep=","))
-    write(paste(paste("Fold ",fold,": Finished regularization",sep=""),round(percentageFinish,0),sep=","),milestonesFileName,append=T)
-  } else {
-    print(paste("Finished regularization",round(percentageFinish,0),sep=","))
-    write(paste("Finished regularization",round(percentageFinish,0),sep=","),milestonesFileName,append=T)
-  }
-
-  minCVMs<-rep(0,length(alphas))
-  for (i in 1:length(alphas)) {
-    minCVMs[i]<-min(elasticnet[[i]]$cvm[2:length(elasticnet[[i]]$cvm)])
-  }
-  optimalAlphaIndices<-which(minCVMs==min(minCVMs))
-  optimalAlphaIndex<-optimalAlphaIndices[1]
-  cv.tr<-cv.glmnet(as.matrix(X[trainingSet,]),Ymatrix[trainingSet,],family='cox',alpha=alphas[optimalAlphaIndex])
-  if (cv.tr$lambda.min==cv.tr$lambda[1]){
-    lambdaFit<-cv.tr$lambda[2]
-  } else {
-    lambdaFit<-cv.tr$lambda.min
-  }
-  predAll<-predict(cv.tr,as.matrix(X),s=lambdaFit,type='response')
-  predTrain<-predict(cv.tr,as.matrix(X[trainingSet,]),s=lambdaFit,type='response')
-  predTest<-predict(cv.tr,as.matrix(X[testSet,]),s=lambdaFit,type='response')
-
-  percentageFinish<-percentageFinish+(percentageStep/2)
-  if (nFolds>1){
-    print(paste(paste("Fold ",fold,": Finished survival prediction",sep=""),round(percentageFinish,0),sep=","))
-    write(paste(paste("Fold ",fold,": Finished survival prediction",sep=""),round(percentageFinish,0),sep=","),milestonesFileName,append=T)
-  } else {
-    print(paste("Finished survival prediction",round(percentageFinish,0),sep=","))
-    write(paste("Finished survival prediction",round(percentageFinish,0),sep=","),milestonesFileName,append=T)
-  }
-
-  # #Make predictions. Use cross validation to find optimal lambda if user did not specify lambda range.
-  # if (minLambda == -1) {
-  #   cv.tr<-cv.glmnet(X[trainingSet,],Ymatrix[trainingSet,],family='cox',alpha=alphas[optimalAlphaIndex],nfolds=10)
-  #   predAll<-predict(cv.tr,as.matrix(X),s=cv.tr$lambda.min,type='response')
-  #   predTrain<-predict(cv.tr,as.matrix(X[trainingSet,]),s=cv.tr$lambda.min,type='response')
-  #   predTest<-predict(cv.tr,as.matrix(X[testSet,]),s=cv.tr$lambda.min,type='response')
-  # } else {
-  #   fit.tr<-glmnet(as.matrix(X[trainingSet,]),Ymatrix[trainingSet],family='cox',lambda=seq(minLambda,maxLambda,0.0001), alpha=alphas[optimalAlphaIndex])
-  #   predAll<-predict(fit.tr,as.matrix(X),type='response')
-  #   predTrain<-predict(fit.tr,as.matrix(X[trainingSet,]),type='response')
-  #   predTest<-predict(fit.tr,as.matrix(X[testSet,]),type='response')
-  # }
-
-  # # Make predictions
-  # predAllM<-predict(fit.tr,as.matrix(X),type='response')
-  # predTrainM<-predict(fit.tr,as.matrix(X[trainingSet,]),type='response')
-  # predTestM<-predict(fit.tr,as.matrix(X[testSet,]),type='response')
-  # 
-  # matrixIndex<-floor(median(which(fit.tr$df==numFeatures)))
-  # 
-  # predAll<-predAllM[,matrixIndex]
-  # predTrain<-predTrainM[,matrixIndex]
-  # predTest<-predTestM[,matrixIndex]
-
-
-  thres<-median(predTrain)
-
-  plotTrain<-as.data.frame(cbind(predTrain,survivedDays[trainingSet],event[trainingSet]))
-  for (i in 1:dim(plotTrain)[1]){
-    if (plotTrain[i,1]>=thres){
-      plotTrain[i,1]<-"Poor"
-    } else {
-      plotTrain[i,1]<-"Good"
-    }  
-  }
-  plotTrain.surv <- survfit(Surv(plotTrain[,2], plotTrain[,3]) ~ plotTrain[,1], data = plotTrain)
-  #plot(plotTrain.surv, lty = 2:3) 
-
-  plotTest[testSet,1]<-predTest
-  for (i in testSet){
-    if (plotTest[i,1]>=(thres)){
-      plotTest[i,1]<-"Poor"
-    } else if (plotTest[i,1]<(thres)){
-      plotTest[i,1]<-"Good"
+  system("wait")
+  for (i in 1:nFolds){
+    waitFlag<-1
+    while (waitFlag==1){
+      if (system(paste("[ -f ","public/sessions/",sessionID,"/parallelOutputFold",i,".RData ] && echo '1' || echo '0'",sep=""),intern=T)=='1'){
+        #system("sleep 2")
+        load(file=paste("public/sessions/",sessionID,"/parallelOutputFold",i,".RData",sep=""))
+        system(paste("rm public/sessions/",sessionID,"/parallelOutputFold",i,".RData",sep=""))
+        testSet<-parallelOutput[[1]]
+        plotTest[testSet,]<-parallelOutput[[2]][testSet,]
+        cv.tr<-parallelOutput[[3]]
+        lambdaFit<-parallelOutput[[4]]
+        coefFitOutput<-parallelOutput[[5]]
+        #percentageFinish<-parallelOutput[[6]]
+        waitFlag<-0
+        
+        if (nFolds>1){
+          write.table(c(paste("Fold: ",i,sep="")),paste("public/sessions/",sessionID,"/featureWeightsAll.txt",sep=""),quote=F, sep=",",row.names=F, col.names=F,append=T)
+        }
+        write.table(coefFitOutput,paste("public/sessions/",sessionID,"/featureWeightsAll.txt",sep=""),quote=F, sep=",",row.names=F, col.names=F,append=T)
+        
+        percentageFinish<-percentageFinish+(percentageStep/2)
+        print(paste(paste("Fold ",i,": Finished survival prediction",sep=""),round(percentageFinish,0),sep=","))
+        write(paste(paste("Fold ",i,": Finished survival prediction",sep=""),round(percentageFinish,0),sep=","),milestonesFileName,append=T)
+      } else {
+        system("sleep 1")
+      }
     }
   }
-  print(plotTest)
-  #plotTest.surv <- survfit(Surv(V2, V3) ~ X1, data = plotTest)
-  #plot(plotTest.surv, lty = 2:3)
 }
+write.table(coefFitOutput,paste("public/sessions/",sessionID,"/featureWeights.txt",sep=""),quote=F, sep=",",row.names=F, col.names=F)
 
 
 # plot by ggsurv
 if (nFolds>1){ # kfold, LOOCV
-  plotTestGGsurv<-plotTest  
+  plotTestGGsurv<-plotTest
 } else { # random, batch
   plotTestGGsurv<-plotTest[testSet,]  
 }
 plotTestGGsurv[,2]<-plotTestGGsurv[,2]/12
 plotTest.surv <- survfit(Surv(plotTestGGsurv[,2], plotTestGGsurv[,3]) ~ plotTestGGsurv[,1], data = plotTestGGsurv)
 
-
-survdiffTrain<-survdiff(Surv(plotTrain[,2], plotTrain[,3]) ~ plotTrain[,1], plotTrain)
-pTrain<-1-pchisq(survdiffTrain$chisq, length(survdiffTrain$n)-1)
+#survdiffTrain<-survdiff(Surv(plotTrain[,2], plotTrain[,3]) ~ plotTrain[,1], plotTrain)
+#pTrain<-1-pchisq(survdiffTrain$chisq, length(survdiffTrain$n)-1)
 
 if (length(unique(plotTestGGsurv[,1]))>1){
   survdiffTest<-survdiff(Surv(plotTestGGsurv[,2], plotTestGGsurv[,3]) ~ plotTestGGsurv[,1], plotTestGGsurv)
@@ -312,16 +280,6 @@ write(paste("Finished building survival groups",percentageFinish,sep=","),milest
 
 
 
-# output feature weights
-coefFit<-as.data.frame(as.matrix(coef(cv.tr, s=lambdaFit)))
-coefFit<-cbind(0,coefFit)
-coefFit[,1]<-rownames(coefFit)
-coefFit[1:length(omicsNameFile),1]<-omicsNameFile[,1]
-coefFitNonZero<-coefFit[coefFit[,2]!=0,]
-coefFitNonZero<-coefFitNonZero[order(-coefFitNonZero[,2]),]
-coefFitOutput<-rbind(coefFitNonZero,coefFit[coefFit[,2]==0,])
-
-write.table(coefFitOutput,paste("public/sessions/",sessionID,"/featureWeights.txt",sep=""),quote=F, sep=",",row.names=F, col.names=F)
 
 
 

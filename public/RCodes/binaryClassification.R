@@ -47,11 +47,12 @@ if (partitionType == "random") { # random
 	nRandGroups<-1
 } else if (partitionType == "kfold") {
   nFolds<-as.numeric(sysargs[5])
-}
+} 
 featureSelectionMethod<-sysargs[7]
 numFeatures<-as.numeric(sysargs[8])
 sessionID<-sysargs[9]
-userEmail<-sysargs[10]
+nCores<-as.numeric(sysargs[10])
+userEmail<-sysargs[11]
 if (is.na(userEmail)){
   userEmail<-""
 }
@@ -80,7 +81,7 @@ write(paste("Initializing...",percentageFinish,sep=","),milestonesFileName)
 # read files
 percentageFinish<-1
 print(paste("Reading omics files...",percentageFinish,sep=","))
-write(paste("Reading omics files...",percentageFinish,sep=","),milestonesFileName)
+write(paste("Reading omics files...",percentageFinish,sep=","),milestonesFileName,append=T)
 
 omicsFileName<-paste("../data/", tumorType, "_", dataType, ".RData", sep="")
 if (file.exists(omicsFileName)) {
@@ -105,8 +106,9 @@ omicsIDFile<-omicsIDFile[substr(omicsIDFile[,1],14,15)=="01",]
 omicsID<-substr(omicsIDFile, 1, 12)
 
 omicsNameFile<-t(read.table(paste("../data/", tumorType, "_", dataType, "_elemid.txt", sep=""), stringsAsFactors=F, sep=","))
-colnames(omicsFile)<-paste(omicsNameFile,"_",colnames(omicsFile),sep="")
-
+#colnames(omicsFile)<-paste(omicsNameFile,"_",colnames(omicsFile),sep="")
+colnames(omicsFile)<-paste(colnames(omicsFile),"_",omicsNameFile,sep="")
+colnames(omicsFile)<-gsub("-","_",colnames(omicsFile))
 
 clinicalFile<-read.table(paste("../data/", "nationwidechildrens.org_clinical_patient_", tumorType, ".txt", sep=""), stringsAsFactors = F, sep="\t", quote="")
 clinical<-clinicalFile[4:dim(clinicalFile)[1],]
@@ -174,193 +176,89 @@ write.table(c(sum(Y[trainingSet]==0),sum(Y[trainingSet]==1)),paste("public/sessi
 write.table(c(sum(Y[testSet]==0),sum(Y[testSet]==1)),paste("public/sessions/",sessionID,"/nSamplesTest.txt",sep=""),quote=F, sep="\t",row.names=F, col.names=F)
 
 percentageStep<-90/nFolds
+x.nb.prob<-as.data.frame(matrix(ncol=2, nrow=length(Y)))
 x.rp.prob<-as.data.frame(matrix(ncol=2, nrow=length(Y)))
 x.ct.prob<-as.data.frame(matrix(ncol=1, nrow=length(Y)))
-x.cf.prob<-as.data.frame(matrix(ncol=1, nrow=length(Y)))
 x.ip.prob<-as.data.frame(matrix(ncol=2, nrow=length(Y)))
+x.rf.prob<-as.data.frame(matrix(ncol=2, nrow=length(Y)))
+x.cf.prob<-as.data.frame(matrix(ncol=1, nrow=length(Y)))
 x.svm.prob<-as.data.frame(matrix(ncol=2, nrow=length(Y)))
 x.svm.l.prob<-as.data.frame(matrix(ncol=2, nrow=length(Y)))
 x.svm.p.prob<-as.data.frame(matrix(ncol=2, nrow=length(Y)))
 x.svm.s.prob<-as.data.frame(matrix(ncol=2, nrow=length(Y)))
-x.dt.prob<-as.data.frame(matrix(ncol=2, nrow=length(Y)))
-x.rf.prob<-as.data.frame(matrix(ncol=2, nrow=length(Y)))
-x.nb.prob<-as.data.frame(matrix(ncol=2, nrow=length(Y)))
-x.nb.l.prob<-as.data.frame(matrix(ncol=2, nrow=length(Y)))
 
-for (i in 1:nFolds) {
-  if (nFolds>1){ # kfold or loocv
-    trainingSet<-folds$subsets[,1][folds$which != i]
-    testSet<-which(!(1:length(Y) %in% trainingSet))
-    print(paste("Fold: ",i,sep=""))
-  }
 
-  ## feature selection
-  YTrain<-Y[trainingSet]
-  XTune<-cbind(Xall[trainingSet,],YTrain)
+
+if (nFolds==1 | nCores==1){
+  i=1
+  source("public/RCodes/parallelBinaryClassificationHelper.R")
+} else {
+  save.image(file=paste("public/sessions/",sessionID,"/parallelInput.RData",sep=""))
   
-  
-  if (sum(YTrain==0)<5){
-    stop("Too few observations in Group 1 (n < 5). Please reselect.")
-  } else if (sum(YTrain==1)<5){
-    stop("Too few observations in Group 2 (n < 5). Please reselect.")
-  }
-  
-  if (featureSelectionMethod == "custom") { # custom
-    customFile<-read.table(featureSelectionMethod, sep="")
-    subsetFeatures<-customFile[,1]
-    X<-Xall[,subsetFeatures]
-  } else {
-    weights<-matrix(data=0, nrow=dim(XTune)[2]-1, ncol=1)
-    rownames(weights)<-colnames(XTune)[1:(dim(XTune)[2]-1)]
-    featureSelectionStep<-2000
-    nFeatureSelectionParts<-length(seq(1,dim(XTune)[2]-1,featureSelectionStep))
-    
-    for (featureStart in seq(1,dim(XTune)[2]-1,featureSelectionStep)){
-      featureEnd<-min((featureStart+featureSelectionStep-1),dim(XTune)[2]-1)
-      XTunePart<-XTune[,featureStart:featureEnd]
-      print(featureEnd)
-      
-      if (featureSelectionMethod == "infog"){ # information gain
-        weightsPart <- information.gain(YTrain~., XTunePart)
-      } else if (featureSelectionMethod == "gainr"){ # gain ratio
-        weightsPart <- gain.ratio(YTrain~., XTunePart)
-      } else if (featureSelectionMethod == "symu"){ # symmetrical uncertainty
-        weightsPart <- symmetrical.uncertainty(YTrain~., XTunePart)
-      } else if (featureSelectionMethod == "randf"){ # random forest importance
-        weightsPart <- random.forest.importance(YTrain~., XTunePart, importance.type = 1)
-      }
-      weights[featureStart:featureEnd,1]<-weightsPart[1:dim(weightsPart)[1],1]
-      
-      
-      
-      percentageFinish<-percentageFinish+((percentageStep/2)/nFeatureSelectionParts)
-      if (nFolds>1){
-        print(paste(paste("Fold ",i,": Running feature selection",sep=""),round(percentageFinish,0),sep=","))
-        write(paste(paste("Fold ",i,": Running feature selection",sep=""),round(percentageFinish,0),sep=","),milestonesFileName,append=T)
-      } else {
-        print(paste("Running feature selection",round(percentageFinish,0),sep=","))
-        write(paste("Running feature selection",round(percentageFinish,0),sep=","),milestonesFileName,append=T)
+  pids<-NULL
+  for (i in 1:nFolds){
+    print (paste("UsedCores:",length(pids)))
+    print (pids)
+    while (length(pids)>=nCores) { # wait for some process to complete
+      for (processIndex in 1:length(pids)) {
+        if (processIndex>length(pids)) { # after removal of pid, the length(pids) in the for loop will not be updated
+          break
+        }
+        doneFlag<-system(paste("if [ $(ps -p ",pids[processIndex]," -o pid= | wc -l) -eq 0 ]; then echo 'done'; else echo 'not_done'; fi",sep=""),intern=T)
+        if (doneFlag=="done") {
+          print (paste("Done:",pids[processIndex]))
+          pids<-pids[-processIndex]
+        } else {
+          system("sleep 1")
+        }
       }
     }
-    
-    weightOrder<-order(weights,decreasing=T)
-    weightsOutput<-cbind(omicsNameFile[weightOrder,1],weights[weightOrder,1])
-    subsetFeatures<-cutoff.k(weights, numFeatures)
-    X<-Xall[,subsetFeatures]
+    system(paste("Rscript public/RCodes/parallelBinaryClassificationHelper.R ",nCores," ",sessionID," ",i,"& echo $! > ","public/sessions/",sessionID,"/parallelPS.txt",sep=""))
+    pid<-read.table(paste("public/sessions/",sessionID,"/parallelPS.txt",sep=""),stringsAsFactors=F)
+    pids<-c(pids,pid[1,1])
+    print (pids)
+    percentageFinish<-percentageFinish+(percentageStep/2)
+    print(paste(paste("Fold ",i,": Building machine learning models (parallel model)",sep=""),round(percentageFinish,0),sep=","))
+    write(paste(paste("Fold ",i,": Building machine learning models (parallel model)",sep=""),round(percentageFinish,0),sep=","),milestonesFileName,append=T)
   }
-  if (nFolds>1){
-    write.table(c(paste("Fold: ",i,sep="")),paste("public/sessions/",sessionID,"/featureWeightsAll.txt",sep=""),quote=F, sep=",",row.names=F, col.names=F,append=T)
-  }
-  write.table(weightsOutput,paste("public/sessions/",sessionID,"/featureWeightsAll.txt",sep=""),quote=F, sep=",",row.names=F, col.names=F,append=T)
-
-
-  if (nFolds>1){
-    print(paste(paste("Fold ",i,": Finished feature selection",sep=""),round(percentageFinish,0),sep=","))
-    write(paste(paste("Fold ",i,": Finished feature selection",sep=""),round(percentageFinish,0),sep=","),milestonesFileName,append=T)
-  } else {
-    print(paste("Finished feature selection",round(percentageFinish,0),sep=","))
-    write(paste("Finished feature selection",round(percentageFinish,0),sep=","),milestonesFileName,append=T)
-  }
-  
-  # fit naive Bayes with/without laplace smoothing
-  if (mlParameters[1,1]=="on"){
-    x.nb<-naiveBayes(X[trainingSet,],Y[trainingSet], laplace = as.numeric(mlParameters[11,1]))
-    x.nb.prob[testSet,] <- predict(x.nb, type="raw", newdata=X[testSet,], probability = TRUE)
-  }
-  
-  # fit recursive partitioning tree
-  if (mlParameters[2,1]=="on"){
-    x.rp <- rpart(Y[trainingSet]~., data=X[trainingSet,], control=rpart.control(maxdepth=as.numeric(mlParameters[12,1]), cp=as.numeric(mlParameters[13,1])))
-    x.rp.pred <- predict(x.rp, X[testSet,], type="class")
-    x.rp.prob[testSet,] <- predict(x.rp, X[testSet,], type="prob")
-  }
-  
-  # fit conditional inference trees
-  if (mlParameters[3,1]=="on"){
-    x.ct <- ctree(Y[trainingSet]~., data=X[trainingSet,], control=ctree_control(maxdepth=as.numeric(mlParameters[14,1])))
-    x.ct.pred <- predict(x.ct, X[testSet,])
-    x.ct.prob[testSet,] <- 1- unlist(treeresponse(x.ct, X[testSet,]), use.names=F)[seq(1,nrow(X[testSet,])*2,2)]
-  }
-  
-  # fit bagging (bootstrap aggregating)
-  if (mlParameters[4,1]=="on"){
-    x.ip <- bagging(Y[trainingSet]~., data=X[trainingSet,], nbagg=as.numeric(mlParameters[15,1]))
-    x.ip.prob[testSet,] <- predict(x.ip, type="prob", newdata=X[testSet,])
-  }
-  
-  # fit random forest
-  if (mlParameters[5,1]=="on"){
-    x.rf<-randomForest(X[trainingSet,],Y[trainingSet],ntree=as.numeric(mlParameters[16,1]))
-    x.rf.prob[testSet,] <- predict(x.rf, type="prob", newdata=X[testSet,], probability = TRUE)
-  }
-  
-  # fit random forest with conditional inference trees
-  if (mlParameters[6,1]=="on"){
-    x.cf <- cforest(Y[trainingSet]~., data=X[trainingSet,], control = cforest_unbiased(ntree=as.numeric(mlParameters[17,1])))
-    x.cf.pred <- predict(x.cf, newdata=X[testSet,])
-    x.cf.prob[testSet,] <- 1- unlist(treeresponse(x.cf, X[testSet,]), use.names=F)[seq(1,nrow(X[testSet,])*2,2)]
-  }
-  
-  # fit svm (support vector machine), radial
-  if (mlParameters[7,1]=="on"){
-    XTune<-cbind(X,Y)
-    x.svm.tune <- tune(svm, Y~., data = XTune[trainingSet,],
-                      ranges = list(gamma = 2^(-8:1), cost = 2^(as.numeric(mlParameters[18,1]):as.numeric(mlParameters[19,1]))),
-                      tunecontrol = tune.control(sampling = "fix"))
-    #x.svm.tune
-    x.svm <- svm(Y[trainingSet]~., data = X[trainingSet,], cost=x.svm.tune$best.parameters[2], gamma=x.svm.tune$best.parameters[1], probability = TRUE)
-    x.svm.prob.tmp <- attr(predict(x.svm, type="prob", newdata=X[testSet,], probability = TRUE), "probabilities")
-    x.svm.prob[testSet,] <- x.svm.prob.tmp
-    colnames(x.svm.prob) <- colnames(x.svm.prob.tmp)
-  }
-  
-  # fit svm (support vector machine), linear
-  if (mlParameters[8,1]=="on"){
-    XTune<-cbind(X,Y)
-    x.svm.tune <- tune(svm, Y~., data = XTune[trainingSet,],
-                      ranges = list(gamma = 2^(-8:1), cost = 2^(as.numeric(mlParameters[20,1]):as.numeric(mlParameters[21,1]))),
-                      tunecontrol = tune.control(sampling = "fix"), kernel = "linear")
-    #x.svm.tune
-    x.svm.l <- svm(Y[trainingSet]~., data = X[trainingSet,], kernel = "linear", cost=x.svm.tune$best.parameters[2], gamma=x.svm.tune$best.parameters[1], probability = TRUE)
-    x.svm.l.prob.tmp <- attr(predict(x.svm.l, type="prob", newdata=X[testSet,], probability = TRUE), "probabilities")
-    x.svm.l.prob[testSet,] <- x.svm.l.prob.tmp
-    colnames(x.svm.l.prob) <- colnames(x.svm.l.prob.tmp)
-  }
-  
-  # fit svm (support vector machine), polynomial
-  if (mlParameters[9,1]=="on"){
-    XTune<-cbind(X,Y)
-    x.svm.tune <- tune(svm, Y~., data = XTune[trainingSet,],
-                       ranges = list(gamma = 2^(-8:1), cost = 2^(as.numeric(mlParameters[22,1]):as.numeric(mlParameters[23,1]))),
-                       tunecontrol = tune.control(sampling = "fix"), kernel = "polynomial")
-    #x.svm.tune
-    x.svm.p <- svm(Y[trainingSet]~., data = X[trainingSet,], kernel = "polynomial", cost=x.svm.tune$best.parameters[2], gamma=x.svm.tune$best.parameters[1], probability = TRUE)
-    x.svm.p.prob.tmp <- attr(predict(x.svm.p, type="prob", newdata=X[testSet,], probability = TRUE), "probabilities")
-    x.svm.p.prob[testSet,] <- x.svm.p.prob.tmp
-    colnames(x.svm.p.prob) <- colnames(x.svm.p.prob.tmp)
-  }
-  
-  # fit svm (support vector machine), sigmoid
-  if (mlParameters[10,1]=="on"){
-    XTune<-cbind(X,Y)
-    x.svm.tune <- tune(svm, Y~., data = XTune[trainingSet,],
-                       ranges = list(gamma = 2^(-8:1), cost = 2^(as.numeric(mlParameters[24,1]):as.numeric(mlParameters[25,1]))),
-                       tunecontrol = tune.control(sampling = "fix"), kernel = "linear")
-    #x.svm.tune
-    x.svm.s <- svm(Y[trainingSet]~., data = X[trainingSet,], kernel = "linear", cost=x.svm.tune$best.parameters[2], gamma=x.svm.tune$best.parameters[1], probability = TRUE)
-    x.svm.s.prob.tmp <- attr(predict(x.svm.l, type="prob", newdata=X[testSet,], probability = TRUE), "probabilities")
-    x.svm.s.prob[testSet,] <- x.svm.s.prob.tmp
-    colnames(x.svm.s.prob) <- colnames(x.svm.s.prob.tmp)
-  }
-  
-  
-  percentageFinish<-percentageFinish+(percentageStep/2)
-  if (nFolds>1){
-    print(paste(paste("Fold ",i,": Finished prediction",sep=""),round(percentageFinish,0),sep=","))
-    write(paste(paste("Fold ",i,": Finished prediction",sep=""),round(percentageFinish,0),sep=","),milestonesFileName,append=T)
-  } else {
-    print(paste("Finished prediction",round(percentageFinish,0),sep=","))
-    write(paste("Finished prediction",round(percentageFinish,0),sep=","),milestonesFileName,append=T)
+  #system("wait")
+  for (i in 1:nFolds){
+    waitFlag<-1
+    while (waitFlag==1){
+      if (system(paste("[ -f ","public/sessions/",sessionID,"/parallelOutputFold",i,".RData ] && echo '1' || echo '0'",sep=""),intern=T)=='1'){
+        load(file=paste("public/sessions/",sessionID,"/parallelOutputFold",i,".RData",sep=""))
+        #system(paste("rm public/sessions/",sessionID,"/parallelOutputFold",i,".RData",sep=""))
+        testSet<-parallelOutput[[1]]
+        weightsOutput<-parallelOutput[[2]]
+        x.nb.prob[testSet,]<-parallelOutput[[3]][testSet,]
+        x.rp.prob[testSet,]<-parallelOutput[[4]][testSet,]
+        x.ct.prob[testSet,]<-parallelOutput[[5]][testSet,]
+        x.ip.prob[testSet,]<-parallelOutput[[6]][testSet,]
+        x.rf.prob[testSet,]<-parallelOutput[[7]][testSet,]
+        x.cf.prob[testSet,]<-parallelOutput[[8]][testSet,]
+        x.svm.prob[testSet,]<-parallelOutput[[9]][testSet,]
+        x.svm.l.prob[testSet,]<-parallelOutput[[10]][testSet,]
+        x.svm.p.prob[testSet,]<-parallelOutput[[11]][testSet,]
+        x.svm.s.prob[testSet,]<-parallelOutput[[12]][testSet,]
+        x.rp<-parallelOutput[[13]]
+        #percentageFinish<-parallelOutput[[14]]
+        waitFlag<-0
+        if (nFolds>1){
+          write.table(c(paste("Fold: ",i,sep="")),paste("public/sessions/",sessionID,"/featureWeightsAll.txt",sep=""),quote=F, sep=",",row.names=F, col.names=F,append=T)
+        }
+        write.table(weightsOutput,paste("public/sessions/",sessionID,"/featureWeightsAll.txt",sep=""),quote=F, sep=",",row.names=F, col.names=F,append=T)
+        
+        percentageFinish<-percentageFinish+(percentageStep/2)
+        print(paste(paste("Fold ",i,": Finished prediction",sep=""),round(percentageFinish,0),sep=","))
+        write(paste(paste("Fold ",i,": Finished prediction",sep=""),round(percentageFinish,0),sep=","),milestonesFileName,append=T)
+      } else {
+        system("sleep 1")
+      }
+    }
+    colnames(x.svm.prob)<-colnames(parallelOutput[[9]][testSet,])
+    colnames(x.svm.l.prob)<-colnames(parallelOutput[[10]][testSet,])
+    colnames(x.svm.p.prob)<-colnames(parallelOutput[[11]][testSet,])
+    colnames(x.svm.s.prob)<-colnames(parallelOutput[[12]][testSet,])
   }
 }
 

@@ -36,11 +36,14 @@ module SiteConstants
 	}
 
 	DATA_TYPES = {
-		rnaseq: 		'Gene expression (RNA-seq)',
+		rnaseq: 	'RNA-seq (gene expression)',
 		proteomics: 'Proteomics',
 		methylation27: 	'DNA methylation (Illumina Infinium Human DNA Methylation 27)',
 		#methylation450: 	'DNA Methylation (Illumina Infinium Human DNA Methylation 450)',
-		microrna: 	'microRNA'
+		microrna: 	'microRNA',
+		rp: 'RNA-seq + Proteomics',
+		rm: 'RNA-seq + microRNA',
+		pm: 'Proteomics + microRNA'
 	}
 
 	TUMOR_TYPES_MSSING_DATA_TYPES = {
