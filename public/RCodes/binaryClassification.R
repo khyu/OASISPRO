@@ -281,7 +281,7 @@ if (mlParameters[1,1]=="on"){
   x.nb.perf <- performance(x.nb.prob.rocr, "tpr","fpr")
   performance(x.nb.prob.rocr,"auc")@y.values
   AUCs[1]<-unlist(performance(x.nb.prob.rocr,"auc")@y.values)
-  d1 <- data.frame(x1=x.nb.perf@x.values[[1]], y1=x.nb.perf@y.values[[1]], Methods="NB")
+  d1 <- data.frame(x1=x.nb.perf@x.values[[1]], y1=x.nb.perf@y.values[[1]], Methods="Naive Bayes")
   rocPlot<-rocPlot + geom_path(aes(x1, y1, colour=Methods), d1)
 }
 
@@ -301,7 +301,7 @@ if (mlParameters[3,1]=="on"){
   x.ct.perf <- performance(x.ct.prob.rocr, "tpr","fpr")
   performance(x.ct.prob.rocr,"auc")@y.values
   AUCs[3]<-unlist(performance(x.ct.prob.rocr,"auc")@y.values)
-  d3 <- data.frame(x1=x.ct.perf@x.values[[1]], y1=x.ct.perf@y.values[[1]], Methods="CITs")
+  d3 <- data.frame(x1=x.ct.perf@x.values[[1]], y1=x.ct.perf@y.values[[1]], Methods="Conditional Inference Trees (CITs)")
   rocPlot<-rocPlot + geom_path(aes(x1, y1, colour=Methods), d3)
 }
 

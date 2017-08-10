@@ -162,9 +162,9 @@ This module visualizes the omics data from The Cancer Genome Atlas (TCGA) cancer
 
 <% if params[:generate] %>
 	<div id="results">
-		<b>Tumor type:</b> <%= @tumor_type %>
+		<b>Tumor type:</b> <%= SiteConstants::TUMOR_TYPES[@tumor_type.to_sym] %>
 		<br>
-		<b>Data source:</b> <%= @data_source%>
+		<b>Data source:</b> <%= SiteConstants::DATA_TYPES[@data_source.to_sym] %>
 		<br>
 		<b>Feature name:</b> <%= @gene_name%>
 		<br>
