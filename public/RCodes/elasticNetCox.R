@@ -259,7 +259,7 @@ if (nFolds>1){ # kfold, LOOCV
 } else { # random, batch
   plotTestGGsurv<-plotTest[testSet,]  
 }
-plotTestGGsurv[,2]<-plotTestGGsurv[,2]/12
+plotTestGGsurv[,2]<-plotTestGGsurv[,2]/30
 plotTest.surv <- survfit(Surv(plotTestGGsurv[,2], plotTestGGsurv[,3]) ~ plotTestGGsurv[,1], data = plotTestGGsurv)
 
 #survdiffTrain<-survdiff(Surv(plotTrain[,2], plotTrain[,3]) ~ plotTrain[,1], plotTrain)
