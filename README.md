@@ -12,7 +12,7 @@ This is a data analysis and visualization tool for cancer omics data.
 Ruby 2.0.0 and Rails 4.0.0
 
 * Installation: 
-    * The web-based interface requires NO installation. Just visit http://tinyurl.com/oasispro to access the system.
+    * The web-based interface requires NO installation. Just visit http://rebrand.ly/oasispro to access the system.
 
     * If you choose to install and run the system locally, please follow the steps as below.
         * Step 1: Install Ruby on Rails (https://www.tutorialspoint.com/ruby-on-rails/rails-installation.htm).
