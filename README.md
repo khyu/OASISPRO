@@ -25,9 +25,9 @@ Ruby 2.0.0 and Rails 4.0.0
   
 ***
 * Contact:   
-Kun-Hsing Yu <khyu at stanford.edu>;   
-Michael Ryan Fitzpatrick <mfitz3 at stanford.edu>;  
-Luke Pappas <lpappas9 at stanford.edu>;   
-Jessica Kung <jzkung at stanford.edu>;  
-Warren Chan <wchan28 at stanford.edu>;  
-Michael Snyder <mpsnyder at stanford.edu>
+Kun-Hsing Yu (khyu at stanford.edu);   
+Michael Ryan Fitzpatrick (mfitz3 at stanford.edu);  
+Luke Pappas (lpappas9 at stanford.edu);   
+Jessica Kung (jzkung at stanford.edu);  
+Warren Chan (wchan28 at stanford.edu);  
+Michael Snyder (mpsnyder at stanford.edu)
